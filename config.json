@@ -1,0 +1,65 @@
+{
+  "site": {
+    "title": "Zac Stern - Creative Producer",
+    "description": "Professional portfolio showcasing creative content, reels, UGC, and production work",
+    "author": "Zac Stern",
+    "email": "sternzachary25@gmail.com",
+    "socials": {
+      "instagram": "https://www.instagram.com/zac_stern/",
+      "trend": "https://creators.trend.io/profile/65810aa89f5be2618c0264d6"
+    },
+    "projects": [
+      {
+        "name": "Reel Media",
+        "url": "https://reel-media.com",
+        "description": "Premium content creation platform",
+        "icon": "fa-play-circle"
+      },
+      {
+        "name": "Paint By Prompt",
+        "url": "https://paintbyprompt.com",
+        "description": "AI-powered creative tool",
+        "icon": "fa-palette"
+      }
+    ]
+  },
+  "videos": {
+    "reels": [
+      {
+        "type": "producing",
+        "title": "Producing Reel",
+        "description": "Production expertise and creative vision",
+        "embedUrl": "https://drive.google.com/file/d/1jBcteaSi96mM2VjfpJpW9XoqKS-4kU6e/preview"
+      },
+      {
+        "type": "directing",
+        "title": "Directing Reel",
+        "description": "Direction and storytelling excellence",
+        "embedUrl": "https://drive.google.com/file/d/1p9dzJDjNvzzGFV_vJ7CgKrsDnh4nLNkK/preview"
+      }
+    ],
+    "ugc": {
+      "vertical": [
+        {
+          "id": 1,
+          "title": "Vertical Video 1",
+          "src": "videos/ugc-vertical/video1.mp4"
+        }
+      ],
+      "horizontal": [
+        {
+          "id": 1,
+          "title": "Horizontal Video 1",
+          "src": "videos/ugc-horizontal/video1.mp4"
+        }
+      ]
+    }
+  },
+  "design": {
+    "colorScheme": "cyberpunk-dark",
+    "primaryColor": "#1a1a1a",
+    "accentColor": "#00d4ff",
+    "lightColor": "#ffffff",
+    "textColor": "#f0f0f0"
+  }
+}

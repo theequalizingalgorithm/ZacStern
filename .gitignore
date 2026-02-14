@@ -1,0 +1,34 @@
+# OS Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+
+# Large video files (optional - remove # if storing videos locally)
+# /videos/
+# *.mp4
+# *.mov
+# *.avi
+# *.webm
