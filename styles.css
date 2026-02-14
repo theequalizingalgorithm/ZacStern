@@ -353,42 +353,57 @@ body {
 }
 
 .category-title {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     margin-bottom: 2rem;
     color: var(--accent);
     text-transform: uppercase;
     letter-spacing: 2px;
     padding-bottom: 1rem;
     border-bottom: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.category-title i {
+    font-size: 1.2rem;
 }
 
 .video-grid {
     display: grid;
-    gap: 1.5rem;
+    gap: 1.2rem;
 }
 
 .vertical-grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
 }
 
 .horizontal-grid {
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
 }
 
-.video-card, .placeholder-card {
+.video-card {
     position: relative;
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 212, 255, 0.05));
+    background: #000;
     border: 1px solid var(--border);
     border-radius: 8px;
     overflow: hidden;
-    cursor: pointer;
     transition: all 0.3s ease;
+}
+
+.video-card.vertical {
     aspect-ratio: 9/16;
 }
 
-.horizontal-grid .video-card, 
-.horizontal-grid .placeholder-card {
+.video-card.horizontal {
     aspect-ratio: 16/9;
+}
+
+.video-card iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
 }
 
 .video-card:hover {
@@ -397,63 +412,29 @@ body {
     transform: scale(1.02);
 }
 
-.video-thumbnail {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    background: #000;
-}
-
-.video-overlay {
+/* Fullscreen expand button overlay */
+.video-card .expand-btn {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    top: 8px;
+    right: 8px;
+    width: 36px;
+    height: 36px;
+    background: rgba(0, 212, 255, 0.85);
+    border: none;
+    border-radius: 6px;
+    color: #000;
+    font-size: 16px;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
     transition: opacity 0.3s ease;
+    z-index: 10;
 }
 
-.video-card:hover .video-overlay {
+.video-card:hover .expand-btn {
     opacity: 1;
-}
-
-.play-button {
-    width: 60px;
-    height: 60px;
-    background: var(--accent);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    color: var(--secondary);
-    transition: all 0.3s ease;
-}
-
-.video-card:hover .play-button {
-    transform: scale(1.2);
-    box-shadow: 0 0 30px rgba(0, 212, 255, 0.8);
-}
-
-.placeholder-content {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #666;
-}
-
-.placeholder-content i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
 }
 
 /* ===== PROJECTS SECTION ===== */
@@ -786,13 +767,22 @@ body {
 .modal-content {
     position: relative;
     width: 90%;
-    max-width: 1200px;
+    max-width: 900px;
     height: 90vh;
     margin: 5vh auto;
     background: #000;
     border: 1px solid var(--accent);
     border-radius: 8px;
     animation: slideIn 0.3s ease;
+    overflow: hidden;
+}
+
+.modal-content.modal-vertical {
+    max-width: 420px;
+}
+
+.modal-content.modal-horizontal {
+    max-width: 960px;
 }
 
 @keyframes slideIn {
@@ -808,14 +798,22 @@ body {
 
 .close {
     position: absolute;
-    right: 30px;
-    top: 20px;
+    right: 16px;
+    top: 10px;
     font-size: 2rem;
     font-weight: bold;
     color: var(--accent);
     cursor: pointer;
     z-index: 2001;
     transition: all 0.3s ease;
+    background: rgba(0,0,0,0.7);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
 }
 
 .close:hover {
@@ -831,10 +829,10 @@ body {
     justify-content: center;
 }
 
-.modal-video video {
+.modal-video iframe {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    border: none;
 }
 
 /* ===== FOOTER ===== */

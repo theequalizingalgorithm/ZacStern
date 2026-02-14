@@ -6,7 +6,6 @@ hamburger.addEventListener('click', () => {
     navMenu.classList.toggle('active');
 });
 
-// Close menu when a link is clicked
 document.querySelectorAll('.nav-link').forEach(link => {
     link.addEventListener('click', () => {
         navMenu.classList.remove('active');
@@ -14,20 +13,15 @@ document.querySelectorAll('.nav-link').forEach(link => {
 });
 
 // ===== SMOOTH SCROLL & ACTIVE NAV =====
-let currentSection = 'hero';
-
 window.addEventListener('scroll', () => {
     const sections = document.querySelectorAll('section');
     let current = '';
-
     sections.forEach(section => {
         const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
         if (pageYOffset >= sectionTop - 200) {
             current = section.getAttribute('id');
         }
     });
-
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
         if (link.getAttribute('href') === `#${current}`) {
@@ -36,264 +30,79 @@ window.addEventListener('scroll', () => {
     });
 });
 
-// ===== VIDEO MODAL =====
+// ===== VIDEO MODAL (iframe-based) =====
 const modal = document.getElementById('videoModal');
-const modalVideo = document.getElementById('modalVideo');
-const closeBtn = document.querySelector('.close');
+const modalIframe = document.getElementById('modalIframe');
+const modalContent = document.getElementById('modalContent');
+const modalClose = document.getElementById('modalClose');
 
-function openVideoModal(videoSource) {
-    modalVideo.src = videoSource;
+function openModal(fileId, isVertical) {
+    modalIframe.src = 'https://drive.google.com/file/d/' + fileId + '/preview';
+    modalContent.classList.remove('modal-vertical', 'modal-horizontal');
+    modalContent.classList.add(isVertical ? 'modal-vertical' : 'modal-horizontal');
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
 }
 
 function closeModal() {
     modal.style.display = 'none';
-    modalVideo.pause();
-    modalVideo.src = '';
+    modalIframe.src = '';
     document.body.style.overflow = 'auto';
 }
 
-closeBtn.addEventListener('click', closeModal);
-
-window.addEventListener('click', (event) => {
-    if (event.target === modal) {
-        closeModal();
-    }
+modalClose.addEventListener('click', closeModal);
+modal.addEventListener('click', function(e) {
+    if (e.target === modal) closeModal();
+});
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
 });
 
-// Close modal with Escape key
-document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && modal.style.display === 'block') {
-        closeModal();
-    }
-});
+// ===== ADD EXPAND BUTTONS TO VIDEO CARDS =====
+document.querySelectorAll('.video-card').forEach(function(card) {
+    var btn = document.createElement('button');
+    btn.className = 'expand-btn';
+    btn.innerHTML = '<i class="fas fa-expand"></i>';
+    btn.title = 'Fullscreen';
+    card.appendChild(btn);
 
-// ===== VIDEO GRID FUNCTIONALITY =====
-// Sample video data - Replace with your actual video sources
-const videoData = {
-    vertical: [
-        // { title: 'Video 1', src: 'path/to/video1.mp4' },
-        // { title: 'Video 2', src: 'path/to/video2.mp4' },
-        // Add your vertical videos here
-    ],
-    horizontal: [
-        // { title: 'Video 1', src: 'path/to/video1.mp4' },
-        // { title: 'Video 2', src: 'path/to/video2.mp4' },
-        // Add your horizontal videos here
-    ]
-};
+    var fileId = card.dataset.id;
+    var isVertical = card.classList.contains('vertical');
 
-function loadVideoGrid() {
-    const verticalGrid = document.getElementById('verticalGrid');
-    const horizontalGrid = document.getElementById('horizontalGrid');
-
-    // Clear existing placeholders if needed
-    // verticalGrid.innerHTML = '';
-    // horizontalGrid.innerHTML = '';
-
-    // Load vertical videos
-    videoData.vertical.forEach(video => {
-        const videoCard = createVideoCard(video);
-        verticalGrid.appendChild(videoCard);
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        openModal(fileId, isVertical);
     });
-
-    // Load horizontal videos
-    videoData.horizontal.forEach(video => {
-        const videoCard = createVideoCard(video);
-        horizontalGrid.appendChild(videoCard);
-    });
-}
-
-function createVideoCard(video) {
-    const card = document.createElement('div');
-    card.className = 'video-card';
-    card.innerHTML = `
-        <video class="video-thumbnail" preload="metadata">
-            <source src="${video.src}" type="video/mp4">
-        </video>
-        <div class="video-overlay">
-            <div class="play-button">
-                <i class="fas fa-play"></i>
-            </div>
-        </div>
-    `;
-
-    card.addEventListener('click', () => {
-        openVideoModal(video.src);
-    });
-
-    return card;
-}
-
-// Load videos when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    loadVideoGrid();
 });
 
 // ===== CONTACT FORM =====
-const contactForm = document.getElementById('contactForm');
-
-contactForm.addEventListener('submit', (e) => {
+var contactForm = document.getElementById('contactForm');
+contactForm.addEventListener('submit', function(e) {
     e.preventDefault();
-
-    const formData = new FormData(contactForm);
-    const name = contactForm.querySelector('input[type="text"]').value;
-    const email = contactForm.querySelector('input[type="email"]').value;
-    const message = contactForm.querySelector('textarea').value;
-
-    // Create mailto link with form data
-    const mailtoLink = `mailto:sternzachary25@gmail.com?subject=Portfolio Inquiry from ${name}&body=${encodeURIComponent(message)}%0A%0AFrom: ${name}%0AEmail: ${email}`;
-
-    // Open default email client
+    var name = contactForm.querySelector('input[type="text"]').value;
+    var email = contactForm.querySelector('input[type="email"]').value;
+    var message = contactForm.querySelector('textarea').value;
+    var mailtoLink = 'mailto:sternzachary25@gmail.com?subject=Portfolio Inquiry from ' + encodeURIComponent(name) + '&body=' + encodeURIComponent(message) + '%0A%0AFrom: ' + encodeURIComponent(name) + '%0AEmail: ' + encodeURIComponent(email);
     window.location.href = mailtoLink;
-
-    // Optionally, reset form
-    setTimeout(() => {
-        contactForm.reset();
-    }, 500);
+    setTimeout(function() { contactForm.reset(); }, 500);
 });
 
-// ===== LAZY LOADING VIDEOS =====
-if ('IntersectionObserver' in window) {
-    const videoElements = document.querySelectorAll('video');
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.play().catch(() => {
-                    // Autoplay prevented by browser
-                });
-                observer.unobserve(entry.target);
-            }
-        });
-    });
-
-    videoElements.forEach(video => observer.observe(video));
-}
-
-// ===== ANIMATION ON SCROLL =====
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -100px 0px'
-};
-
-const animationObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.animation = 'fadeIn 0.6s ease forwards';
-        }
-    });
-}, observerOptions);
-
-document.querySelectorAll('.reel-card, .project-card, .social-card, .contact-item').forEach(el => {
-    animationObserver.observe(el);
-});
-
-// ===== TYPEWRITER EFFECT (Optional for hero title) =====
-function typewriterEffect(element, text, speed = 50) {
-    let index = 0;
-    element.textContent = '';
-
-    function type() {
-        if (index < text.length) {
-            element.textContent += text.charAt(index);
-            index++;
-            setTimeout(type, speed);
-        }
-    }
-
-    type();
-}
-
-// Uncomment if you want typewriter effect on hero title
-// document.addEventListener('DOMContentLoaded', () => {
-//     const heroTitle = document.querySelector('.hero-title .accent');
-//     if (heroTitle) {
-//         typewriterEffect(heroTitle, 'Producer', 50);
-//     }
-// });
-
-// ===== SCROLL REVEAL ANIMATION =====
-const revealElements = document.querySelectorAll('[data-reveal]');
-
-const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
+// ===== SCROLL REVEAL =====
+var revealObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
         if (entry.isIntersecting) {
             entry.target.style.opacity = '1';
             entry.target.style.transform = 'translateY(0)';
             revealObserver.unobserve(entry.target);
         }
     });
-}, {
-    threshold: 0.15
-});
+}, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
 
-revealElements.forEach(el => {
+document.querySelectorAll('.video-card, .reel-card, .project-card, .social-card, .contact-item').forEach(function(el) {
     el.style.opacity = '0';
     el.style.transform = 'translateY(20px)';
-    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
     revealObserver.observe(el);
 });
 
-// ===== INSTAGRAM FEED INTEGRATION =====
-// This requires Instagram Access Token
-// You can use the Instagram Basic Display API
-async function loadInstagramFeed() {
-    try {
-        const accessToken = 'YOUR_INSTAGRAM_ACCESS_TOKEN'; // Replace with your token
-        const userId = '65810aa89f5be2618c0264d6';
-        const feedContainer = document.getElementById('instafeed-container');
-
-        if (accessToken === 'YOUR_INSTAGRAM_ACCESS_TOKEN') {
-            // If no token is set, show instruction
-            feedContainer.innerHTML = '<p class="feed-note">Instagram feed integration requires an access token. <a href="https://developers.instagram.com/docs/instagram-basic-display-api" target="_blank">Learn more</a></p>';
-            return;
-        }
-
-        // Fetch recent media
-        const response = await fetch(
-            `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,timestamp&access_token=${accessToken}`
-        );
-
-        if (!response.ok) throw new Error('Failed to fetch Instagram data');
-
-        const data = await response.json();
-
-        if (data.data && data.data.length > 0) {
-            feedContainer.innerHTML = '';
-            data.data.slice(0, 6).forEach(post => {
-                const postElement = document.createElement('div');
-                postElement.className = 'instagram-post';
-                postElement.innerHTML = `
-                    <a href="https://instagram.com/p/${post.id}" target="_blank" rel="noopener noreferrer">
-                        <img src="${post.media_url}" alt="${post.caption || 'Instagram post'}" />
-                    </a>
-                `;
-                feedContainer.appendChild(postElement);
-            });
-        }
-    } catch (error) {
-        console.log('Instagram feed could not be loaded:', error);
-    }
-}
-
-// Uncomment to load Instagram feed
-// document.addEventListener('DOMContentLoaded', loadInstagramFeed);
-
-// ===== CUSTOM CURSOR (Optional) =====
-document.addEventListener('mousemove', (e) => {
-    // Optional: Add custom cursor effects here
-});
-
-// ===== UTILITY FUNCTIONS =====
-function getAspectRatio(videoElement) {
-    return videoElement.videoWidth / videoElement.videoHeight;
-}
-
-function isVerticalVideo(videoElement) {
-    return getAspectRatio(videoElement) < 1;
-}
-
-// ===== INITIALIZE =====
-console.log('Portfolio website initialized successfully!');
-console.log('To use the video grid, add your videos to the videoData object in script.js');
+console.log('Portfolio loaded.');
