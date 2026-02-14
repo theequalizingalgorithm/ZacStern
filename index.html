@@ -11,15 +11,13 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="logo">
-                <span class="logo-accent">&lt;</span>WELCOME TO MY PORTFOLIO<span class="logo-accent">/&gt;</span>
-            </div>
+            <div class="logo">WELCOME TO MY PORTFOLIO</div>
             <ul class="nav-menu">
                 <li><a href="#hero" class="nav-link">Home</a></li>
                 <li><a href="#reels" class="nav-link">Reels</a></li>
+                <li><a href="#featured" class="nav-link">Featured</a></li>
                 <li><a href="#ugc" class="nav-link">UGC</a></li>
                 <li><a href="#projects" class="nav-link">Projects</a></li>
-                <li><a href="#social" class="nav-link">Social</a></li>
                 <li><a href="#contact" class="nav-link">Contact</a></li>
             </ul>
             <div class="hamburger">
@@ -54,25 +52,19 @@
             <h2>Featured Reels</h2>
             <p class="section-subtitle">My Producing & Directing Work</p>
         </div>
-        
-        <div class="reels-container">
-            <div class="reel-card">
-                <div class="reel-video">
-                    <iframe src="https://drive.google.com/file/d/1jBcteaSi96mM2VjfpJpW9XoqKS-4kU6e/preview" 
-                            allowfullscreen="" loading="lazy"></iframe>
-                </div>
-                <h3>Producing Reel</h3>
-                <p>Production expertise and creative vision</p>
-            </div>
-            
-            <div class="reel-card">
-                <div class="reel-video">
-                    <iframe src="https://drive.google.com/file/d/1p9dzJDjNvzzGFV_vJ7CgKrsDnh4nLNkK/preview" 
-                            allowfullscreen="" loading="lazy"></iframe>
-                </div>
-                <h3>Directing Reel</h3>
-                <p>Direction and storytelling excellence</p>
-            </div>
+        <div class="reels-container" id="reelsContainer">
+            <!-- Rendered by JS from config.json -->
+        </div>
+    </section>
+
+    <!-- Featured Work Section -->
+    <section id="featured" class="featured-section">
+        <div class="section-header">
+            <h2>Featured Work</h2>
+            <p class="section-subtitle">Highlights from my production career</p>
+        </div>
+        <div id="featuredContainer">
+            <!-- Rendered by JS from config.json -->
         </div>
     </section>
 
@@ -80,70 +72,22 @@
     <section id="ugc" class="ugc-section">
         <div class="section-header">
             <h2>UGC Content</h2>
-            <p class="section-subtitle">Click any video to watch — tap the expand icon for fullscreen</p>
+            <p class="section-subtitle">Click any thumbnail to watch</p>
         </div>
 
         <!-- 16:9 Horizontal Videos -->
         <div class="ugc-category">
-            <h3 class="category-title"><i class="fas fa-desktop"></i> Horizontal — 16:9</h3>
+            <h3 class="category-title"><i class="fas fa-desktop"></i> Horizontal &mdash; 16:9</h3>
             <div class="video-grid horizontal-grid" id="horizontalGrid">
-                <div class="video-card horizontal" data-id="1Y8dYOxvlCRu_gTF9I9ylr8ESHQBUwf5i"><iframe src="https://drive.google.com/file/d/1Y8dYOxvlCRu_gTF9I9ylr8ESHQBUwf5i/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card horizontal" data-id="1MeewMm3Dz_Dj74V1ExEzHOjz_yI-FoSD"><iframe src="https://drive.google.com/file/d/1MeewMm3Dz_Dj74V1ExEzHOjz_yI-FoSD/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card horizontal" data-id="1J1NsbkD9su8bz9XDfWZdln4ReSwcLmww"><iframe src="https://drive.google.com/file/d/1J1NsbkD9su8bz9XDfWZdln4ReSwcLmww/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card horizontal" data-id="1ScwwIjY9LJrRlDstR2a3BputFSr4oNB4"><iframe src="https://drive.google.com/file/d/1ScwwIjY9LJrRlDstR2a3BputFSr4oNB4/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
+                <!-- Rendered by JS from config.json -->
             </div>
         </div>
 
         <!-- 9:16 Vertical Videos -->
         <div class="ugc-category">
-            <h3 class="category-title"><i class="fas fa-mobile-alt"></i> Vertical — 9:16</h3>
+            <h3 class="category-title"><i class="fas fa-mobile-alt"></i> Vertical &mdash; 9:16</h3>
             <div class="video-grid vertical-grid" id="verticalGrid">
-                <div class="video-card vertical" data-id="10x30FoyRtgKzZNQz8DM7R4IaUFcn8nn2"><iframe src="https://drive.google.com/file/d/10x30FoyRtgKzZNQz8DM7R4IaUFcn8nn2/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="12IsZd8g0ctcecw-1nGAFf5izfD2TtdmS"><iframe src="https://drive.google.com/file/d/12IsZd8g0ctcecw-1nGAFf5izfD2TtdmS/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="12O1rzKLa2k4vNR2WGgSNJyze6g0IKs-C"><iframe src="https://drive.google.com/file/d/12O1rzKLa2k4vNR2WGgSNJyze6g0IKs-C/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="12wPkeGO8AUsLohFFoPFutdjZxupLI0RN"><iframe src="https://drive.google.com/file/d/12wPkeGO8AUsLohFFoPFutdjZxupLI0RN/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="13QJpb6XZ1kd-R7VzQ43GchTevUw5d6j_"><iframe src="https://drive.google.com/file/d/13QJpb6XZ1kd-R7VzQ43GchTevUw5d6j_/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="14GpQBTTj8hP8Ohdd5CdmBqmYYFXEt1xC"><iframe src="https://drive.google.com/file/d/14GpQBTTj8hP8Ohdd5CdmBqmYYFXEt1xC/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="15rkHA-9akyt-GqYIBLUFbUm0xm68r03V"><iframe src="https://drive.google.com/file/d/15rkHA-9akyt-GqYIBLUFbUm0xm68r03V/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="18Q-KxQbTtAlt4TPgqr6mI2sDhwuSzSzL"><iframe src="https://drive.google.com/file/d/18Q-KxQbTtAlt4TPgqr6mI2sDhwuSzSzL/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="18xPTiK7kLNGXSzfCOq6OfB_V7r6AZg6K"><iframe src="https://drive.google.com/file/d/18xPTiK7kLNGXSzfCOq6OfB_V7r6AZg6K/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="19Dioc4qOCte_plOiXflIyC8tdnYfGx4y"><iframe src="https://drive.google.com/file/d/19Dioc4qOCte_plOiXflIyC8tdnYfGx4y/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="19X_vZHQy6MO6nIbpebyyziSTFJXLfDgi"><iframe src="https://drive.google.com/file/d/19X_vZHQy6MO6nIbpebyyziSTFJXLfDgi/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="19Z6IAMCOZk7Whb3Oj14ZkT7KP_xKbjSX"><iframe src="https://drive.google.com/file/d/19Z6IAMCOZk7Whb3Oj14ZkT7KP_xKbjSX/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1AbTaKTXYqaK3NJ-NTgvsFvGOXD8BPyR-"><iframe src="https://drive.google.com/file/d/1AbTaKTXYqaK3NJ-NTgvsFvGOXD8BPyR-/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1Aucekz_3yT6aMh3qxjGEcyqxGtMHdrC-"><iframe src="https://drive.google.com/file/d/1Aucekz_3yT6aMh3qxjGEcyqxGtMHdrC-/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1BCLGoSpBLekxepwwrCaHZ1FEk9Bym8Ga"><iframe src="https://drive.google.com/file/d/1BCLGoSpBLekxepwwrCaHZ1FEk9Bym8Ga/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1BVghA5GBYlX708BU3r6XQ-GSEmnT4T89"><iframe src="https://drive.google.com/file/d/1BVghA5GBYlX708BU3r6XQ-GSEmnT4T89/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1CCsOt7HTscMdzepzUmfT7oz8W3g4_bRA"><iframe src="https://drive.google.com/file/d/1CCsOt7HTscMdzepzUmfT7oz8W3g4_bRA/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1ErilqVTmgotgTIM--M4VJDf-cjV7P1yk"><iframe src="https://drive.google.com/file/d/1ErilqVTmgotgTIM--M4VJDf-cjV7P1yk/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1GHqmI9kotYeQVKeljAoIdoylsT8rl-1-"><iframe src="https://drive.google.com/file/d/1GHqmI9kotYeQVKeljAoIdoylsT8rl-1-/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1Ggy07rfL0-XREik3jMPnE2OJeOLEZv8t"><iframe src="https://drive.google.com/file/d/1Ggy07rfL0-XREik3jMPnE2OJeOLEZv8t/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1KOpsi-SGuQuFpI2jkpjsDw7R4N6G6E7u"><iframe src="https://drive.google.com/file/d/1KOpsi-SGuQuFpI2jkpjsDw7R4N6G6E7u/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1LWR6_grcQGxsIRLWxdp5a-7400-VlWK3"><iframe src="https://drive.google.com/file/d/1LWR6_grcQGxsIRLWxdp5a-7400-VlWK3/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1MZBsAkbjuJBvHoivnlOsuukOUXRwCjl8"><iframe src="https://drive.google.com/file/d/1MZBsAkbjuJBvHoivnlOsuukOUXRwCjl8/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1RxYMuYJ3LWoydKJvro7SaVhkTYqkj8OY"><iframe src="https://drive.google.com/file/d/1RxYMuYJ3LWoydKJvro7SaVhkTYqkj8OY/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1S-8piPwToDw8qr-Vvj42y6ryeAoUa3zZ"><iframe src="https://drive.google.com/file/d/1S-8piPwToDw8qr-Vvj42y6ryeAoUa3zZ/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1UhjeFu8rWU2VRqMO3d0zxBXJZSkdEr01"><iframe src="https://drive.google.com/file/d/1UhjeFu8rWU2VRqMO3d0zxBXJZSkdEr01/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1VuBFRryJfQAi_owSPg_N7N9Q-2U2b2gJ"><iframe src="https://drive.google.com/file/d/1VuBFRryJfQAi_owSPg_N7N9Q-2U2b2gJ/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1Y5ekYk0VKylnP233fZaR3a1g9ZhDtpEh"><iframe src="https://drive.google.com/file/d/1Y5ekYk0VKylnP233fZaR3a1g9ZhDtpEh/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1YR3WsRGeNxkvP-G9wXek8zNv1ypZpFqf"><iframe src="https://drive.google.com/file/d/1YR3WsRGeNxkvP-G9wXek8zNv1ypZpFqf/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1bHk-9xHMkhobsn7ctUk2i6vb_RoQSq2U"><iframe src="https://drive.google.com/file/d/1bHk-9xHMkhobsn7ctUk2i6vb_RoQSq2U/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1bSF41rho6WDnrqOrc6ZVxZgVuXFviX6U"><iframe src="https://drive.google.com/file/d/1bSF41rho6WDnrqOrc6ZVxZgVuXFviX6U/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1e-UeW-WdI1cGGB9ZijFRv5R-voQgGJAC"><iframe src="https://drive.google.com/file/d/1e-UeW-WdI1cGGB9ZijFRv5R-voQgGJAC/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1eQBzRhCBzwfjwu8aNNFVnJbJDnTQfbV_"><iframe src="https://drive.google.com/file/d/1eQBzRhCBzwfjwu8aNNFVnJbJDnTQfbV_/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1fNgPKtAkJgUAZrdHLpCSCzqsX0zPJJTs"><iframe src="https://drive.google.com/file/d/1fNgPKtAkJgUAZrdHLpCSCzqsX0zPJJTs/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1ff-PNo2r3-Ax0bNnh8DjHDMVvp1BDDio"><iframe src="https://drive.google.com/file/d/1ff-PNo2r3-Ax0bNnh8DjHDMVvp1BDDio/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1iMWhEQ1cm25638sAGyLdGOkMPEKk06jZ"><iframe src="https://drive.google.com/file/d/1iMWhEQ1cm25638sAGyLdGOkMPEKk06jZ/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1lIkkhMJeHglMLwoBpsZe39IIUSltcl10"><iframe src="https://drive.google.com/file/d/1lIkkhMJeHglMLwoBpsZe39IIUSltcl10/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1mcL064KC2TVuCGREM6e9J3e1dQKPZAWz"><iframe src="https://drive.google.com/file/d/1mcL064KC2TVuCGREM6e9J3e1dQKPZAWz/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1nBSklchjXbNKLgRUveM8WTk94VDyhmiQ"><iframe src="https://drive.google.com/file/d/1nBSklchjXbNKLgRUveM8WTk94VDyhmiQ/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1o4XOKWxLYMfY8melliyR_DRes5Cla4Wi"><iframe src="https://drive.google.com/file/d/1o4XOKWxLYMfY8melliyR_DRes5Cla4Wi/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1pUj9-5xhSUq556HFOxqDfDASxHu52zgy"><iframe src="https://drive.google.com/file/d/1pUj9-5xhSUq556HFOxqDfDASxHu52zgy/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1sJfVT29GsdXtNqKsRbUZZJi4EFiXtVe9"><iframe src="https://drive.google.com/file/d/1sJfVT29GsdXtNqKsRbUZZJi4EFiXtVe9/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1uFHD1-2d5vCqaZSlFYe4QAoL_LrABTIw"><iframe src="https://drive.google.com/file/d/1uFHD1-2d5vCqaZSlFYe4QAoL_LrABTIw/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1x-rXMl1GLxn7TyFZb1loXFHNz4xNRzIN"><iframe src="https://drive.google.com/file/d/1x-rXMl1GLxn7TyFZb1loXFHNz4xNRzIN/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1ynNwM_TqOjbHtEWspE-2Ua5qmXqMOBJi"><iframe src="https://drive.google.com/file/d/1ynNwM_TqOjbHtEWspE-2Ua5qmXqMOBJi/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
-                <div class="video-card vertical" data-id="1zNmjWYoBTifQj_NYZwRBcjhkXzS4Sgxv"><iframe src="https://drive.google.com/file/d/1zNmjWYoBTifQj_NYZwRBcjhkXzS4Sgxv/preview" allow="autoplay" loading="lazy" sandbox="allow-same-origin allow-scripts allow-popups"></iframe></div>
+                <!-- Rendered by JS from config.json -->
             </div>
         </div>
     </section>
@@ -154,25 +98,8 @@
             <h2>Featured Projects</h2>
             <p class="section-subtitle">My digital creations and platforms</p>
         </div>
-
-        <div class="projects-grid">
-            <a href="https://reel-media.com" target="_blank" class="project-card" rel="noopener noreferrer">
-                <div class="project-bg">
-                    <i class="fas fa-play-circle"></i>
-                </div>
-                <h3>Reel Media</h3>
-                <p>Premium content creation platform</p>
-                <span class="project-link">Visit <i class="fas fa-arrow-right"></i></span>
-            </a>
-
-            <a href="https://paintbyprompt.com" target="_blank" class="project-card" rel="noopener noreferrer">
-                <div class="project-bg">
-                    <i class="fas fa-palette"></i>
-                </div>
-                <h3>Paint By Prompt</h3>
-                <p>AI-powered creative tool</p>
-                <span class="project-link">Visit <i class="fas fa-arrow-right"></i></span>
-            </a>
+        <div class="projects-grid" id="projectsGrid">
+            <!-- Rendered by JS from config.json -->
         </div>
     </section>
 
@@ -182,29 +109,8 @@
             <h2>Follow My Work</h2>
             <p class="section-subtitle">Stay updated across all platforms</p>
         </div>
-
-        <div class="social-grid">
-            <a href="https://www.instagram.com/zac_stern/" target="_blank" class="social-card" rel="noopener noreferrer">
-                <i class="fab fa-instagram"></i>
-                <h3>Instagram</h3>
-                <p>@zac_stern</p>
-                <span class="follow-btn">Follow</span>
-            </a>
-
-            <a href="https://creators.trend.io/profile/65810aa89f5be2618c0264d6" target="_blank" class="social-card" rel="noopener noreferrer">
-                <i class="fas fa-video"></i>
-                <h3>Trend</h3>
-                <p>Creator Profile</p>
-                <span class="follow-btn">View Profile</span>
-            </a>
-        </div>
-
-        <!-- Instagram Feed Widget (Optional) -->
-        <div class="instagram-feed">
-            <h3>Recent Posts</h3>
-            <div id="instafeed-container">
-                <p class="feed-note">Instagram feed will load here</p>
-            </div>
+        <div class="social-grid" id="socialGrid">
+            <!-- Rendered by JS from config.json -->
         </div>
     </section>
 
@@ -216,31 +122,8 @@
         </div>
 
         <div class="contact-container">
-            <div class="contact-info">
-                <div class="contact-item">
-                    <i class="fas fa-envelope"></i>
-                    <div>
-                        <h3>Email</h3>
-                        <a href="mailto:sternzachary25@gmail.com">sternzachary25@gmail.com</a>
-                    </div>
-                </div>
-                <div class="contact-item">
-                    <i class="fas fa-instagram"></i>
-                    <div>
-                        <h3>Instagram</h3>
-                        <a href="https://www.instagram.com/zac_stern/" target="_blank">@zac_stern</a>
-                    </div>
-                </div>
-                <div class="contact-item">
-                    <i class="fas fa-globe"></i>
-                    <div>
-                        <h3>Portfolio Sites</h3>
-                        <div class="portfolio-links">
-                            <a href="https://reel-media.com" target="_blank">Reel Media</a>
-                            <a href="https://paintbyprompt.com" target="_blank">Paint by Prompt</a>
-                        </div>
-                    </div>
-                </div>
+            <div class="contact-info" id="contactInfo">
+                <!-- Rendered by JS from config.json -->
             </div>
 
             <form class="contact-form" id="contactForm">
@@ -269,6 +152,7 @@
             <div class="footer-links">
                 <a href="#hero">Home</a>
                 <a href="#reels">Reels</a>
+                <a href="#featured">Featured</a>
                 <a href="#ugc">UGC</a>
                 <a href="#projects">Projects</a>
                 <a href="#contact">Contact</a>

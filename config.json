@@ -6,6 +6,7 @@
     "email": "sternzachary25@gmail.com",
     "socials": {
       "instagram": "https://www.instagram.com/zac_stern/",
+      "instagramHandle": "@zac_stern",
       "trend": "https://creators.trend.io/profile/65810aa89f5be2618c0264d6"
     },
     "projects": [
@@ -29,37 +30,111 @@
         "type": "producing",
         "title": "Producing Reel",
         "description": "Production expertise and creative vision",
-        "embedUrl": "https://drive.google.com/file/d/1jBcteaSi96mM2VjfpJpW9XoqKS-4kU6e/preview"
+        "fileId": "1jBcteaSi96mM2VjfpJpW9XoqKS-4kU6e"
       },
       {
         "type": "directing",
         "title": "Directing Reel",
         "description": "Direction and storytelling excellence",
-        "embedUrl": "https://drive.google.com/file/d/1p9dzJDjNvzzGFV_vJ7CgKrsDnh4nLNkK/preview"
+        "fileId": "1p9dzJDjNvzzGFV_vJ7CgKrsDnh4nLNkK"
       }
     ],
     "ugc": {
-      "vertical": [
-        {
-          "id": 1,
-          "title": "Vertical Video 1",
-          "src": "videos/ugc-vertical/video1.mp4"
-        }
-      ],
       "horizontal": [
-        {
-          "id": 1,
-          "title": "Horizontal Video 1",
-          "src": "videos/ugc-horizontal/video1.mp4"
-        }
+        "1Y8dYOxvlCRu_gTF9I9ylr8ESHQBUwf5i",
+        "1MeewMm3Dz_Dj74V1ExEzHOjz_yI-FoSD",
+        "1J1NsbkD9su8bz9XDfWZdln4ReSwcLmww",
+        "1ScwwIjY9LJrRlDstR2a3BputFSr4oNB4"
+      ],
+      "vertical": [
+        "10x30FoyRtgKzZNQz8DM7R4IaUFcn8nn2",
+        "12IsZd8g0ctcecw-1nGAFf5izfD2TtdmS",
+        "12O1rzKLa2k4vNR2WGgSNJyze6g0IKs-C",
+        "12wPkeGO8AUsLohFFoPFutdjZxupLI0RN",
+        "13QJpb6XZ1kd-R7VzQ43GchTevUw5d6j_",
+        "14GpQBTTj8hP8Ohdd5CdmBqmYYFXEt1xC",
+        "15rkHA-9akyt-GqYIBLUFbUm0xm68r03V",
+        "18Q-KxQbTtAlt4TPgqr6mI2sDhwuSzSzL",
+        "18xPTiK7kLNGXSzfCOq6OfB_V7r6AZg6K",
+        "19Dioc4qOCte_plOiXflIyC8tdnYfGx4y",
+        "19X_vZHQy6MO6nIbpebyyziSTFJXLfDgi",
+        "19Z6IAMCOZk7Whb3Oj14ZkT7KP_xKbjSX",
+        "1AbTaKTXYqaK3NJ-NTgvsFvGOXD8BPyR-",
+        "1Aucekz_3yT6aMh3qxjGEcyqxGtMHdrC-",
+        "1BCLGoSpBLekxepwwrCaHZ1FEk9Bym8Ga",
+        "1BVghA5GBYlX708BU3r6XQ-GSEmnT4T89",
+        "1CCsOt7HTscMdzepzUmfT7oz8W3g4_bRA",
+        "1ErilqVTmgotgTIM--M4VJDf-cjV7P1yk",
+        "1GHqmI9kotYeQVKeljAoIdoylsT8rl-1-",
+        "1Ggy07rfL0-XREik3jMPnE2OJeOLEZv8t",
+        "1KOpsi-SGuQuFpI2jkpjsDw7R4N6G6E7u",
+        "1LWR6_grcQGxsIRLWxdp5a-7400-VlWK3",
+        "1MZBsAkbjuJBvHoivnlOsuukOUXRwCjl8",
+        "1RxYMuYJ3LWoydKJvro7SaVhkTYqkj8OY",
+        "1S-8piPwToDw8qr-Vvj42y6ryeAoUa3zZ",
+        "1UhjeFu8rWU2VRqMO3d0zxBXJZSkdEr01",
+        "1VuBFRryJfQAi_owSPg_N7N9Q-2U2b2gJ",
+        "1Y5ekYk0VKylnP233fZaR3a1g9ZhDtpEh",
+        "1YR3WsRGeNxkvP-G9wXek8zNv1ypZpFqf",
+        "1bHk-9xHMkhobsn7ctUk2i6vb_RoQSq2U",
+        "1bSF41rho6WDnrqOrc6ZVxZgVuXFviX6U",
+        "1e-UeW-WdI1cGGB9ZijFRv5R-voQgGJAC",
+        "1eQBzRhCBzwfjwu8aNNFVnJbJDnTQfbV_",
+        "1fNgPKtAkJgUAZrdHLpCSCzqsX0zPJJTs",
+        "1ff-PNo2r3-Ax0bNnh8DjHDMVvp1BDDio",
+        "1iMWhEQ1cm25638sAGyLdGOkMPEKk06jZ",
+        "1lIkkhMJeHglMLwoBpsZe39IIUSltcl10",
+        "1mcL064KC2TVuCGREM6e9J3e1dQKPZAWz",
+        "1nBSklchjXbNKLgRUveM8WTk94VDyhmiQ",
+        "1o4XOKWxLYMfY8melliyR_DRes5Cla4Wi",
+        "1pUj9-5xhSUq556HFOxqDfDASxHu52zgy",
+        "1sJfVT29GsdXtNqKsRbUZZJi4EFiXtVe9",
+        "1uFHD1-2d5vCqaZSlFYe4QAoL_LrABTIw",
+        "1x-rXMl1GLxn7TyFZb1loXFHNz4xNRzIN",
+        "1ynNwM_TqOjbHtEWspE-2Ua5qmXqMOBJi",
+        "1zNmjWYoBTifQj_NYZwRBcjhkXzS4Sgxv"
       ]
     }
   },
-  "design": {
-    "colorScheme": "cyberpunk-dark",
-    "primaryColor": "#1a1a1a",
-    "accentColor": "#00d4ff",
-    "lightColor": "#ffffff",
-    "textColor": "#f0f0f0"
+  "featuredWork": {
+    "socialMedia": {
+      "title": "James Leon x Korkscrew",
+      "description": "Social Media Performance",
+      "items": [
+        {
+          "title": "HIT IT DJ — Preacher Bit",
+          "stats": "1M views on TikTok"
+        },
+        {
+          "title": "How Long Have You Been Vegan?",
+          "stats": "2M on TikTok · 242K on YouTube · 250K Likes on IG"
+        },
+        {
+          "title": "Reformatted Preacher Lawson Bit",
+          "stats": "4.7M views on YouTube · 12.7M on TikTok"
+        },
+        {
+          "title": "I Didn't Know People in Spain...",
+          "stats": "100K+ YouTube views · 990K on TikTok"
+        },
+        {
+          "title": "Do Y'all Know That Song?",
+          "stats": "2.2M on TikTok"
+        }
+      ]
+    },
+    "agt": {
+      "title": "America's Got Talent",
+      "description": "For each AGT segment I produced the story in pre-production, oversaw filming in the field, and handled putting the segment together in post with our editors.",
+      "items": [
+        { "title": "Metaphysic Deep Fake AGT" },
+        { "title": "Metaphysic Deepfake Intro" },
+        { "title": "Metaphysic Elvis Show on AGT" },
+        { "title": "Mike E Winfield — AGT All Stars (Full Segment)" },
+        { "title": "Jack Grady Magic Bit — AGT" },
+        { "title": "Berrywam — AGT All Stars" },
+        { "title": "Sky Elements — Season 19 of AGT", "stats": "80K views on YouTube" }
+      ]
+    }
   }
 }
