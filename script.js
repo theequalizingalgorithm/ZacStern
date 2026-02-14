@@ -1,316 +1,329 @@
-(function () {
-    'use strict';
+document.addEventListener('DOMContentLoaded', () => {
+    fetch('config.json')
+        .then(r => r.json())
+        .then(config => {
+            renderReels(config);
+            renderFeaturedWork(config);
+            renderUGC(config);
+            renderProjects(config);
+            renderSocial(config);
+            renderResume(config);
+            renderContact(config);
+            initModal();
+            initHamburger();
+        })
+        .catch(err => console.error('Failed to load config:', err));
+});
 
-    // ===== MOBILE MENU =====
-    var hamburger = document.querySelector('.hamburger');
-    var navMenu = document.querySelector('.nav-menu');
+/* ===== REELS ===== */
+function renderReels(config) {
+    const container = document.getElementById('reelsContainer');
+    if (!container || !config.videos?.reels) return;
+    container.innerHTML = config.videos.reels.map(reel => `
+        <div class="reel-card">
+            <div class="reel-video">
+                <iframe src="https://drive.google.com/file/d/${reel.fileId}/preview"
+                    allow="autoplay; encrypted-media" allowfullscreen loading="lazy"></iframe>
+            </div>
+            <h3>${reel.title}</h3>
+            <p>${reel.description}</p>
+        </div>
+    `).join('');
+}
 
-    hamburger.addEventListener('click', function () {
-        navMenu.classList.toggle('active');
-    });
+/* ===== FEATURED WORK ===== */
+function extractYouTubeId(url) {
+    // Match youtube.com/watch?v=ID, youtube.com/shorts/ID, youtu.be/ID
+    let m = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    return m ? m[1] : null;
+}
 
-    document.querySelectorAll('.nav-link').forEach(function (link) {
-        link.addEventListener('click', function () {
-            navMenu.classList.remove('active');
+function getPlatformIcon(url) {
+    if (url.includes('youtube.com') || url.includes('youtu.be')) return 'fa-brands fa-youtube';
+    if (url.includes('tiktok.com')) return 'fa-brands fa-tiktok';
+    if (url.includes('instagram.com')) return 'fa-brands fa-instagram';
+    return 'fa-solid fa-play';
+}
+
+function getPlatformLabel(url) {
+    if (url.includes('youtube.com') || url.includes('youtu.be')) return 'YouTube';
+    if (url.includes('tiktok.com')) return 'TikTok';
+    if (url.includes('instagram.com')) return 'Instagram';
+    return 'Watch';
+}
+
+function buildFeaturedCard(item) {
+    const ytId = extractYouTubeId(item.url);
+    let thumbHtml;
+    if (ytId) {
+        thumbHtml = `<img src="https://img.youtube.com/vi/${ytId}/hqdefault.jpg" alt="${item.title}" loading="lazy">`;
+    } else {
+        // For IG / TikTok — gradient placeholder with platform icon
+        const icon = getPlatformIcon(item.url);
+        thumbHtml = `<div class="thumb-placeholder"><i class="${icon}"></i></div>`;
+    }
+
+    const statsHtml = item.stats
+        ? `<div class="stats"><i class="fas fa-eye"></i> ${item.stats}</div>`
+        : `<div class="stats"><i class="${getPlatformIcon(item.url)}"></i> ${getPlatformLabel(item.url)}</div>`;
+
+    return `
+        <a href="${item.url}" target="_blank" rel="noopener" class="featured-card">
+            <div class="thumb-wrap">
+                ${thumbHtml}
+                <div class="play-overlay"><i class="fas fa-external-link-alt"></i></div>
+            </div>
+            <div class="card-info">
+                <h4>${item.title}</h4>
+                ${statsHtml}
+            </div>
+        </a>`;
+}
+
+function renderFeaturedWork(config) {
+    const container = document.getElementById('featuredContainer');
+    if (!container || !config.featuredWork) return;
+    const fw = config.featuredWork;
+    let html = '';
+
+    // Social Media section
+    if (fw.socialMedia) {
+        html += `
+        <div class="featured-block">
+            <div class="featured-block-header">
+                <i class="fas fa-chart-line"></i>
+                <h3>${fw.socialMedia.title}</h3>
+            </div>
+            ${fw.socialMedia.description ? `<p class="featured-block-desc">${fw.socialMedia.description}</p>` : ''}
+            <div class="featured-grid">
+                ${fw.socialMedia.items.map(buildFeaturedCard).join('')}
+            </div>
+        </div>`;
+    }
+
+    // AGT / Produced Segments section
+    if (fw.agt) {
+        html += `
+        <div class="featured-block">
+            <div class="featured-block-header">
+                <i class="fas fa-tv"></i>
+                <h3>${fw.agt.title}</h3>
+            </div>
+            ${fw.agt.description ? `<p class="featured-block-desc">${fw.agt.description}</p>` : ''}
+            <div class="featured-grid">
+                ${fw.agt.items.map(buildFeaturedCard).join('')}
+            </div>
+        </div>`;
+    }
+
+    container.innerHTML = html;
+}
+
+/* ===== UGC VIDEOS ===== */
+function createVideoCard(item, orientation) {
+    const id = typeof item === 'string' ? item : item.id;
+    const title = typeof item === 'string' ? '' : (item.title || '');
+    const thumbUrl = `https://drive.google.com/thumbnail?id=${id}&sz=w640`;
+    return `
+        <div class="video-card ${orientation}" data-id="${id}" data-orientation="${orientation}">
+            <div class="thumb-wrap">
+                <img class="thumb" src="${thumbUrl}" alt="${title}" loading="lazy"
+                     onerror="this.outerHTML='<div class=\\'thumb-placeholder\\'><i class=\\'fas fa-video\\'></i></div>'">
+                <div class="play-overlay"><i class="fas fa-play-circle"></i></div>
+            </div>
+            ${title ? `<div class="card-title">${title}</div>` : ''}
+        </div>`;
+}
+
+function renderUGC(config) {
+    const hGrid = document.getElementById('horizontalGrid');
+    const vGrid = document.getElementById('verticalGrid');
+    if (!config.videos?.ugc) return;
+    const ugc = config.videos.ugc;
+    if (hGrid && ugc.horizontal) {
+        hGrid.innerHTML = ugc.horizontal.map(item => createVideoCard(item, 'horizontal')).join('');
+    }
+    if (vGrid && ugc.vertical) {
+        vGrid.innerHTML = ugc.vertical.map(item => createVideoCard(item, 'vertical')).join('');
+    }
+}
+
+/* ===== PROJECTS ===== */
+function renderProjects(config) {
+    const grid = document.getElementById('projectsGrid');
+    if (!grid || !config.site?.projects) return;
+    grid.innerHTML = config.site.projects.map(p => `
+        <a href="${p.url}" target="_blank" rel="noopener" class="project-card">
+            <div class="project-bg"><i class="fas ${p.icon}"></i></div>
+            <h3>${p.name}</h3>
+            <p>${p.description}</p>
+            <span class="project-link"><i class="fas fa-arrow-right"></i> Visit</span>
+        </a>
+    `).join('');
+}
+
+/* ===== SOCIAL ===== */
+function renderSocial(config) {
+    const grid = document.getElementById('socialGrid');
+    if (!grid || !config.site?.socials) return;
+    const s = config.site.socials;
+    let cards = '';
+    if (s.instagram) {
+        cards += `
+        <a href="${s.instagram}" target="_blank" rel="noopener" class="social-card">
+            <i class="fab fa-instagram"></i>
+            <h3>Instagram</h3>
+            <p>${s.instagramHandle || '@zac_stern'}</p>
+            <span class="follow-btn">Follow</span>
+        </a>`;
+    }
+    if (s.trend) {
+        cards += `
+        <a href="${s.trend}" target="_blank" rel="noopener" class="social-card">
+            <i class="fas fa-bullhorn"></i>
+            <h3>Trend.io</h3>
+            <p>UGC Creator Profile</p>
+            <span class="follow-btn">View Profile</span>
+        </a>`;
+    }
+    grid.innerHTML = cards;
+}
+
+/* ===== RESUME ===== */
+function renderResume(config) {
+    const container = document.getElementById('resumeContainer');
+    if (!container || !config.resume) return;
+    const r = config.resume;
+    let html = '';
+
+    // Link to full resume
+    if (r.url) {
+        html += `
+        <div class="resume-header-link">
+            <a href="${r.url}" target="_blank" rel="noopener">
+                <i class="fas fa-file-alt"></i> View Full Resume
+            </a>
+        </div>`;
+    }
+
+    // Experience timeline
+    if (r.experience && r.experience.length) {
+        html += '<div class="resume-timeline">';
+        r.experience.forEach(exp => {
+            html += `
+            <div class="resume-item">
+                <div class="role">${exp.role}</div>
+                <div class="show">${exp.show}</div>
+                <div class="period">${exp.period}</div>
+                <div class="desc">${exp.description}</div>
+            </div>`;
         });
-    });
+        html += '</div>';
+    }
 
-    // ===== SMOOTH SCROLL & ACTIVE NAV =====
-    window.addEventListener('scroll', function () {
-        var sections = document.querySelectorAll('section');
-        var current = '';
-        sections.forEach(function (section) {
-            var sectionTop = section.offsetTop;
-            if (pageYOffset >= sectionTop - 200) {
-                current = section.getAttribute('id');
-            }
-        });
-        document.querySelectorAll('.nav-link').forEach(function (link) {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === '#' + current) {
-                link.classList.add('active');
-            }
-        });
-    });
+    // UGC summary
+    if (r.ugcSummary) {
+        html += `
+        <div class="resume-ugc">
+            <h4><i class="fas fa-camera"></i> UGC Creator</h4>
+            <p>${r.ugcSummary}</p>
+        </div>`;
+    }
 
-    // ===== VIDEO MODAL =====
-    var modal = document.getElementById('videoModal');
-    var modalIframe = document.getElementById('modalIframe');
-    var modalContent = document.getElementById('modalContent');
-    var modalClose = document.getElementById('modalClose');
+    // Education
+    if (r.education) {
+        html += `
+        <div class="resume-education">
+            <h4><i class="fas fa-graduation-cap"></i> Education</h4>
+            <p>${r.education}</p>
+        </div>`;
+    }
 
-    function openModal(fileId, isVertical) {
-        modalIframe.src = 'https://drive.google.com/file/d/' + fileId + '/preview';
-        modalContent.classList.remove('modal-vertical', 'modal-horizontal');
-        modalContent.classList.add(isVertical ? 'modal-vertical' : 'modal-horizontal');
+    container.innerHTML = html;
+}
+
+/* ===== CONTACT ===== */
+function renderContact(config) {
+    const info = document.getElementById('contactInfo');
+    if (!info || !config.site) return;
+    const s = config.site;
+    let html = '';
+    if (s.email) {
+        html += `
+        <div class="contact-item">
+            <i class="fas fa-envelope"></i>
+            <div>
+                <h3>Email</h3>
+                <a href="mailto:${s.email}">${s.email}</a>
+            </div>
+        </div>`;
+    }
+    if (s.socials?.instagram) {
+        html += `
+        <div class="contact-item">
+            <i class="fab fa-instagram"></i>
+            <div>
+                <h3>Instagram</h3>
+                <a href="${s.socials.instagram}" target="_blank">${s.socials.instagramHandle || '@zac_stern'}</a>
+            </div>
+        </div>`;
+    }
+    // Portfolio links
+    let links = '';
+    if (s.socials?.trend) links += `<a href="${s.socials.trend}" target="_blank">Trend.io</a>`;
+    if (s.projects) s.projects.forEach(p => { links += `<a href="${p.url}" target="_blank">${p.name}</a>`; });
+    if (links) {
+        html += `
+        <div class="contact-item">
+            <i class="fas fa-link"></i>
+            <div>
+                <h3>Portfolio Links</h3>
+                <div class="portfolio-links">${links}</div>
+            </div>
+        </div>`;
+    }
+    info.innerHTML = html;
+}
+
+/* ===== VIDEO MODAL ===== */
+function initModal() {
+    const modal = document.getElementById('videoModal');
+    const iframe = document.getElementById('modalIframe');
+    const modalContent = document.getElementById('modalContent');
+    const closeBtn = document.getElementById('modalClose');
+    if (!modal || !iframe) return;
+
+    // Click handler for video cards (UGC only — featured cards are external links)
+    document.addEventListener('click', e => {
+        const card = e.target.closest('.video-card');
+        if (!card) return;
+        const fileId = card.dataset.id;
+        const orient = card.dataset.orientation;
+        if (!fileId) return;
+        iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
+        modalContent.className = 'modal-content ' + (orient === 'horizontal' ? 'modal-horizontal' : 'modal-vertical');
         modal.style.display = 'block';
         document.body.style.overflow = 'hidden';
-    }
+    });
 
     function closeModal() {
         modal.style.display = 'none';
-        modalIframe.src = '';
-        document.body.style.overflow = 'auto';
+        iframe.src = '';
+        document.body.style.overflow = '';
     }
 
-    modalClose.addEventListener('click', closeModal);
-    modal.addEventListener('click', function (e) {
-        if (e.target === modal) closeModal();
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+}
+
+/* ===== HAMBURGER MENU ===== */
+function initHamburger() {
+    const hamburger = document.querySelector('.hamburger');
+    const navMenu = document.querySelector('.nav-menu');
+    if (!hamburger || !navMenu) return;
+    hamburger.addEventListener('click', () => { navMenu.classList.toggle('active'); });
+    navMenu.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => { navMenu.classList.remove('active'); });
     });
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') closeModal();
-    });
-
-    // ===== HELPERS =====
-    function thumbUrl(fileId) {
-        return 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w640';
-    }
-
-    function createVideoCard(fileId, orientation) {
-        var card = document.createElement('div');
-        card.className = 'video-card ' + orientation;
-        card.dataset.id = fileId;
-
-        var img = document.createElement('img');
-        img.className = 'thumb';
-        img.src = thumbUrl(fileId);
-        img.alt = 'Video thumbnail';
-        img.loading = 'lazy';
-        img.onerror = function () {
-            // Replace with gradient placeholder on error
-            var placeholder = document.createElement('div');
-            placeholder.className = 'thumb-placeholder';
-            placeholder.innerHTML = '<i class="fas fa-play"></i>';
-            card.replaceChild(placeholder, img);
-        };
-        card.appendChild(img);
-
-        // Play overlay
-        var overlay = document.createElement('div');
-        overlay.className = 'play-overlay';
-        overlay.innerHTML = '<i class="fas fa-play-circle"></i>';
-        card.appendChild(overlay);
-
-        var isVertical = orientation === 'vertical';
-        card.addEventListener('click', function () {
-            openModal(fileId, isVertical);
-        });
-
-        return card;
-    }
-
-    // ===== RENDER FROM CONFIG =====
-    fetch('config.json')
-        .then(function (res) { return res.json(); })
-        .then(function (config) {
-            renderReels(config.videos.reels);
-            renderFeaturedWork(config.featuredWork);
-            renderUGC(config.videos.ugc);
-            renderProjects(config.site.projects);
-            renderSocial(config.site.socials);
-            renderContactInfo(config.site);
-            initScrollReveal();
-        })
-        .catch(function (err) {
-            console.error('Failed to load config.json:', err);
-            initScrollReveal();
-        });
-
-    // ===== REELS =====
-    function renderReels(reels) {
-        var container = document.getElementById('reelsContainer');
-        reels.forEach(function (reel) {
-            var card = document.createElement('div');
-            card.className = 'reel-card';
-            card.innerHTML =
-                '<div class="reel-video">' +
-                '<iframe src="https://drive.google.com/file/d/' + reel.fileId + '/preview" ' +
-                'allowfullscreen loading="lazy"></iframe>' +
-                '</div>' +
-                '<h3>' + reel.title + '</h3>' +
-                '<p>' + reel.description + '</p>';
-            container.appendChild(card);
-        });
-    }
-
-    // ===== FEATURED WORK =====
-    function renderFeaturedWork(featured) {
-        var container = document.getElementById('featuredContainer');
-
-        // Social media performance block
-        if (featured.socialMedia) {
-            var sm = featured.socialMedia;
-            var block = document.createElement('div');
-            block.className = 'featured-block';
-            var headerHtml =
-                '<div class="featured-block-header">' +
-                '<i class="fas fa-chart-line"></i>' +
-                '<h3>' + sm.title + '</h3>' +
-                '</div>' +
-                '<p class="featured-block-desc">' + sm.description + '</p>';
-            block.innerHTML = headerHtml;
-
-            var grid = document.createElement('div');
-            grid.className = 'featured-items';
-            sm.items.forEach(function (item) {
-                var el = document.createElement('div');
-                el.className = 'featured-item';
-                el.innerHTML = '<h4>' + item.title + '</h4>' +
-                    (item.stats ? '<div class="stats"><i class="fas fa-eye"></i> ' + item.stats + '</div>' : '');
-                grid.appendChild(el);
-            });
-            block.appendChild(grid);
-            container.appendChild(block);
-        }
-
-        // AGT block
-        if (featured.agt) {
-            var agt = featured.agt;
-            var agtBlock = document.createElement('div');
-            agtBlock.className = 'featured-block';
-            var agtHeader =
-                '<div class="featured-block-header">' +
-                '<i class="fas fa-star"></i>' +
-                '<h3>' + agt.title + '</h3>' +
-                '</div>' +
-                '<p class="featured-block-desc">' + agt.description + '</p>';
-            agtBlock.innerHTML = agtHeader;
-
-            var agtGrid = document.createElement('div');
-            agtGrid.className = 'featured-items';
-            agt.items.forEach(function (item) {
-                var el = document.createElement('div');
-                el.className = 'featured-item';
-                el.innerHTML = '<h4>' + item.title + '</h4>' +
-                    (item.stats ? '<div class="stats"><i class="fas fa-eye"></i> ' + item.stats + '</div>' : '');
-                agtGrid.appendChild(el);
-            });
-            agtBlock.appendChild(agtGrid);
-            container.appendChild(agtBlock);
-        }
-    }
-
-    // ===== UGC GRID =====
-    function renderUGC(ugc) {
-        var hGrid = document.getElementById('horizontalGrid');
-        var vGrid = document.getElementById('verticalGrid');
-
-        ugc.horizontal.forEach(function (id) {
-            hGrid.appendChild(createVideoCard(id, 'horizontal'));
-        });
-
-        ugc.vertical.forEach(function (id) {
-            vGrid.appendChild(createVideoCard(id, 'vertical'));
-        });
-    }
-
-    // ===== PROJECTS =====
-    function renderProjects(projects) {
-        var grid = document.getElementById('projectsGrid');
-        projects.forEach(function (proj) {
-            var a = document.createElement('a');
-            a.href = proj.url;
-            a.target = '_blank';
-            a.rel = 'noopener noreferrer';
-            a.className = 'project-card';
-            a.innerHTML =
-                '<div class="project-bg"><i class="fas ' + proj.icon + '"></i></div>' +
-                '<h3>' + proj.name + '</h3>' +
-                '<p>' + proj.description + '</p>' +
-                '<span class="project-link">Visit <i class="fas fa-arrow-right"></i></span>';
-            grid.appendChild(a);
-        });
-    }
-
-    // ===== SOCIAL =====
-    function renderSocial(socials) {
-        var grid = document.getElementById('socialGrid');
-
-        // Instagram
-        var igCard = document.createElement('a');
-        igCard.href = socials.instagram;
-        igCard.target = '_blank';
-        igCard.rel = 'noopener noreferrer';
-        igCard.className = 'social-card';
-        igCard.innerHTML =
-            '<i class="fab fa-instagram"></i>' +
-            '<h3>Instagram</h3>' +
-            '<p>' + socials.instagramHandle + '</p>' +
-            '<span class="follow-btn">Follow</span>';
-        grid.appendChild(igCard);
-
-        // Trend.io
-        var trendCard = document.createElement('a');
-        trendCard.href = socials.trend;
-        trendCard.target = '_blank';
-        trendCard.rel = 'noopener noreferrer';
-        trendCard.className = 'social-card';
-        trendCard.innerHTML =
-            '<i class="fas fa-video"></i>' +
-            '<h3>Trend</h3>' +
-            '<p>Creator Profile</p>' +
-            '<span class="follow-btn">View Profile</span>';
-        grid.appendChild(trendCard);
-    }
-
-    // ===== CONTACT INFO =====
-    function renderContactInfo(site) {
-        var container = document.getElementById('contactInfo');
-        container.innerHTML =
-            '<div class="contact-item">' +
-            '<i class="fas fa-envelope"></i>' +
-            '<div><h3>Email</h3><a href="mailto:' + site.email + '">' + site.email + '</a></div>' +
-            '</div>' +
-            '<div class="contact-item">' +
-            '<i class="fab fa-instagram"></i>' +
-            '<div><h3>Instagram</h3><a href="' + site.socials.instagram + '" target="_blank">' + site.socials.instagramHandle + '</a></div>' +
-            '</div>' +
-            '<div class="contact-item">' +
-            '<i class="fas fa-globe"></i>' +
-            '<div><h3>Portfolio Sites</h3>' +
-            '<div class="portfolio-links">' +
-            site.projects.map(function (p) {
-                return '<a href="' + p.url + '" target="_blank">' + p.name + '</a>';
-            }).join('') +
-            '</div></div>' +
-            '</div>';
-    }
-
-    // ===== CONTACT FORM =====
-    var contactForm = document.getElementById('contactForm');
-    contactForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        var name = contactForm.querySelector('input[type="text"]').value;
-        var email = contactForm.querySelector('input[type="email"]').value;
-        var message = contactForm.querySelector('textarea').value;
-        var mailtoLink = 'mailto:sternzachary25@gmail.com?subject=Portfolio Inquiry from ' +
-            encodeURIComponent(name) + '&body=' + encodeURIComponent(message) +
-            '%0A%0AFrom: ' + encodeURIComponent(name) +
-            '%0AEmail: ' + encodeURIComponent(email);
-        window.location.href = mailtoLink;
-        setTimeout(function () { contactForm.reset(); }, 500);
-    });
-
-    // ===== SCROLL REVEAL =====
-    function initScrollReveal() {
-        var observer = new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
-
-        var selectors = '.video-card, .reel-card, .project-card, .social-card, .contact-item, .featured-item';
-        document.querySelectorAll(selectors).forEach(function (el) {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(20px)';
-            el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-            observer.observe(el);
-        });
-    }
-
-    console.log('Portfolio loaded.');
-})();
+}
