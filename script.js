@@ -137,8 +137,9 @@ function renderDirecting(config) {
 function createHorizontalCard(item) {
     const id = typeof item === 'string' ? item : item.id;
     const title = typeof item === 'string' ? '' : (item.title || '');
-    const thumbUrl = `https://drive.google.com/thumbnail?id=${id}&sz=w640`;
-    const fallbackUrl = `https://lh3.googleusercontent.com/d/${id}=w640`;
+    const thumbId = (typeof item === 'object' && item.thumb) ? item.thumb : id;
+    const thumbUrl = `https://drive.google.com/thumbnail?id=${thumbId}&sz=w640`;
+    const fallbackUrl = `https://lh3.googleusercontent.com/d/${thumbId}=w640`;
     return `
         <div class="video-card horizontal h-scroll-card" data-id="${id}" data-orientation="horizontal">
             <div class="thumb-wrap">
