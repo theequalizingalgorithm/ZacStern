@@ -249,7 +249,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .hero-title{font-size:1.5rem}
 .section-header h2{font-size:1.8rem}
 .reels-container{grid-template-columns:1fr}
-.ugc-row{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+.ugc-row{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));opacity:1;transform:none;transition:none}
 .horizontal-grid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
 .featured-card{min-width:160px;max-width:160px}
 .contact-container{grid-template-columns:1fr}
@@ -270,7 +270,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .hero-tag{font-size:.65rem}
 .hero-avatar{width:130px;height:auto}
 .section-header h2{font-size:1.4rem}
-.ugc-row{grid-template-columns:repeat(2,1fr)}
+.ugc-row{grid-template-columns:repeat(2,1fr);opacity:1;transform:none;transition:none}
 .horizontal-grid{grid-template-columns:1fr}
 .featured-card{min-width:140px;max-width:140px}
 .contact-form{gap:.8rem}
