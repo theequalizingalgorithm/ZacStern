@@ -47,27 +47,71 @@ function initClickSound() {
     });
 }
 
-/* ===== 3D SCROLL PROGRESS POLYHEDRON ===== */
+/* ===== 3D DODECAHEDRON SCROLL PROGRESS ===== */
 function initScrollProgress() {
     const poly = document.getElementById('progressPoly');
     const label = document.getElementById('progressLabel');
     if (!poly) return;
 
-    // Build 14 wireframe rings to form a 3D polyhedron
-    for (let i = 0; i < 14; i++) {
-        const ring = document.createElement('div');
-        ring.className = 'poly-ring';
-        poly.appendChild(ring);
+    // Dodecahedron: 12 pentagonal faces
+    const faceColors = [
+        'rgba(229,57,53,0.65)',   // red
+        'rgba(30,136,229,0.65)',  // blue
+        'rgba(67,160,71,0.65)',   // green
+        'rgba(253,216,53,0.65)',  // yellow
+        'rgba(233,30,99,0.65)',   // pink
+        'rgba(229,57,53,0.65)',   // red
+        'rgba(30,136,229,0.65)',  // blue
+        'rgba(67,160,71,0.65)',   // green
+        'rgba(253,216,53,0.65)',  // yellow
+        'rgba(233,30,99,0.65)',   // pink
+        'rgba(229,57,53,0.65)',   // red
+        'rgba(30,136,229,0.65)'   // blue
+    ];
+
+    const tz = 12; // insphere translateZ
+    const tiltUpper = 63.435; // 180 - dihedral(116.565)
+    const tiltLower = 116.565;
+
+    const faceTransforms = [
+        // Top face
+        `translateZ(${tz}px)`,
+        // Upper ring — 5 faces at 72° intervals
+        `rotateY(0deg) rotateX(${tiltUpper}deg) translateZ(${tz}px)`,
+        `rotateY(72deg) rotateX(${tiltUpper}deg) translateZ(${tz}px)`,
+        `rotateY(144deg) rotateX(${tiltUpper}deg) translateZ(${tz}px)`,
+        `rotateY(216deg) rotateX(${tiltUpper}deg) translateZ(${tz}px)`,
+        `rotateY(288deg) rotateX(${tiltUpper}deg) translateZ(${tz}px)`,
+        // Lower ring — 5 faces offset by 36°
+        `rotateY(36deg) rotateX(${tiltLower}deg) translateZ(${tz}px)`,
+        `rotateY(108deg) rotateX(${tiltLower}deg) translateZ(${tz}px)`,
+        `rotateY(180deg) rotateX(${tiltLower}deg) translateZ(${tz}px)`,
+        `rotateY(252deg) rotateX(${tiltLower}deg) translateZ(${tz}px)`,
+        `rotateY(324deg) rotateX(${tiltLower}deg) translateZ(${tz}px)`,
+        // Bottom face
+        `rotateX(180deg) translateZ(${tz}px)`
+    ];
+
+    for (let i = 0; i < 12; i++) {
+        const face = document.createElement('div');
+        face.className = 'dodeca-face';
+        face.style.transform = faceTransforms[i];
+        face.style.background = faceColors[i];
+        poly.appendChild(face);
     }
 
-    let currentRotX = 0, currentRotY = 0;
+    // Glow color map for scroll
+    const glowColors = [
+        [229,57,53],[30,136,229],[67,160,71],[253,216,53],[233,30,99],
+        [229,57,53],[30,136,229],[67,160,71],[253,216,53],[233,30,99],
+        [229,57,53],[30,136,229]
+    ];
 
     window.addEventListener('scroll', () => {
         const scrollTop = window.scrollY;
         const docHeight = document.documentElement.scrollHeight - window.innerHeight;
         const pct = docHeight > 0 ? Math.round((scrollTop / docHeight) * 100) : 0;
 
-        // Scroll drives extra rotation on top of the idle spin
         const scrollRotX = (pct / 100) * 720;
         const scrollRotY = (pct / 100) * 1080;
         poly.style.animation = 'none';
@@ -75,33 +119,37 @@ function initScrollProgress() {
 
         if (label) label.textContent = pct + '%';
 
-        // Glow intensity scales with progress — colorful per ring
-        const ringColors = [
-            [229,57,53],[30,136,229],[67,160,71],[253,216,53],[233,30,99],
-            [255,112,67],[229,57,53],[30,136,229],[67,160,71],[253,216,53],
-            [233,30,99],[255,112,67],[30,136,229],[229,57,53]
-        ];
-        const glowSize = 4 + (pct / 100) * 12;
-        const opacity = 0.5 + (pct / 100) * 0.5;
-        poly.querySelectorAll('.poly-ring').forEach((r, i) => {
-            const c = ringColors[i] || [0,153,230];
-            r.style.opacity = opacity;
-            r.style.boxShadow = `0 0 ${glowSize}px rgba(${c[0]},${c[1]},${c[2]},${opacity * 0.6})`;
+        // Scale glow with progress
+        const glowSize = 3 + (pct / 100) * 10;
+        const opacity = 0.55 + (pct / 100) * 0.45;
+        poly.querySelectorAll('.dodeca-face').forEach((f, i) => {
+            const c = glowColors[i] || [0,153,230];
+            f.style.opacity = opacity;
+            f.style.boxShadow = `0 0 ${glowSize}px rgba(${c[0]},${c[1]},${c[2]},${opacity * 0.5})`;
         });
     }, { passive: true });
 }
 
 /* ===== SCROLL ANIMATIONS (Intersection Observer) ===== */
-
 function initScrollAnimations() {
+    // Track scroll direction
+    let lastScrollY = window.scrollY;
+    let scrollDir = 'down';
+    window.addEventListener('scroll', () => {
+        scrollDir = window.scrollY >= lastScrollY ? 'down' : 'up';
+        lastScrollY = window.scrollY;
+    }, { passive: true });
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
             if (entry.isIntersecting) {
-                if (entry.target.classList.contains('anim-stagger')) {
-                    const children = entry.target.children;
-                    Array.from(children).forEach((child, idx) => {
-                        child.style.transitionDelay = `${idx * 0.08}s`;
-                    });
+                // Set direction class BEFORE adding visible so CSS picks up the right transform origin
+                if (scrollDir === 'up') {
+                    entry.target.classList.add('scroll-up');
+                    entry.target.classList.remove('scroll-down');
+                } else {
+                    entry.target.classList.add('scroll-down');
+                    entry.target.classList.remove('scroll-up');
                 }
                 entry.target.classList.add('visible');
             } else {
@@ -174,22 +222,13 @@ function getPlatformLabel(url) {
     return 'Watch';
 }
 
-function getTikTokThumbnail(url) {
-    // Try to use a TikTok oEmbed proxy for thumbnail — returns a placeholder if unavailable
-    const m = url.match(/video\/(\d+)/);
-    if (m) return `https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`;
-    return null;
-}
-
 function buildFeaturedCard(item) {
     const ytId = extractYouTubeId(item.url);
     let thumbHtml;
     if (ytId) {
-        // Use maxresdefault with hqdefault fallback
         thumbHtml = `<img src="https://img.youtube.com/vi/${ytId}/hqdefault.jpg" alt="${item.title}" loading="lazy"
             onerror="this.src='https://img.youtube.com/vi/${ytId}/mqdefault.jpg'">`;
     } else {
-        // For IG / TikTok — gradient placeholder with platform icon
         const icon = getPlatformIcon(item.url);
         thumbHtml = `<div class="thumb-placeholder"><i class="${icon}"></i></div>`;
     }
@@ -197,6 +236,21 @@ function buildFeaturedCard(item) {
     const statsHtml = item.stats
         ? `<div class="stats"><i class="fas fa-eye"></i> ${item.stats}</div>`
         : `<div class="stats"><i class="${getPlatformIcon(item.url)}"></i> ${getPlatformLabel(item.url)}</div>`;
+
+    // YouTube videos open in modal; others open externally
+    if (ytId) {
+        return `
+        <div class="featured-card" data-yt-id="${ytId}" style="cursor:pointer">
+            <div class="thumb-wrap">
+                ${thumbHtml}
+                <div class="play-overlay"><i class="fas fa-play-circle"></i></div>
+            </div>
+            <div class="card-info">
+                <h4>${item.title}</h4>
+                ${statsHtml}
+            </div>
+        </div>`;
+    }
 
     return `
         <a href="${item.url}" target="_blank" rel="noopener" class="featured-card">
@@ -271,7 +325,6 @@ function createVideoCard(item, orientation) {
 function renderUGC(config) {
     const vGrid = document.getElementById('verticalGrid');
     if (!vGrid || !config.videos?.ugc?.vertical) return;
-    // Only render videos that have a title
     const titled = config.videos.ugc.vertical.filter(item => {
         if (typeof item === 'string') return false;
         return item.title && item.title.trim().length > 0;
@@ -372,6 +425,20 @@ function initModal() {
     if (!modal || !iframe) return;
 
     document.addEventListener('click', e => {
+        // YouTube featured cards — open in modal
+        const featuredCard = e.target.closest('.featured-card[data-yt-id]');
+        if (featuredCard) {
+            e.preventDefault();
+            e.stopPropagation();
+            const ytId = featuredCard.dataset.ytId;
+            iframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1`;
+            modalContent.className = 'modal-content modal-horizontal';
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            return;
+        }
+
+        // Drive video cards — open in modal
         const card = e.target.closest('.video-card');
         if (!card) return;
         const fileId = card.dataset.id;
