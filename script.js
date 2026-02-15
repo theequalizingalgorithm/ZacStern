@@ -521,11 +521,8 @@ function renderContact(config) {
     if (s.socials?.instagram) {
         html += `<div class="contact-item"><i class="fab fa-instagram"></i><div><h3>Instagram</h3><a href="${s.socials.instagram}" target="_blank">${s.socials.instagramHandle || '@zac_stern'}</a></div></div>`;
     }
-    let links = '';
-    if (s.socials?.linkedin) links += `<a href="${s.socials.linkedin}" target="_blank">LinkedIn</a>`;
-    if (s.projects) s.projects.forEach(p => { links += `<a href="${p.url}" target="_blank">${p.name}</a>`; });
-    if (links) {
-        html += `<div class="contact-item"><i class="fas fa-link"></i><div><h3>Portfolio Links</h3><div class="portfolio-links">${links}</div></div></div>`;
+    if (s.socials?.linkedin) {
+        html += `<div class="contact-item"><i class="fab fa-linkedin"></i><div><h3>LinkedIn</h3><a href="${s.socials.linkedin}" target="_blank">Zac Stern</a></div></div>`;
     }
     info.innerHTML = html;
 }
