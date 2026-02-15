@@ -1,3 +1,6 @@
+/* #### Aerobics Font #### */
+@font-face{font-family:'Aerobics Regular';font-style:normal;font-weight:normal;src:local('Aerobics Regular'),url('fonts/AerobicsRegular-mLRZP.woff') format('woff')}
+
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--primary:#e8f4fd;--secondary:#fff;--accent:#0099e6;--accent2:#0077b6;--light:#1a3a5c;--text:#2c3e50;--border:rgba(255,255,255,.55);--success:#43a047;--glass:rgba(255,255,255,.45);--glass-border:rgba(255,255,255,.7);--sky-top:#7ec8e3;--sky-mid:#a8d8ea;--sky-bot:#d4f1f9;--green:#56c596;--warm:#ffe0b2;--pink:#f8bbd0;--lavender:#d1c4e9;--bubble-shine:linear-gradient(135deg,rgba(255,255,255,.6) 0%,rgba(255,255,255,.15) 40%,transparent 60%);--bubble-border:rgba(120,200,255,.5);--bubble-glow:0 4px 18px rgba(80,180,255,.12),inset 0 1px 3px rgba(255,255,255,.5),0 0 0 1px rgba(120,200,255,.2)}
 html{scroll-behavior:smooth}
@@ -50,7 +53,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 /* ===== NAVIGATION ===== */
 .navbar{position:fixed;top:0;width:100%;padding:.6rem 0;background:rgba(255,255,255,.55);backdrop-filter:blur(18px) saturate(1.8);-webkit-backdrop-filter:blur(18px) saturate(1.8);border-bottom:1.5px solid var(--bubble-border);z-index:1000;box-shadow:0 2px 20px rgba(0,120,200,.1),inset 0 -1px 2px rgba(255,255,255,.4)}
 .nav-container{max-width:1200px;margin:0 auto;padding:0 1.5rem;display:flex;justify-content:space-between;align-items:center}
-.logo{font-size:.85rem;font-weight:bold;letter-spacing:3px;color:#0077b6;text-transform:uppercase}
+.logo{font-family:'Aerobics Regular','Segoe UI',sans-serif;font-size:.85rem;font-weight:bold;letter-spacing:3px;color:#0077b6;text-transform:uppercase}
 .nav-menu{display:flex;list-style:none;gap:1.2rem}
 .nav-link{color:var(--text);text-decoration:none;font-size:.8rem;letter-spacing:1px;position:relative;transition:all .3s ease;text-transform:uppercase;font-weight:500}
 .nav-link::after{content:'';position:absolute;bottom:-5px;left:0;width:0;height:2px;background:linear-gradient(90deg,#0077b6,#00b4d8);transition:width .3s ease}
@@ -65,7 +68,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .hero-inner{display:flex;align-items:center;justify-content:space-between;gap:2.5rem;max-width:1000px;width:100%;animation:fadeUp .8s ease both}
 .hero-content{z-index:2;flex:1;text-align:left}
 .hero-tag{font-size:.75rem;letter-spacing:4px;text-transform:uppercase;color:#0077b6;margin-bottom:.5rem;font-weight:600}
-.hero-title{font-size:clamp(1.6rem,3.5vw,2.6rem);font-weight:800;line-height:1.15;margin-bottom:.5rem;letter-spacing:-1.5px;color:#1a3a5c}
+.hero-title{font-family:'Aerobics Regular','Segoe UI',sans-serif;font-size:clamp(1.6rem,3.5vw,2.6rem);font-weight:800;line-height:1.15;margin-bottom:.5rem;letter-spacing:-1.5px;color:#1a3a5c}
 .accent{color:var(--accent)}
 .hero-subtitle{font-size:.8rem;color:#5a7d9a;margin-bottom:1.2rem;line-height:1.5;letter-spacing:1px;text-transform:uppercase;font-weight:500}
 .hero-buttons{display:flex;gap:.8rem;flex-wrap:wrap}
@@ -81,7 +84,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
 /* ===== SECTIONS ===== */
 .section-header{text-align:center;margin-bottom:1.5rem;padding-top:.5rem}
-.section-header h2{font-size:2.2rem;font-weight:900;margin-bottom:.5rem;letter-spacing:-1px;background:linear-gradient(135deg,#005fa3 0%,#00b4d8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.section-header h2{font-family:'Aerobics Regular','Segoe UI',sans-serif;font-size:2.2rem;font-weight:900;margin-bottom:.5rem;letter-spacing:-1px;background:linear-gradient(135deg,#005fa3 0%,#00b4d8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .section-subtitle{font-size:1rem;color:#5a7d9a;letter-spacing:1px}
 .retainer-list{font-size:.8rem;color:#6a8eaa;letter-spacing:.5px;margin-top:.5rem;line-height:1.6;font-weight:400}
 
