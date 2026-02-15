@@ -20,20 +20,41 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(err => console.error('Failed to load config:', err));
 });
 
-/* ===== 3D SCROLL PROGRESS INDICATOR ===== */
+/* ===== 3D SCROLL PROGRESS POLYHEDRON ===== */
 function initScrollProgress() {
-    const cube = document.getElementById('progressCube');
-    if (!cube) return;
-    const frontFace = cube.querySelector('.front');
+    const poly = document.getElementById('progressPoly');
+    const label = document.getElementById('progressLabel');
+    if (!poly) return;
+
+    // Build 14 wireframe rings to form a 3D polyhedron
+    for (let i = 0; i < 14; i++) {
+        const ring = document.createElement('div');
+        ring.className = 'poly-ring';
+        poly.appendChild(ring);
+    }
+
+    let currentRotX = 0, currentRotY = 0;
+
     window.addEventListener('scroll', () => {
         const scrollTop = window.scrollY;
         const docHeight = document.documentElement.scrollHeight - window.innerHeight;
         const pct = docHeight > 0 ? Math.round((scrollTop / docHeight) * 100) : 0;
-        // Rotate cube based on scroll: full 360° X and Y over the page
-        const rotX = (pct / 100) * 360;
-        const rotY = (pct / 100) * 720;
-        cube.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
-        if (frontFace) frontFace.textContent = pct + '%';
+
+        // Scroll drives extra rotation on top of the idle spin
+        const scrollRotX = (pct / 100) * 720;
+        const scrollRotY = (pct / 100) * 1080;
+        poly.style.animation = 'none';
+        poly.style.transform = `rotateX(${scrollRotX}deg) rotateY(${scrollRotY}deg)`;
+
+        if (label) label.textContent = pct + '%';
+
+        // Glow intensity scales with progress
+        const glowSize = 4 + (pct / 100) * 12;
+        const opacity = 0.5 + (pct / 100) * 0.5;
+        poly.querySelectorAll('.poly-ring').forEach(r => {
+            r.style.opacity = opacity;
+            r.style.boxShadow = `0 0 ${glowSize}px rgba(0,212,255,${opacity * 0.6})`;
+        });
     }, { passive: true });
 }
 
@@ -170,7 +191,7 @@ function createHorizontalCard(item) {
     const thumbId = hasCustomThumb ? item.thumb : id;
     const thumbUrl = `https://drive.google.com/thumbnail?id=${thumbId}&sz=w640`;
     const fallbackUrl = `https://lh3.googleusercontent.com/d/${thumbId}=w640`;
-    const thumbClass = hasCustomThumb ? 'thumb logo-thumb' : 'thumb';
+    const thumbClass = (typeof item === 'object' && item.thumbContain) ? 'thumb logo-thumb' : 'thumb';
     return `
         <div class="video-card horizontal h-scroll-card" data-id="${id}" data-orientation="horizontal">
             <div class="thumb-wrap">
@@ -216,7 +237,12 @@ function createVideoCard(item, orientation) {
 function renderUGC(config) {
     const vGrid = document.getElementById('verticalGrid');
     if (!vGrid || !config.videos?.ugc?.vertical) return;
-    vGrid.innerHTML = config.videos.ugc.vertical.map(item => createVideoCard(item, 'vertical')).join('');
+    // Only render videos that have a title
+    const titled = config.videos.ugc.vertical.filter(item => {
+        if (typeof item === 'string') return false;
+        return item.title && item.title.trim().length > 0;
+    });
+    vGrid.innerHTML = titled.map(item => createVideoCard(item, 'vertical')).join('');
 }
 
 /* ===== PROJECTS ===== */
