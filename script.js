@@ -451,15 +451,12 @@ function renderUGC(config) {
         return item.title && item.title.trim().length > 0;
     });
 
-    // Determine how many cards per row based on container width
-    // minmax(180px, 1fr) with gap 1.2rem ≈ 19.2px
-    const containerWidth = vGrid.clientWidth || 1200;
-    const colCount = Math.max(1, Math.floor((containerWidth + 19.2) / (180 + 19.2)));
-
-    // Chunk cards into rows
+    // Group cards into batches that animate as rows
+    // CSS grid auto-fill handles the actual column count responsively
+    const batchSize = 4;
     let html = '';
-    for (let i = 0; i < titled.length; i += colCount) {
-        const rowCards = titled.slice(i, i + colCount);
+    for (let i = 0; i < titled.length; i += batchSize) {
+        const rowCards = titled.slice(i, i + batchSize);
         html += '<div class="ugc-row">';
         html += rowCards.map(item => createVideoCard(item, 'vertical')).join('');
         html += '</div>';

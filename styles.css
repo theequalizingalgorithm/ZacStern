@@ -24,7 +24,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .anim-stagger.scroll-up .video-card,.anim-stagger.scroll-up .reel-card,.anim-stagger.scroll-up .project-card,.anim-stagger.scroll-up .social-card{transform:scale(.75) translateY(-30px)}
 .anim-stagger.scroll-up.visible .video-card,.anim-stagger.scroll-up.visible .reel-card,.anim-stagger.scroll-up.visible .project-card,.anim-stagger.scroll-up.visible .social-card{opacity:1;transform:scale(1) translateY(0)}
 /* UGC row-by-row animation */
-.ugc-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.2rem;opacity:0;transform:scale(.75) translateY(30px);transition:opacity .55s cubic-bezier(.22,1,.36,1),transform .55s cubic-bezier(.22,1,.36,1)}
+.ugc-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1.2rem;opacity:0;transform:scale(.75) translateY(30px);transition:opacity .55s cubic-bezier(.22,1,.36,1),transform .55s cubic-bezier(.22,1,.36,1)}
 .ugc-row.visible{opacity:1;transform:scale(1) translateY(0)}
 .ugc-row.scroll-up{transform:scale(.75) translateY(-30px)}
 .ugc-row.scroll-up.visible{opacity:1;transform:scale(1) translateY(0)}
@@ -249,7 +249,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .hero-title{font-size:1.5rem}
 .section-header h2{font-size:1.8rem}
 .reels-container{grid-template-columns:1fr}
-.vertical-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+.ugc-row{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
 .horizontal-grid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
 .featured-card{min-width:160px;max-width:160px}
 .contact-container{grid-template-columns:1fr}
@@ -270,7 +270,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .hero-tag{font-size:.65rem}
 .hero-avatar{width:130px;height:auto}
 .section-header h2{font-size:1.4rem}
-.vertical-grid{grid-template-columns:repeat(2,1fr)}
+.ugc-row{grid-template-columns:repeat(2,1fr)}
 .horizontal-grid{grid-template-columns:1fr}
 .featured-card{min-width:140px;max-width:140px}
 .contact-form{gap:.8rem}
