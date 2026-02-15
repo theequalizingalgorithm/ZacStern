@@ -2,18 +2,56 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('config.json')
         .then(r => r.json())
         .then(config => {
-            renderReels(config);
-            renderFeaturedWork(config);
+            renderDirecting(config);
+            renderNetworkSegments(config);
+            renderClientele(config);
             renderUGC(config);
+            renderReels(config);
             renderProjects(config);
             renderSocial(config);
             renderResume(config);
             renderContact(config);
             initModal();
             initHamburger();
+            initScrollButtons();
+            initScrollAnimations();
         })
         .catch(err => console.error('Failed to load config:', err));
 });
+
+/* ===== SCROLL ANIMATIONS (Intersection Observer) ===== */
+function initScrollAnimations() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+            if (entry.isIntersecting) {
+                // Stagger children if it's a stagger container
+                if (entry.target.classList.contains('anim-stagger')) {
+                    const children = entry.target.children;
+                    Array.from(children).forEach((child, idx) => {
+                        child.style.transitionDelay = `${idx * 0.08}s`;
+                    });
+                }
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.anim-fade-up, .anim-stagger').forEach(el => observer.observe(el));
+}
+
+/* ===== SCROLL BUTTONS ===== */
+function initScrollButtons() {
+    document.querySelectorAll('.scroll-row-wrap').forEach(wrap => {
+        const row = wrap.querySelector('.scroll-row');
+        const leftBtn = wrap.querySelector('.scroll-left');
+        const rightBtn = wrap.querySelector('.scroll-right');
+        if (!row) return;
+        const scrollAmt = 400;
+        if (leftBtn) leftBtn.addEventListener('click', () => row.scrollBy({ left: -scrollAmt, behavior: 'smooth' }));
+        if (rightBtn) rightBtn.addEventListener('click', () => row.scrollBy({ left: scrollAmt, behavior: 'smooth' }));
+    });
+}
 
 /* ===== REELS ===== */
 function renderReels(config) {
@@ -31,9 +69,8 @@ function renderReels(config) {
     `).join('');
 }
 
-/* ===== FEATURED WORK ===== */
+/* ===== FEATURED WORK HELPERS ===== */
 function extractYouTubeId(url) {
-    // Match youtube.com/watch?v=ID, youtube.com/shorts/ID, youtu.be/ID
     let m = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
     return m ? m[1] : null;
 }
@@ -52,11 +89,20 @@ function getPlatformLabel(url) {
     return 'Watch';
 }
 
+function getTikTokThumbnail(url) {
+    // Try to use a TikTok oEmbed proxy for thumbnail — returns a placeholder if unavailable
+    const m = url.match(/video\/(\d+)/);
+    if (m) return `https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`;
+    return null;
+}
+
 function buildFeaturedCard(item) {
     const ytId = extractYouTubeId(item.url);
     let thumbHtml;
     if (ytId) {
-        thumbHtml = `<img src="https://img.youtube.com/vi/${ytId}/hqdefault.jpg" alt="${item.title}" loading="lazy">`;
+        // Use maxresdefault with hqdefault fallback
+        thumbHtml = `<img src="https://img.youtube.com/vi/${ytId}/hqdefault.jpg" alt="${item.title}" loading="lazy"
+            onerror="this.src='https://img.youtube.com/vi/${ytId}/mqdefault.jpg'">`;
     } else {
         // For IG / TikTok — gradient placeholder with platform icon
         const icon = getPlatformIcon(item.url);
@@ -80,46 +126,28 @@ function buildFeaturedCard(item) {
         </a>`;
 }
 
-function renderFeaturedWork(config) {
-    const container = document.getElementById('featuredContainer');
-    if (!container || !config.featuredWork) return;
-    const fw = config.featuredWork;
-    let html = '';
-
-    // Social Media section
-    if (fw.socialMedia) {
-        html += `
-        <div class="featured-block">
-            <div class="featured-block-header">
-                <i class="fas fa-chart-line"></i>
-                <h3>${fw.socialMedia.title}</h3>
-            </div>
-            ${fw.socialMedia.description ? `<p class="featured-block-desc">${fw.socialMedia.description}</p>` : ''}
-            <div class="featured-grid">
-                ${fw.socialMedia.items.map(buildFeaturedCard).join('')}
-            </div>
-        </div>`;
-    }
-
-    // AGT / Produced Segments section
-    if (fw.agt) {
-        html += `
-        <div class="featured-block">
-            <div class="featured-block-header">
-                <i class="fas fa-tv"></i>
-                <h3>${fw.agt.title}</h3>
-            </div>
-            ${fw.agt.description ? `<p class="featured-block-desc">${fw.agt.description}</p>` : ''}
-            <div class="featured-grid">
-                ${fw.agt.items.map(buildFeaturedCard).join('')}
-            </div>
-        </div>`;
-    }
-
-    container.innerHTML = html;
+/* ===== 1. DIRECTING EXAMPLES (Horizontal UGC) ===== */
+function renderDirecting(config) {
+    const grid = document.getElementById('horizontalGrid');
+    if (!grid || !config.videos?.ugc?.horizontal) return;
+    grid.innerHTML = config.videos.ugc.horizontal.map(item => createVideoCard(item, 'horizontal')).join('');
 }
 
-/* ===== UGC VIDEOS ===== */
+/* ===== 2. NETWORK SEGMENTS (AGT) ===== */
+function renderNetworkSegments(config) {
+    const row = document.getElementById('networkRow');
+    if (!row || !config.featuredWork?.agt) return;
+    row.innerHTML = config.featuredWork.agt.items.map(buildFeaturedCard).join('');
+}
+
+/* ===== 3. SOCIAL MEDIA CLIENTELE ===== */
+function renderClientele(config) {
+    const row = document.getElementById('clienteleRow');
+    if (!row || !config.featuredWork?.socialMedia) return;
+    row.innerHTML = config.featuredWork.socialMedia.items.map(buildFeaturedCard).join('');
+}
+
+/* ===== 4. UGC VIDEOS (Vertical) ===== */
 function createVideoCard(item, orientation) {
     const id = typeof item === 'string' ? item : item.id;
     const title = typeof item === 'string' ? '' : (item.title || '');
@@ -136,16 +164,9 @@ function createVideoCard(item, orientation) {
 }
 
 function renderUGC(config) {
-    const hGrid = document.getElementById('horizontalGrid');
     const vGrid = document.getElementById('verticalGrid');
-    if (!config.videos?.ugc) return;
-    const ugc = config.videos.ugc;
-    if (hGrid && ugc.horizontal) {
-        hGrid.innerHTML = ugc.horizontal.map(item => createVideoCard(item, 'horizontal')).join('');
-    }
-    if (vGrid && ugc.vertical) {
-        vGrid.innerHTML = ugc.vertical.map(item => createVideoCard(item, 'vertical')).join('');
-    }
+    if (!vGrid || !config.videos?.ugc?.vertical) return;
+    vGrid.innerHTML = config.videos.ugc.vertical.map(item => createVideoCard(item, 'vertical')).join('');
 }
 
 /* ===== PROJECTS ===== */
@@ -195,50 +216,22 @@ function renderResume(config) {
     if (!container || !config.resume) return;
     const r = config.resume;
     let html = '';
-
-    // Link to full resume
     if (r.url) {
-        html += `
-        <div class="resume-header-link">
-            <a href="${r.url}" target="_blank" rel="noopener">
-                <i class="fas fa-file-alt"></i> View Full Resume
-            </a>
-        </div>`;
+        html += `<div class="resume-header-link"><a href="${r.url}" target="_blank" rel="noopener"><i class="fas fa-file-alt"></i> View Full Resume</a></div>`;
     }
-
-    // Experience timeline
     if (r.experience && r.experience.length) {
         html += '<div class="resume-timeline">';
         r.experience.forEach(exp => {
-            html += `
-            <div class="resume-item">
-                <div class="role">${exp.role}</div>
-                <div class="show">${exp.show}</div>
-                <div class="period">${exp.period}</div>
-                <div class="desc">${exp.description}</div>
-            </div>`;
+            html += `<div class="resume-item"><div class="role">${exp.role}</div><div class="show">${exp.show}</div><div class="period">${exp.period}</div><div class="desc">${exp.description}</div></div>`;
         });
         html += '</div>';
     }
-
-    // UGC summary
     if (r.ugcSummary) {
-        html += `
-        <div class="resume-ugc">
-            <h4><i class="fas fa-camera"></i> UGC Creator</h4>
-            <p>${r.ugcSummary}</p>
-        </div>`;
+        html += `<div class="resume-ugc"><h4><i class="fas fa-camera"></i> UGC Creator</h4><p>${r.ugcSummary}</p></div>`;
     }
-
-    // Education
     if (r.education) {
-        html += `
-        <div class="resume-education">
-            <h4><i class="fas fa-graduation-cap"></i> Education</h4>
-            <p>${r.education}</p>
-        </div>`;
+        html += `<div class="resume-education"><h4><i class="fas fa-graduation-cap"></i> Education</h4><p>${r.education}</p></div>`;
     }
-
     container.innerHTML = html;
 }
 
@@ -249,38 +242,16 @@ function renderContact(config) {
     const s = config.site;
     let html = '';
     if (s.email) {
-        html += `
-        <div class="contact-item">
-            <i class="fas fa-envelope"></i>
-            <div>
-                <h3>Email</h3>
-                <a href="mailto:${s.email}">${s.email}</a>
-            </div>
-        </div>`;
+        html += `<div class="contact-item"><i class="fas fa-envelope"></i><div><h3>Email</h3><a href="mailto:${s.email}">${s.email}</a></div></div>`;
     }
     if (s.socials?.instagram) {
-        html += `
-        <div class="contact-item">
-            <i class="fab fa-instagram"></i>
-            <div>
-                <h3>Instagram</h3>
-                <a href="${s.socials.instagram}" target="_blank">${s.socials.instagramHandle || '@zac_stern'}</a>
-            </div>
-        </div>`;
+        html += `<div class="contact-item"><i class="fab fa-instagram"></i><div><h3>Instagram</h3><a href="${s.socials.instagram}" target="_blank">${s.socials.instagramHandle || '@zac_stern'}</a></div></div>`;
     }
-    // Portfolio links
     let links = '';
     if (s.socials?.trend) links += `<a href="${s.socials.trend}" target="_blank">Trend.io</a>`;
     if (s.projects) s.projects.forEach(p => { links += `<a href="${p.url}" target="_blank">${p.name}</a>`; });
     if (links) {
-        html += `
-        <div class="contact-item">
-            <i class="fas fa-link"></i>
-            <div>
-                <h3>Portfolio Links</h3>
-                <div class="portfolio-links">${links}</div>
-            </div>
-        </div>`;
+        html += `<div class="contact-item"><i class="fas fa-link"></i><div><h3>Portfolio Links</h3><div class="portfolio-links">${links}</div></div></div>`;
     }
     info.innerHTML = html;
 }
@@ -293,7 +264,6 @@ function initModal() {
     const closeBtn = document.getElementById('modalClose');
     if (!modal || !iframe) return;
 
-    // Click handler for video cards (UGC only — featured cards are external links)
     document.addEventListener('click', e => {
         const card = e.target.closest('.video-card');
         if (!card) return;
@@ -322,8 +292,8 @@ function initHamburger() {
     const hamburger = document.querySelector('.hamburger');
     const navMenu = document.querySelector('.nav-menu');
     if (!hamburger || !navMenu) return;
-    hamburger.addEventListener('click', () => { navMenu.classList.toggle('active'); });
+    hamburger.addEventListener('click', () => navMenu.classList.toggle('active'));
     navMenu.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', () => { navMenu.classList.remove('active'); });
+        link.addEventListener('click', () => navMenu.classList.remove('active'));
     });
 }

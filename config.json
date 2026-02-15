@@ -53,7 +53,7 @@
       ],
       "vertical": [
         { "id": "10x30FoyRtgKzZNQz8DM7R4IaUFcn8nn2", "title": "Joggers" },
-        { "id": "12IsZd8g0ctcecw-1nGAFf5izfD2TtdmS", "title": "UGC" },
+        { "id": "12IsZd8g0ctcecw-1nGAFf5izfD2TtdmS", "title": "Ryde" },
         { "id": "12O1rzKLa2k4vNR2WGgSNJyze6g0IKs-C", "title": "Busted" },
         { "id": "12wPkeGO8AUsLohFFoPFutdjZxupLI0RN", "title": "Crate 61" },
         { "id": "14GpQBTTj8hP8Ohdd5CdmBqmYYFXEt1xC", "title": "Catnap" },
@@ -67,12 +67,12 @@
         { "id": "1Aucekz_3yT6aMh3qxjGEcyqxGtMHdrC-", "title": "Lucyd" },
         { "id": "1BCLGoSpBLekxepwwrCaHZ1FEk9Bym8Ga", "title": "Dua Brand" },
         { "id": "1BVghA5GBYlX708BU3r6XQ-GSEmnT4T89", "title": "Manta Sleep" },
-        { "id": "1CCsOt7HTscMdzepzUmfT7oz8W3g4_bRA", "title": "UGC" },
+        { "id": "1CCsOt7HTscMdzepzUmfT7oz8W3g4_bRA", "title": "Revant Glasses" },
         { "id": "1ErilqVTmgotgTIM--M4VJDf-cjV7P1yk", "title": "Anabar Redux" },
         { "id": "1GHqmI9kotYeQVKeljAoIdoylsT8rl-1-", "title": "Anabar" },
         { "id": "1Ggy07rfL0-XREik3jMPnE2OJeOLEZv8t", "title": "The Heatrap Shirt" },
-        { "id": "1KOpsi-SGuQuFpI2jkpjsDw7R4N6G6E7u", "title": "UGC" },
-        { "id": "1LWR6_grcQGxsIRLWxdp5a-7400-VlWK3", "title": "UGC" },
+        { "id": "1KOpsi-SGuQuFpI2jkpjsDw7R4N6G6E7u", "title": "Ultra Omega Oil" },
+        { "id": "1LWR6_grcQGxsIRLWxdp5a-7400-VlWK3", "title": "Shadows of the Damned" },
         { "id": "1MZBsAkbjuJBvHoivnlOsuukOUXRwCjl8", "title": "Bett Gummies" },
         { "id": "1RxYMuYJ3LWoydKJvro7SaVhkTYqkj8OY", "title": "Goodest Box for Goodest Boys" },
         { "id": "1S-8piPwToDw8qr-Vvj42y6ryeAoUa3zZ", "title": "Hiscox Blog" },
@@ -80,29 +80,33 @@
         { "id": "1VuBFRryJfQAi_owSPg_N7N9Q-2U2b2gJ", "title": "Holm and Herd" },
         { "id": "1Y5ekYk0VKylnP233fZaR3a1g9ZhDtpEh", "title": "Alodia" },
         { "id": "1YR3WsRGeNxkvP-G9wXek8zNv1ypZpFqf", "title": "Planet Fitness" },
-        { "id": "1e-UeW-WdI1cGGB9ZijFRv5R-voQgGJAC", "title": "UGC" },
+        { "id": "1e-UeW-WdI1cGGB9ZijFRv5R-voQgGJAC", "title": "Sword Demo" },
         { "id": "1eQBzRhCBzwfjwu8aNNFVnJbJDnTQfbV_", "title": "IM8" },
         { "id": "1fNgPKtAkJgUAZrdHLpCSCzqsX0zPJJTs", "title": "Peluva" },
         { "id": "1ff-PNo2r3-Ax0bNnh8DjHDMVvp1BDDio", "title": "Peak" },
         { "id": "1iMWhEQ1cm25638sAGyLdGOkMPEKk06jZ", "title": "Frog Fuel" },
         { "id": "1lIkkhMJeHglMLwoBpsZe39IIUSltcl10", "title": "Castleflexx Comparison" },
-        { "id": "1nBSklchjXbNKLgRUveM8WTk94VDyhmiQ", "title": "UGC" },
-        { "id": "1o4XOKWxLYMfY8melliyR_DRes5Cla4Wi", "title": "UGC" },
+        { "id": "1nBSklchjXbNKLgRUveM8WTk94VDyhmiQ", "title": "iCloud Photos" },
+        { "id": "1o4XOKWxLYMfY8melliyR_DRes5Cla4Wi", "title": "Teige Hanley" },
         { "id": "1pUj9-5xhSUq556HFOxqDfDASxHu52zgy", "title": "Plentum" },
         { "id": "1uFHD1-2d5vCqaZSlFYe4QAoL_LrABTIw", "title": "Pawsitive Pets" },
-        { "id": "1x-rXMl1GLxn7TyFZb1loXFHNz4xNRzIN", "title": "UGC" },
-        { "id": "1ynNwM_TqOjbHtEWspE-2Ua5qmXqMOBJi", "title": "UGC" },
+        { "id": "1x-rXMl1GLxn7TyFZb1loXFHNz4xNRzIN", "title": "Tallow Soap" },
         { "id": "1zNmjWYoBTifQj_NYZwRBcjhkXzS4Sgxv", "title": "Anabar Sample" },
         { "id": "1Y8dYOxvlCRu_gTF9I9ylr8ESHQBUwf5i", "title": "Mad Muscles" },
         { "id": "1MeewMm3Dz_Dj74V1ExEzHOjz_yI-FoSD", "title": "Orange Turmeric" },
-        { "id": "1J1NsbkD9su8bz9XDfWZdln4ReSwcLmww", "title": "UGC" },
-        { "id": "1ScwwIjY9LJrRlDstR2a3BputFSr4oNB4", "title": "Joggers" }
+        { "id": "1J1NsbkD9su8bz9XDfWZdln4ReSwcLmww", "title": "Prime Labs Preworkout" },
+        { "id": "1ScwwIjY9LJrRlDstR2a3BputFSr4oNB4", "title": "Joggers" },
+        { "id": "1PGgbzjFCcfepmwQcWRvPXD5UZ85dX3Y1", "title": "Emurs Chicken" },
+        { "id": "1_dBoCDZ56HsBz7al57p1Bz4EyjwGdY3V", "title": "Clue Love" },
+        { "id": "15Ri413TtQtfWug0iqun4UW5vFTqdZ8Mv", "title": "Oil of Oregano" },
+        { "id": "1STV1XrPwddvOPIUlNOXJYWbH-cyY1ZJk", "title": "Bladder Support" },
+        { "id": "1flqesrJkDfHHjGLHCFa8R1B_Ea3Nx02w", "title": "Lifestyle Content" }
       ]
     }
   },
   "featuredWork": {
     "socialMedia": {
-      "title": "Social Media Performance for Other Clients",
+      "title": "Social Media Performance with Clientele",
       "items": [
         {
           "title": "James Leon x Korkscrew",
@@ -141,7 +145,7 @@
       ]
     },
     "agt": {
-      "title": "Segments Produced by Me That Have Performed Well Online",
+      "title": "Network Segments",
       "description": "For each AGT segment I produced the story in pre-production, oversaw filming in the field, and handled putting the segment together in post with our editors.",
       "items": [
         {

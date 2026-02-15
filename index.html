@@ -14,10 +14,11 @@
             <div class="logo">WELCOME TO MY PORTFOLIO</div>
             <ul class="nav-menu">
                 <li><a href="#hero" class="nav-link">Home</a></li>
-                <li><a href="#reels" class="nav-link">Reels</a></li>
-                <li><a href="#featured" class="nav-link">Featured</a></li>
+                <li><a href="#directing" class="nav-link">Directing</a></li>
+                <li><a href="#network" class="nav-link">Network</a></li>
+                <li><a href="#clientele" class="nav-link">Clientele</a></li>
                 <li><a href="#ugc" class="nav-link">UGC</a></li>
-                <li><a href="#projects" class="nav-link">Projects</a></li>
+                <li><a href="#reels" class="nav-link">Reels</a></li>
                 <li><a href="#resume" class="nav-link">Resume</a></li>
                 <li><a href="#contact" class="nav-link">Contact</a></li>
             </ul>
@@ -31,107 +32,107 @@
 
     <!-- Hero Section -->
     <section id="hero" class="hero">
-        <div class="hero-content">
+        <div class="hero-content anim-fade-up">
             <h1 class="hero-title">Creative <span class="accent">Producer</span> &amp; <span class="accent">Director</span></h1>
             <p class="hero-subtitle">Crafting compelling visuals that inspire and engage</p>
             <div class="hero-buttons">
-                <a href="#reels" class="btn btn-primary">View My Work</a>
+                <a href="#directing" class="btn btn-primary">View My Work</a>
                 <a href="#contact" class="btn btn-secondary">Get In Touch</a>
             </div>
         </div>
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
     </section>
 
-    <!-- Producing & Directing Reels -->
-    <section id="reels" class="reels-section">
-        <div class="section-header">
-            <h2>Featured Reels</h2>
-            <p class="section-subtitle">My Producing & Directing Work</p>
+    <!-- 1. Directing Examples (Horizontal UGC) -->
+    <section id="directing" class="directing-section">
+        <div class="section-header anim-fade-up">
+            <h2>Directing Examples</h2>
+            <p class="section-subtitle">Horizontal content I've directed</p>
         </div>
-        <div class="reels-container" id="reelsContainer">
-            <!-- Rendered by JS from config.json -->
+        <div class="video-grid horizontal-grid anim-stagger" id="horizontalGrid"></div>
+    </section>
+
+    <!-- 2. Network Segments (AGT) — horizontal scroll -->
+    <section id="network" class="featured-section">
+        <div class="section-header anim-fade-up">
+            <h2>Network Segments</h2>
+            <p class="section-subtitle">Segments I produced for network television</p>
+        </div>
+        <div class="scroll-row-wrap">
+            <button class="scroll-btn scroll-left" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
+            <div class="scroll-row" id="networkRow"></div>
+            <button class="scroll-btn scroll-right" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
         </div>
     </section>
 
-    <!-- Featured Work Section -->
-    <section id="featured" class="featured-section">
-        <div class="section-header">
-            <h2>Featured Work</h2>
-            <p class="section-subtitle">Highlights from my production career</p>
+    <!-- 3. Social Media Performance with Clientele — horizontal scroll -->
+    <section id="clientele" class="featured-section">
+        <div class="section-header anim-fade-up">
+            <h2>Social Media Performance with Clientele</h2>
+            <p class="section-subtitle">Content I've created that performed for clients</p>
         </div>
-        <div id="featuredContainer">
-            <!-- Rendered by JS from config.json -->
+        <div class="scroll-row-wrap">
+            <button class="scroll-btn scroll-left" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
+            <div class="scroll-row" id="clienteleRow"></div>
+            <button class="scroll-btn scroll-right" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
         </div>
     </section>
 
-    <!-- UGC Videos Grid -->
+    <!-- 4. UGC Videos (Vertical Grid) -->
     <section id="ugc" class="ugc-section">
-        <div class="section-header">
+        <div class="section-header anim-fade-up">
             <h2>UGC Content</h2>
             <p class="section-subtitle">Click any thumbnail to watch</p>
         </div>
-
-        <!-- 16:9 Horizontal Videos -->
-        <div class="ugc-category">
-            <h3 class="category-title"><i class="fas fa-desktop"></i> Horizontal &mdash; 16:9</h3>
-            <div class="video-grid horizontal-grid" id="horizontalGrid">
-                <!-- Rendered by JS -->
-            </div>
-        </div>
-
-        <!-- 9:16 Vertical Videos -->
-        <div class="ugc-category">
-            <h3 class="category-title"><i class="fas fa-mobile-alt"></i> Vertical &mdash; 9:16</h3>
-            <div class="video-grid vertical-grid" id="verticalGrid">
-                <!-- Rendered by JS -->
-            </div>
-        </div>
+        <div class="video-grid vertical-grid anim-stagger" id="verticalGrid"></div>
     </section>
 
-    <!-- Projects Section -->
+    <!-- 5. Featured Reels -->
+    <section id="reels" class="reels-section">
+        <div class="section-header anim-fade-up">
+            <h2>Featured Reels</h2>
+            <p class="section-subtitle">My Producing &amp; Directing Work</p>
+        </div>
+        <div class="reels-container anim-stagger" id="reelsContainer"></div>
+    </section>
+
+    <!-- 6. Projects -->
     <section id="projects" class="projects-section">
-        <div class="section-header">
+        <div class="section-header anim-fade-up">
             <h2>Featured Projects</h2>
             <p class="section-subtitle">My digital creations and platforms</p>
         </div>
-        <div class="projects-grid" id="projectsGrid">
-            <!-- Rendered by JS -->
-        </div>
+        <div class="projects-grid anim-stagger" id="projectsGrid"></div>
     </section>
 
-    <!-- Social Media Section -->
+    <!-- 7. Social Media Follow -->
     <section id="social" class="social-section">
-        <div class="section-header">
+        <div class="section-header anim-fade-up">
             <h2>Follow My Work</h2>
             <p class="section-subtitle">Stay updated across all platforms</p>
         </div>
-        <div class="social-grid" id="socialGrid">
-            <!-- Rendered by JS -->
-        </div>
+        <div class="social-grid anim-stagger" id="socialGrid"></div>
     </section>
 
-    <!-- Resume Section -->
+    <!-- 8. Resume -->
     <section id="resume" class="resume-section">
-        <div class="section-header">
+        <div class="section-header anim-fade-up">
             <h2>Resume</h2>
             <p class="section-subtitle">My professional experience</p>
         </div>
-        <div id="resumeContainer">
-            <!-- Rendered by JS -->
-        </div>
+        <div id="resumeContainer"></div>
     </section>
 
-    <!-- Contact Section -->
+    <!-- 9. Contact -->
     <section id="contact" class="contact-section">
-        <div class="section-header">
+        <div class="section-header anim-fade-up">
             <h2>Let's Create</h2>
             <p class="section-subtitle">Ready to collaborate on your next project</p>
         </div>
-
-        <div class="contact-container">
-            <div class="contact-info" id="contactInfo">
-                <!-- Rendered by JS -->
-            </div>
-
+        <div class="contact-container anim-fade-up">
+            <div class="contact-info" id="contactInfo"></div>
             <form class="contact-form" id="contactForm">
                 <input type="text" placeholder="Your Name" required>
                 <input type="email" placeholder="Your Email" required>
@@ -157,10 +158,10 @@
             <p>&copy; 2024 Zac Stern. All rights reserved.</p>
             <div class="footer-links">
                 <a href="#hero">Home</a>
-                <a href="#reels">Reels</a>
-                <a href="#featured">Featured</a>
+                <a href="#directing">Directing</a>
+                <a href="#network">Network</a>
                 <a href="#ugc">UGC</a>
-                <a href="#projects">Projects</a>
+                <a href="#reels">Reels</a>
                 <a href="#resume">Resume</a>
                 <a href="#contact">Contact</a>
             </div>
