@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
             renderNetworkSegments(config);
             renderClientele(config);
             renderUGC(config);
-            renderReels(config);
             renderProjects(config);
             renderSocial(config);
             renderResume(config);
