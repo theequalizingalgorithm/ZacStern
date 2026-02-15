@@ -35,11 +35,11 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .dodeca-face{position:absolute;width:16px;height:15px;left:50%;top:50%;margin-left:-8px;margin-top:-7.5px;clip-path:polygon(50% 0%,100% 38%,81% 100%,19% 100%,0% 38%);transform-style:preserve-3d;backface-visibility:visible;border:none;opacity:.75}
 @keyframes polyIdle{from{transform:rotateX(0deg) rotateY(0deg)}to{transform:rotateX(360deg) rotateY(360deg)}}
 
-/* ===== SHINY BUBBLE MIXIN — applied to all glass panels ===== */
-.video-card,.featured-card,.reel-card,.project-card,.social-card,.contact-item,.resume-item,.resume-ugc,.resume-education{position:relative;border:1.5px solid var(--bubble-border);box-shadow:var(--bubble-glow)}
-.video-card::before,.featured-card::before,.reel-card::before,.social-card::before,.contact-item::before,.resume-item::before,.resume-ugc::before,.resume-education::before{content:'';position:absolute;inset:0;border-radius:inherit;background:var(--bubble-shine);pointer-events:none;z-index:3}
-/* Bubble shimmer on text areas */
-.video-card .card-title,.featured-card .card-info{position:relative;background:rgba(255,255,255,.55);backdrop-filter:blur(6px);border-top:1px solid rgba(255,255,255,.6);box-shadow:inset 0 1px 2px rgba(255,255,255,.7)}
+/* ===== BUBBLE BORDERS — non-video panels only ===== */
+.project-card,.social-card,.contact-item,.resume-item,.resume-ugc,.resume-education{position:relative;border:1.5px solid var(--bubble-border);box-shadow:var(--bubble-glow)}
+.project-card::before,.social-card::before,.contact-item::before,.resume-item::before,.resume-ugc::before,.resume-education::before{content:'';position:absolute;inset:0;border-radius:inherit;background:var(--bubble-shine);pointer-events:none;z-index:3}
+/* Video / featured / reel cards — clean, no shine overlay */
+.video-card,.featured-card,.reel-card{position:relative}
 .section-header h2{position:relative;display:inline-block}
 .section-header{position:relative}
 .section-header::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:60%;max-width:300px;height:2px;background:linear-gradient(90deg,transparent,rgba(120,200,255,.5),transparent);border-radius:2px}
