@@ -71,8 +71,8 @@ function initScrollProgress() {
         [phi, 0, 1/phi],[phi, 0,-1/phi],[-phi, 0, 1/phi],[-phi, 0,-1/phi]
     ];
 
-    // Scale to fit canvas (radius ~16 in 84px canvas = nice margin)
-    const scale = 14;
+    // Scale to fit canvas (radius ~22 in 128px canvas = nice margin)
+    const scale = 22;
     const verts = raw.map(v => v.map(c => c * scale));
 
     // 12 pentagonal faces (vertex indices, ordered for proper winding)
