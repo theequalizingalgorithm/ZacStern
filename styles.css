@@ -19,8 +19,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .anim-stagger.visible .video-card,.anim-stagger.visible .reel-card,.anim-stagger.visible .project-card,.anim-stagger.visible .social-card{opacity:1;transform:scale(1) perspective(800px) rotateX(0deg)}
 
 /* 3D grow for scroll-row cards */
-.scroll-row .video-card,.scroll-row .featured-card,.scroll-row .h-scroll-card{transform:scale(.75) perspective(800px) rotateY(10deg);transition:transform .6s cubic-bezier(.22,1,.36,1),opacity .6s ease}
-.scroll-row.anim-visible .video-card,.scroll-row.anim-visible .featured-card,.scroll-row.anim-visible .h-scroll-card{transform:scale(1) perspective(800px) rotateY(0deg)}
+.scroll-row .video-card,.scroll-row .featured-card,.scroll-row .h-scroll-card{transform:scale(.75) translateY(30px);opacity:0;transition:transform .6s cubic-bezier(.22,1,.36,1),opacity .6s ease}
+.scroll-row.anim-visible .video-card,.scroll-row.anim-visible .featured-card,.scroll-row.anim-visible .h-scroll-card{transform:scale(1) translateY(0);opacity:1}
 
 /* ===== 3D PROGRESS POLYHEDRON ===== */
 .scroll-progress{position:fixed;top:58px;right:16px;z-index:999;width:40px;height:40px;perspective:300px}
