@@ -29,11 +29,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .scroll-row.anim-visible .video-card,.scroll-row.anim-visible .featured-card,.scroll-row.anim-visible .h-scroll-card{transform:scale(1) translateY(0);opacity:1}
 
 /* ===== 3D DODECAHEDRON PROGRESS ===== */
-.scroll-progress{position:fixed;top:58px;right:16px;z-index:999;width:42px;height:42px;perspective:200px}
-.scroll-progress-poly{width:100%;height:100%;position:relative;transform-style:preserve-3d;animation:polyIdle 12s linear infinite}
+.scroll-progress{position:fixed;top:58px;right:16px;z-index:999;width:42px;height:42px}
+#dodecaCanvas{width:42px;height:42px;display:block}
 .scroll-progress-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:800;color:#0077b6;z-index:10;text-shadow:0 0 6px rgba(0,119,182,.6);pointer-events:none}
-.dodeca-face{position:absolute;width:16px;height:15px;left:50%;top:50%;margin-left:-8px;margin-top:-7.5px;clip-path:polygon(50% 0%,100% 38%,81% 100%,19% 100%,0% 38%);transform-style:preserve-3d;backface-visibility:visible;border:none;opacity:.75}
-@keyframes polyIdle{from{transform:rotateX(0deg) rotateY(0deg)}to{transform:rotateX(360deg) rotateY(360deg)}}
 
 /* ===== BUBBLE BORDERS — non-video panels only ===== */
 .project-card,.social-card,.contact-item,.resume-item,.resume-ugc,.resume-education{position:relative;border:1.5px solid var(--bubble-border);box-shadow:var(--bubble-glow)}

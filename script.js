@@ -47,86 +47,171 @@ function initClickSound() {
     });
 }
 
-/* ===== 3D DODECAHEDRON SCROLL PROGRESS ===== */
+/* ===== 3D DODECAHEDRON SCROLL PROGRESS (Canvas) ===== */
 function initScrollProgress() {
-    const poly = document.getElementById('progressPoly');
-    const label = document.getElementById('progressLabel');
-    if (!poly) return;
+    const canvas = document.getElementById('dodecaCanvas');
+    const label  = document.getElementById('progressLabel');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height, CX = W/2, CY = H/2;
 
-    // Dodecahedron: 12 pentagonal faces
+    // Golden ratio
+    const phi = (1 + Math.sqrt(5)) / 2;
+
+    // 20 vertices of a dodecahedron (cube + rectangle combos)
+    const raw = [
+        // 8 cube vertices
+        [1,1,1],[-1,1,1],[-1,-1,1],[1,-1,1],
+        [1,1,-1],[-1,1,-1],[-1,-1,-1],[1,-1,-1],
+        // 4 vertices on YZ plane
+        [0, 1/phi, phi],[0,-1/phi, phi],[0, 1/phi,-phi],[0,-1/phi,-phi],
+        // 4 vertices on XZ plane
+        [1/phi, phi, 0],[-1/phi, phi, 0],[-1/phi,-phi, 0],[1/phi,-phi, 0],
+        // 4 vertices on XY plane
+        [phi, 0, 1/phi],[phi, 0,-1/phi],[-phi, 0, 1/phi],[-phi, 0,-1/phi]
+    ];
+
+    // Scale to fit canvas (radius ~16 in 84px canvas = nice margin)
+    const scale = 14;
+    const verts = raw.map(v => v.map(c => c * scale));
+
+    // 12 pentagonal faces (vertex indices, ordered for proper winding)
+    const faces = [
+        [0, 8, 9, 3, 16],   [0,16,17, 4,12],   [0,12,13, 1, 8],
+        [1,13, 5,19,18],     [1,18, 2, 9, 8],    [2,18,19, 6,14],
+        [2,14,15, 3, 9],     [3,15, 7,17,16],    [4,17, 7,11,10],
+        [4,10, 5,13,12],     [5,10,11, 6,19],    [6,11, 7,15,14]
+    ];
+
+    // Face colors: red, blue, green, yellow, pink — cycling
     const faceColors = [
-        'rgba(229,57,53,0.65)',   // red
-        'rgba(30,136,229,0.65)',  // blue
-        'rgba(67,160,71,0.65)',   // green
-        'rgba(253,216,53,0.65)',  // yellow
-        'rgba(233,30,99,0.65)',   // pink
-        'rgba(229,57,53,0.65)',   // red
-        'rgba(30,136,229,0.65)',  // blue
-        'rgba(67,160,71,0.65)',   // green
-        'rgba(253,216,53,0.65)',  // yellow
-        'rgba(233,30,99,0.65)',   // pink
-        'rgba(229,57,53,0.65)',   // red
-        'rgba(30,136,229,0.65)'   // blue
+        [229,57,53],  [30,136,229], [67,160,71],
+        [253,216,53], [233,30,99],  [229,57,53],
+        [30,136,229], [67,160,71],  [253,216,53],
+        [233,30,99],  [229,57,53],  [30,136,229]
     ];
 
-    const tz = 12; // insphere translateZ
-    const tiltUpper = 63.435; // 180 - dihedral(116.565)
-    const tiltLower = 116.565;
-
-    const faceTransforms = [
-        // Top face
-        `translateZ(${tz}px)`,
-        // Upper ring — 5 faces at 72° intervals
-        `rotateY(0deg) rotateX(${tiltUpper}deg) translateZ(${tz}px)`,
-        `rotateY(72deg) rotateX(${tiltUpper}deg) translateZ(${tz}px)`,
-        `rotateY(144deg) rotateX(${tiltUpper}deg) translateZ(${tz}px)`,
-        `rotateY(216deg) rotateX(${tiltUpper}deg) translateZ(${tz}px)`,
-        `rotateY(288deg) rotateX(${tiltUpper}deg) translateZ(${tz}px)`,
-        // Lower ring — 5 faces offset by 36°
-        `rotateY(36deg) rotateX(${tiltLower}deg) translateZ(${tz}px)`,
-        `rotateY(108deg) rotateX(${tiltLower}deg) translateZ(${tz}px)`,
-        `rotateY(180deg) rotateX(${tiltLower}deg) translateZ(${tz}px)`,
-        `rotateY(252deg) rotateX(${tiltLower}deg) translateZ(${tz}px)`,
-        `rotateY(324deg) rotateX(${tiltLower}deg) translateZ(${tz}px)`,
-        // Bottom face
-        `rotateX(180deg) translateZ(${tz}px)`
-    ];
-
-    for (let i = 0; i < 12; i++) {
-        const face = document.createElement('div');
-        face.className = 'dodeca-face';
-        face.style.transform = faceTransforms[i];
-        face.style.background = faceColors[i];
-        poly.appendChild(face);
+    // Rotation matrices
+    function rotX(v, a) {
+        const c=Math.cos(a), s=Math.sin(a);
+        return [v[0], v[1]*c - v[2]*s, v[1]*s + v[2]*c];
+    }
+    function rotY(v, a) {
+        const c=Math.cos(a), s=Math.sin(a);
+        return [v[0]*c + v[2]*s, v[1], -v[0]*s + v[2]*c];
+    }
+    function rotZ(v, a) {
+        const c=Math.cos(a), s=Math.sin(a);
+        return [v[0]*c - v[1]*s, v[0]*s + v[1]*c, v[2]];
     }
 
-    // Glow color map for scroll
-    const glowColors = [
-        [229,57,53],[30,136,229],[67,160,71],[253,216,53],[233,30,99],
-        [229,57,53],[30,136,229],[67,160,71],[253,216,53],[233,30,99],
-        [229,57,53],[30,136,229]
-    ];
+    // Idle rotation angles (updated on scroll + idle timer)
+    let angleX = 0.4, angleY = 0.3, angleZ = 0;
+    let idleT = 0;
+    let lastFrame = performance.now();
 
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+
+        // Apply rotation to all vertices
+        const rv = verts.map(v => {
+            let r = rotX(v, angleX);
+            r = rotY(r, angleY);
+            r = rotZ(r, angleZ);
+            return r;
+        });
+
+        // Simple perspective projection
+        const focalLen = 120;
+        function project(v) {
+            const pz = focalLen / (focalLen + v[2]);
+            return [CX + v[0] * pz, CY + v[1] * pz, v[2]];
+        }
+
+        const projected = rv.map(project);
+
+        // Compute face depth (average Z of rotated verts) + normal for lighting
+        const faceData = faces.map((f, i) => {
+            let zSum = 0;
+            for (const vi of f) zSum += rv[vi][2];
+            const avgZ = zSum / f.length;
+
+            // Face normal via cross product of two edges (for backface / lighting)
+            const a = rv[f[0]], b = rv[f[1]], c = rv[f[2]];
+            const e1 = [b[0]-a[0], b[1]-a[1], b[2]-a[2]];
+            const e2 = [c[0]-a[0], c[1]-a[1], c[2]-a[2]];
+            const nx = e1[1]*e2[2] - e1[2]*e2[1];
+            const ny = e1[2]*e2[0] - e1[0]*e2[2];
+            const nz = e1[0]*e2[1] - e1[1]*e2[0];
+
+            return { idx: i, avgZ, nz };
+        });
+
+        // Sort back-to-front (painter's algorithm)
+        faceData.sort((a, b) => a.avgZ - b.avgZ);
+
+        // Draw faces
+        for (const fd of faceData) {
+            // Skip back faces (optional — gives solid look)
+            if (fd.nz > 0) continue;
+
+            const f = faces[fd.idx];
+            const col = faceColors[fd.idx];
+
+            // Lighting: simple diffuse based on face normal z
+            const brightness = 0.45 + 0.55 * Math.max(0, -fd.nz / Math.sqrt(
+                (function(){ const a=rv[f[0]],b=rv[f[1]],c=rv[f[2]];
+                const e1=[b[0]-a[0],b[1]-a[1],b[2]-a[2]];
+                const e2=[c[0]-a[0],c[1]-a[1],c[2]-a[2]];
+                const nx=e1[1]*e2[2]-e1[2]*e2[1],ny=e1[2]*e2[0]-e1[0]*e2[2],nz=e1[0]*e2[1]-e1[1]*e2[0];
+                return nx*nx+ny*ny+nz*nz;})()
+            ));
+
+            ctx.beginPath();
+            const p0 = projected[f[0]];
+            ctx.moveTo(p0[0], p0[1]);
+            for (let j = 1; j < f.length; j++) {
+                const pj = projected[f[j]];
+                ctx.lineTo(pj[0], pj[1]);
+            }
+            ctx.closePath();
+
+            const r = Math.round(col[0] * brightness);
+            const g = Math.round(col[1] * brightness);
+            const b2 = Math.round(col[2] * brightness);
+            ctx.fillStyle = `rgba(${r},${g},${b2},0.82)`;
+            ctx.fill();
+            ctx.strokeStyle = `rgba(255,255,255,0.35)`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+        }
+    }
+
+    // Idle spin
+    function animate(now) {
+        const dt = (now - lastFrame) / 1000;
+        lastFrame = now;
+        idleT += dt;
+        angleX += dt * 0.35;
+        angleY += dt * 0.5;
+        draw();
+        requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+
+    // On scroll: boost rotation speed based on scroll velocity + update label
+    let prevScroll = window.scrollY;
     window.addEventListener('scroll', () => {
         const scrollTop = window.scrollY;
         const docHeight = document.documentElement.scrollHeight - window.innerHeight;
         const pct = docHeight > 0 ? Math.round((scrollTop / docHeight) * 100) : 0;
-
-        const scrollRotX = (pct / 100) * 720;
-        const scrollRotY = (pct / 100) * 1080;
-        poly.style.animation = 'none';
-        poly.style.transform = `rotateX(${scrollRotX}deg) rotateY(${scrollRotY}deg)`;
-
         if (label) label.textContent = pct + '%';
 
-        // Scale glow with progress
-        const glowSize = 3 + (pct / 100) * 10;
-        const opacity = 0.55 + (pct / 100) * 0.45;
-        poly.querySelectorAll('.dodeca-face').forEach((f, i) => {
-            const c = glowColors[i] || [0,153,230];
-            f.style.opacity = opacity;
-            f.style.boxShadow = `0 0 ${glowSize}px rgba(${c[0]},${c[1]},${c[2]},${opacity * 0.5})`;
-        });
+        // Add rotation proportional to scroll delta
+        const delta = scrollTop - prevScroll;
+        angleX += delta * 0.008;
+        angleY += delta * 0.012;
+        prevScroll = scrollTop;
     }, { passive: true });
 }
 
