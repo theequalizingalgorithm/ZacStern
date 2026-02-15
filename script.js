@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    initClickSound();
     fetch('config.json')
         .then(r => r.json())
         .then(config => {
@@ -19,6 +20,32 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(err => console.error('Failed to load config:', err));
 });
+
+/* ===== CLICK SOUND EFFECT ===== */
+function initClickSound() {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playClick() {
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.08);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.1);
+        } catch(e) {}
+    }
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.btn, .scroll-btn, .nav-link, .video-card, .featured-card, .social-card, .project-card, .follow-btn, .hamburger, .close, .footer-links a, .portfolio-links a, .resume-header-link a')) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            playClick();
+        }
+    });
+}
 
 /* ===== 3D SCROLL PROGRESS POLYHEDRON ===== */
 function initScrollProgress() {
@@ -48,12 +75,18 @@ function initScrollProgress() {
 
         if (label) label.textContent = pct + '%';
 
-        // Glow intensity scales with progress
+        // Glow intensity scales with progress — colorful per ring
+        const ringColors = [
+            [229,57,53],[30,136,229],[67,160,71],[253,216,53],[233,30,99],
+            [255,112,67],[229,57,53],[30,136,229],[67,160,71],[253,216,53],
+            [233,30,99],[255,112,67],[30,136,229],[229,57,53]
+        ];
         const glowSize = 4 + (pct / 100) * 12;
         const opacity = 0.5 + (pct / 100) * 0.5;
-        poly.querySelectorAll('.poly-ring').forEach(r => {
+        poly.querySelectorAll('.poly-ring').forEach((r, i) => {
+            const c = ringColors[i] || [0,153,230];
             r.style.opacity = opacity;
-            r.style.boxShadow = `0 0 ${glowSize}px rgba(0,212,255,${opacity * 0.6})`;
+            r.style.boxShadow = `0 0 ${glowSize}px rgba(${c[0]},${c[1]},${c[2]},${opacity * 0.6})`;
         });
     }, { passive: true });
 }
