@@ -98,8 +98,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .featured-card:hover{border-color:var(--accent);box-shadow:0 0 25px rgba(0,212,255,.4);transform:translateY(-4px)}
 
 /* Gradient placeholder for non-YouTube thumbs */
-.thumb-placeholder{width:100%;height:100%;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);display:flex;align-items:center;justify-content:center}
+.thumb-placeholder{width:100%;height:100%;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem}
 .thumb-placeholder i{font-size:2.5rem;color:rgba(0,212,255,.5)}
+.thumb-placeholder span{font-size:.75rem;color:rgba(255,255,255,.6);font-weight:600;text-align:center;padding:0 .5rem;max-width:90%}
 
 /* ===== UGC SECTION ===== */
 .ugc-section{padding:5rem 2rem;max-width:1400px;margin:0 auto;border-top:1px solid var(--accent);background:linear-gradient(180deg,rgba(0,212,255,.03) 0%,transparent 100%)}

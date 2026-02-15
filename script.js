@@ -191,12 +191,13 @@ function renderClientele(config) {
 function createVideoCard(item, orientation) {
     const id = typeof item === 'string' ? item : item.id;
     const title = typeof item === 'string' ? '' : (item.title || '');
-    const thumbUrl = `https://drive.google.com/thumbnail?id=${id}&sz=w640`;
+    const thumbUrl = `https://drive.google.com/thumbnail?id=${id}&sz=w800`;
+    const fallbackUrl = `https://lh3.googleusercontent.com/d/${id}=w800`;
     return `
         <div class="video-card ${orientation}" data-id="${id}" data-orientation="${orientation}">
             <div class="thumb-wrap">
                 <img class="thumb" src="${thumbUrl}" alt="${title}" loading="lazy"
-                     onerror="this.outerHTML='<div class=\\'thumb-placeholder\\'><i class=\\'fas fa-video\\'></i></div>'">
+                     onerror="if(!this.dataset.retry){this.dataset.retry='1';this.src='${fallbackUrl}'}else{this.outerHTML='<div class=\\'thumb-placeholder\\'><i class=\\'fas fa-video\\'></i><span>${title}</span></div>'}">
                 <div class="play-overlay"><i class="fas fa-play-circle"></i></div>
             </div>
             ${title ? `<div class="card-title">${title}</div>` : ''}
