@@ -166,11 +166,25 @@ function buildFeaturedCard(item) {
         </a>`;
 }
 
-/* ===== 1. DIRECTING EXAMPLES (Horizontal UGC) ===== */
+/* ===== 1. CONTENT SAMPLES 16:9 (Horizontal UGC) ===== */
 function renderDirecting(config) {
     const grid = document.getElementById('horizontalGrid');
     if (!grid || !config.videos?.ugc?.horizontal) return;
-    grid.innerHTML = config.videos.ugc.horizontal.map(item => createVideoCard(item, 'horizontal')).join('');
+    grid.innerHTML = config.videos.ugc.horizontal.map(item => createHorizontalCard(item)).join('');
+}
+
+function createHorizontalCard(item) {
+    const id = typeof item === 'string' ? item : item.id;
+    const title = typeof item === 'string' ? '' : (item.title || '');
+    return `
+        <div class="video-card horizontal" data-id="${id}" data-orientation="horizontal">
+            <div class="thumb-wrap">
+                <iframe class="thumb-preview" src="https://drive.google.com/file/d/${id}/preview" loading="lazy" sandbox="allow-scripts allow-same-origin" tabindex="-1"></iframe>
+                <div class="thumb-click-overlay"></div>
+                <div class="play-overlay"><i class="fas fa-play-circle"></i></div>
+            </div>
+            ${title ? `<div class="card-title">${title}</div>` : ''}
+        </div>`;
 }
 
 /* ===== 2. NETWORK SEGMENTS (AGT) ===== */
