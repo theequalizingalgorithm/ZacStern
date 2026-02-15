@@ -11,7 +11,7 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="logo">WELCOME TO MY PORTFOLIO</div>
+            <div class="logo">ZAC STERN</div>
             <ul class="nav-menu">
                 <li><a href="#hero" class="nav-link">Home</a></li>
                 <li><a href="#directing" class="nav-link">Directing</a></li>
@@ -49,12 +49,16 @@
         </div>
     </section>
 
-    <!-- 1. Directing Examples (Horizontal UGC) -->
+    <!-- 1. Content Samples 16:9 (Horizontal UGC) — horizontal scroll -->
     <section id="directing" class="directing-section">
         <div class="section-header anim-fade-up">
             <h2>Content Samples 16:9</h2>
         </div>
-        <div class="video-grid horizontal-grid anim-stagger" id="horizontalGrid"></div>
+        <div class="scroll-row-wrap">
+            <button class="scroll-btn scroll-left" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
+            <div class="scroll-row" id="horizontalGrid"></div>
+            <button class="scroll-btn scroll-right" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
+        </div>
     </section>
 
     <!-- 2. Network Segments (AGT) — horizontal scroll -->

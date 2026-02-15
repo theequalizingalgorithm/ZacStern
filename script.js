@@ -177,9 +177,10 @@ function createHorizontalCard(item) {
     const id = typeof item === 'string' ? item : item.id;
     const title = typeof item === 'string' ? '' : (item.title || '');
     return `
-        <div class="video-card horizontal" data-id="${id}" data-orientation="horizontal">
+        <div class="video-card horizontal h-scroll-card" data-id="${id}" data-orientation="horizontal">
             <div class="thumb-wrap">
-                <iframe class="thumb-preview" src="https://drive.google.com/file/d/${id}/preview" loading="lazy" sandbox="allow-scripts allow-same-origin" tabindex="-1"></iframe>
+                <video class="thumb" src="https://drive.google.com/uc?export=download&id=${id}#t=15" preload="metadata" muted playsinline
+                       onerror="this.outerHTML='<div class=\\'thumb-placeholder\\'><i class=\\'fas fa-video\\'></i><span>${title}</span></div>'"></video>
                 <div class="thumb-click-overlay"></div>
                 <div class="play-overlay"><i class="fas fa-play-circle"></i></div>
             </div>
