@@ -15,9 +15,27 @@ document.addEventListener('DOMContentLoaded', () => {
             initHamburger();
             initScrollButtons();
             initScrollAnimations();
+            initScrollProgress();
         })
         .catch(err => console.error('Failed to load config:', err));
 });
+
+/* ===== 3D SCROLL PROGRESS INDICATOR ===== */
+function initScrollProgress() {
+    const cube = document.getElementById('progressCube');
+    if (!cube) return;
+    const frontFace = cube.querySelector('.front');
+    window.addEventListener('scroll', () => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = docHeight > 0 ? Math.round((scrollTop / docHeight) * 100) : 0;
+        // Rotate cube based on scroll: full 360° X and Y over the page
+        const rotX = (pct / 100) * 360;
+        const rotY = (pct / 100) * 720;
+        cube.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+        if (frontFace) frontFace.textContent = pct + '%';
+    }, { passive: true });
+}
 
 /* ===== SCROLL ANIMATIONS (Intersection Observer) ===== */
 
@@ -39,6 +57,17 @@ function initScrollAnimations() {
     }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
     document.querySelectorAll('.anim-fade-up, .anim-stagger').forEach(el => observer.observe(el));
+
+    // Observe scroll rows for 3D grow animation
+    const rowObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('anim-visible');
+                rowObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+    document.querySelectorAll('.scroll-row').forEach(el => rowObserver.observe(el));
 }
 
 /* ===== SCROLL BUTTONS ===== */

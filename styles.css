@@ -15,8 +15,23 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 /* Intersection Observer reveal classes */
 .anim-fade-up{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1)}
 .anim-fade-up.visible{opacity:1;transform:translateY(0)}
-.anim-stagger .video-card,.anim-stagger .reel-card,.anim-stagger .project-card,.anim-stagger .social-card{opacity:0;transform:translateY(30px);transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1)}
-.anim-stagger.visible .video-card,.anim-stagger.visible .reel-card,.anim-stagger.visible .project-card,.anim-stagger.visible .social-card{opacity:1;transform:translateY(0)}
+.anim-stagger .video-card,.anim-stagger .reel-card,.anim-stagger .project-card,.anim-stagger .social-card{opacity:0;transform:scale(.7) perspective(800px) rotateX(8deg);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+.anim-stagger.visible .video-card,.anim-stagger.visible .reel-card,.anim-stagger.visible .project-card,.anim-stagger.visible .social-card{opacity:1;transform:scale(1) perspective(800px) rotateX(0deg)}
+
+/* 3D grow for scroll-row cards */
+.scroll-row .video-card,.scroll-row .featured-card,.scroll-row .h-scroll-card{transform:scale(.75) perspective(800px) rotateY(10deg);transition:transform .6s cubic-bezier(.22,1,.36,1),opacity .6s ease}
+.scroll-row.anim-visible .video-card,.scroll-row.anim-visible .featured-card,.scroll-row.anim-visible .h-scroll-card{transform:scale(1) perspective(800px) rotateY(0deg)}
+
+/* ===== 3D PROGRESS INDICATOR ===== */
+.scroll-progress{position:fixed;top:58px;right:16px;z-index:999;width:36px;height:36px;perspective:200px}
+.scroll-progress-cube{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .1s linear}
+.scroll-progress-face{position:absolute;inset:0;border:2px solid var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:var(--accent);background:rgba(0,0,0,.85);backface-visibility:hidden}
+.scroll-progress-face.front{transform:translateZ(18px)}
+.scroll-progress-face.back{transform:rotateY(180deg) translateZ(18px)}
+.scroll-progress-face.right{transform:rotateY(90deg) translateZ(18px)}
+.scroll-progress-face.left{transform:rotateY(-90deg) translateZ(18px)}
+.scroll-progress-face.top{transform:rotateX(90deg) translateZ(18px)}
+.scroll-progress-face.bottom{transform:rotateX(-90deg) translateZ(18px)}
 
 /* ===== NAVIGATION ===== */
 .navbar{position:fixed;top:0;width:100%;padding:.6rem 0;background:rgba(10,10,10,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);z-index:1000;box-shadow:0 2px 20px rgba(0,0,0,.4)}
@@ -41,7 +56,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .hero-subtitle{font-size:.8rem;color:#777;margin-bottom:1.2rem;line-height:1.5;letter-spacing:1px;text-transform:uppercase;font-weight:500}
 .hero-buttons{display:flex;gap:.8rem;flex-wrap:wrap}
 
-.hero-avatar{flex-shrink:0;width:220px;height:220px;border-radius:50%;overflow:hidden;border:3px solid var(--accent);box-shadow:0 0 30px rgba(0,212,255,.25)}
+.hero-avatar{flex-shrink:0;width:220px;height:auto;border-radius:8px;overflow:hidden;border:3px solid var(--accent);box-shadow:0 0 30px rgba(0,212,255,.25)}
 .hero-avatar img{width:100%;height:100%;object-fit:cover;display:block}
 
 .btn{padding:.85rem 2rem;border:2px solid var(--accent);border-radius:4px;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .3s ease;text-decoration:none;display:inline-block;letter-spacing:1px;text-transform:uppercase;position:relative;overflow:hidden}
@@ -219,7 +234,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .hero-inner{flex-direction:column-reverse;text-align:center;gap:1.5rem}
 .hero-content{text-align:center}
 .hero-buttons{justify-content:center}
-.hero-avatar{width:160px;height:160px}
+.hero-avatar{width:160px;height:auto}
 .hero-title{font-size:1.5rem}
 .section-header h2{font-size:1.8rem}
 .reels-container{grid-template-columns:1fr}
@@ -242,7 +257,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .hero-title{font-size:1.2rem;letter-spacing:-1px}
 .hero-subtitle{font-size:.7rem}
 .hero-tag{font-size:.65rem}
-.hero-avatar{width:130px;height:130px}
+.hero-avatar{width:130px;height:auto}
 .section-header h2{font-size:1.4rem}
 .vertical-grid{grid-template-columns:repeat(2,1fr)}
 .horizontal-grid{grid-template-columns:1fr}
