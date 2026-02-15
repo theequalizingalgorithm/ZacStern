@@ -137,13 +137,15 @@ function renderDirecting(config) {
 function createHorizontalCard(item) {
     const id = typeof item === 'string' ? item : item.id;
     const title = typeof item === 'string' ? '' : (item.title || '');
-    const thumbId = (typeof item === 'object' && item.thumb) ? item.thumb : id;
+    const hasCustomThumb = (typeof item === 'object' && item.thumb);
+    const thumbId = hasCustomThumb ? item.thumb : id;
     const thumbUrl = `https://drive.google.com/thumbnail?id=${thumbId}&sz=w640`;
     const fallbackUrl = `https://lh3.googleusercontent.com/d/${thumbId}=w640`;
+    const thumbClass = hasCustomThumb ? 'thumb logo-thumb' : 'thumb';
     return `
         <div class="video-card horizontal h-scroll-card" data-id="${id}" data-orientation="horizontal">
             <div class="thumb-wrap">
-                <img class="thumb" src="${thumbUrl}" alt="${title}" loading="lazy"
+                <img class="${thumbClass}" src="${thumbUrl}" alt="${title}" loading="lazy"
                      onerror="if(!this.dataset.retry){this.dataset.retry='1';this.src='${fallbackUrl}'}else{this.outerHTML='<div class=\\'thumb-placeholder\\'><i class=\\'fas fa-video\\'></i><span>${title}</span></div>'}">
                 <div class="play-overlay"><i class="fas fa-play-circle"></i></div>
             </div>
