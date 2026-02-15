@@ -191,8 +191,8 @@ function initScrollProgress() {
         const dt = (now - lastFrame) / 1000;
         lastFrame = now;
         idleT += dt;
-        angleX += dt * 0.35;
-        angleY += dt * 0.5;
+        angleX += dt * 0.2;
+        angleY += dt * 0.3;
         draw();
         requestAnimationFrame(animate);
     }
@@ -208,8 +208,8 @@ function initScrollProgress() {
 
         // Add rotation proportional to scroll delta
         const delta = scrollTop - prevScroll;
-        angleX += delta * 0.008;
-        angleY += delta * 0.012;
+        angleX += delta * 0.002;
+        angleY += delta * 0.003;
         prevScroll = scrollTop;
     }, { passive: true });
 }
