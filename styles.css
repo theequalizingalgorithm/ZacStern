@@ -241,6 +241,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
 /* ===== RESPONSIVE ===== */
 @media(max-width:768px){
+.anim-fade-up{opacity:1;transform:none;transition:none}
+.anim-stagger .video-card,.anim-stagger .project-card,.anim-stagger .social-card{opacity:1;transform:none;transition:none}
+.scroll-row .video-card,.scroll-row .featured-card,.scroll-row .h-scroll-card{opacity:1;transform:none;transition:none}
 .nav-menu{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;background:rgba(255,255,255,.92);backdrop-filter:blur(18px);padding:1.5rem;gap:.8rem;border-bottom:1px solid rgba(255,255,255,.6)}
 .nav-menu.active{display:flex}
 .hamburger{display:flex}
@@ -251,7 +254,6 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .hero-avatar{width:160px;height:auto}
 .hero-title{font-size:1.5rem}
 .section-header h2{font-size:1.8rem}
-.reels-container{grid-template-columns:1fr}
 .ugc-row{grid-template-columns:repeat(3,1fr);opacity:1;transform:none;transition:none}
 .horizontal-grid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
 .featured-card{min-width:160px;max-width:160px}
@@ -263,6 +265,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .btn{width:100%;text-align:center}
 .resume-timeline{padding-left:1.5rem}
 .scroll-row-wrap{padding:0 2rem}
+.scroll-progress{width:48px;height:48px;top:54px;right:10px}
+#dodecaCanvas{width:48px;height:48px}
+.scroll-progress-label{font-size:.6rem}
 }
 @media(max-width:480px){
 .nav-menu{gap:.4rem;padding:.8rem}
@@ -279,6 +284,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .contact-form{gap:.8rem}
 .nav-container{padding:0 1rem}
 .hero{padding:1rem}
-.directing-section,.ugc-section,.featured-section,.reels-section,.projects-section,.social-section,.resume-section,.contact-section{padding:1.5rem 1rem}
+.directing-section,.ugc-section,.featured-section,.projects-section,.social-section,.resume-section,.contact-section{padding:1.5rem 1rem}
 .video-card .play-overlay i{font-size:2rem}
+.scroll-progress{width:40px;height:40px;top:50px;right:8px}
+#dodecaCanvas{width:40px;height:40px}
+.scroll-progress-label{font-size:.5rem}
 }
