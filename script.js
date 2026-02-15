@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('config.json')
         .then(r => r.json())
         .then(config => {
+            renderHeroMosaic(config);
+            renderHeroStrip(config);
             renderDirecting(config);
             renderNetworkSegments(config);
             renderClientele(config);
@@ -20,6 +22,44 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ===== SCROLL ANIMATIONS (Intersection Observer) ===== */
+
+/* ===== HERO MOSAIC BACKGROUND ===== */
+function renderHeroMosaic(config) {
+    const mosaic = document.getElementById('heroMosaic');
+    if (!mosaic || !config.videos?.ugc?.vertical) return;
+    // Pick 12 spread-out thumbnails for the mosaic grid
+    const vids = config.videos.ugc.vertical;
+    const step = Math.max(1, Math.floor(vids.length / 12));
+    let picks = [];
+    for (let i = 0; i < vids.length && picks.length < 12; i += step) {
+        picks.push(vids[i]);
+    }
+    mosaic.innerHTML = picks.map(v => {
+        const id = typeof v === 'string' ? v : v.id;
+        return `<img src="https://drive.google.com/thumbnail?id=${id}&sz=w320" alt="" loading="eager">`;
+    }).join('');
+}
+
+/* ===== HERO FEATURED STRIP ===== */
+function renderHeroStrip(config) {
+    const strip = document.getElementById('heroStrip');
+    if (!strip || !config.videos?.ugc?.vertical) return;
+    // Show first 6 vertical UGC videos as a teaser strip
+    const items = config.videos.ugc.vertical.slice(0, 6);
+    strip.innerHTML = items.map(v => {
+        const id = typeof v === 'string' ? v : v.id;
+        const title = typeof v === 'string' ? '' : (v.title || '');
+        const thumbUrl = `https://drive.google.com/thumbnail?id=${id}&sz=w320`;
+        return `
+            <div class="hero-strip-card video-card vertical" data-id="${id}" data-orientation="vertical">
+                <img class="strip-thumb" src="${thumbUrl}" alt="${title}" loading="eager"
+                     onerror="this.style.background='#1a1a2e'">
+                <div class="strip-play"><i class="fas fa-play-circle"></i></div>
+                ${title ? `<div class="strip-title">${title}</div>` : ''}
+            </div>`;
+    }).join('');
+}
+
 function initScrollAnimations() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry, i) => {
