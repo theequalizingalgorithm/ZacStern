@@ -24,7 +24,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .anim-stagger.scroll-up .video-card,.anim-stagger.scroll-up .reel-card,.anim-stagger.scroll-up .project-card,.anim-stagger.scroll-up .social-card{transform:scale(.75) translateY(-30px)}
 .anim-stagger.scroll-up.visible .video-card,.anim-stagger.scroll-up.visible .reel-card,.anim-stagger.scroll-up.visible .project-card,.anim-stagger.scroll-up.visible .social-card{opacity:1;transform:scale(1) translateY(0)}
 /* UGC row-by-row animation */
-.ugc-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1.2rem;opacity:0;transform:scale(.75) translateY(30px);transition:opacity .55s cubic-bezier(.22,1,.36,1),transform .55s cubic-bezier(.22,1,.36,1)}
+.ugc-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.2rem;opacity:0;transform:scale(.75) translateY(30px);transition:opacity .55s cubic-bezier(.22,1,.36,1),transform .55s cubic-bezier(.22,1,.36,1)}
 .ugc-row.visible{opacity:1;transform:scale(1) translateY(0)}
 .ugc-row.scroll-up{transform:scale(.75) translateY(-30px)}
 .ugc-row.scroll-up.visible{opacity:1;transform:scale(1) translateY(0)}
