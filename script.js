@@ -451,9 +451,8 @@ function renderUGC(config) {
         return item.title && item.title.trim().length > 0;
     });
 
-    // Group cards into batches that animate as rows
-    // CSS grid auto-fill handles the actual column count responsively
-    const batchSize = 4;
+    // Group cards into rows of 6 that animate together
+    const batchSize = 6;
     let html = '';
     for (let i = 0; i < titled.length; i += batchSize) {
         const rowCards = titled.slice(i, i + batchSize);

@@ -41,79 +41,307 @@
     ],
     "ugc": {
       "horizontal": [
-        { "id": "1mcL064KC2TVuCGREM6e9J3e1dQKPZAWz", "title": "Calf Buster and Calf Stretcher", "thumb": "1d-DlOaVoxpGGwrQxtjQju6c5IqOEMtGI" },
-        { "id": "13QJpb6XZ1kd-R7VzQ43GchTevUw5d6j_", "title": "Calf Buster Video Explanation", "thumb": "1d-DlOaVoxpGGwrQxtjQju6c5IqOEMtGI" },
-        { "id": "1sJfVT29GsdXtNqKsRbUZZJi4EFiXtVe9", "title": "Haven Hills Testimonial Compilation", "thumb": "1Gs9JP5c82R_dkwdURPxMqX8qGTbkuBFC", "thumbContain": true },
-        { "id": "1bSF41rho6WDnrqOrc6ZVxZgVuXFviX6U", "title": "Haven Hills Sequence Walkthrough", "thumb": "1Gs9JP5c82R_dkwdURPxMqX8qGTbkuBFC", "thumbContain": true },
-        { "id": "1wr0JuD7G6hiFLzw5dsHkrh9ySygwsorD", "title": "Haven Hills Dina", "thumb": "1Gs9JP5c82R_dkwdURPxMqX8qGTbkuBFC", "thumbContain": true },
-        { "id": "1k5Tl8ThbBH-UmqIYMybUvZlnhxKmsGn1", "title": "Haven Hills Abby", "thumb": "1Gs9JP5c82R_dkwdURPxMqX8qGTbkuBFC", "thumbContain": true },
-        { "id": "1Rm3Pdefe8mOI9aDgBi8PsO0Ni-9IQXuC", "title": "Haven Hills Connor Testimonial", "thumb": "1Gs9JP5c82R_dkwdURPxMqX8qGTbkuBFC", "thumbContain": true },
-        { "id": "12ahYJ3ucSO5U5B1lkAc6YgMokXJ_FDWJ", "title": "Haven Hills Rose", "thumb": "1Gs9JP5c82R_dkwdURPxMqX8qGTbkuBFC", "thumbContain": true },
-        { "id": "1OsWVQQEic31sS2yXunAQNyQY88kzxAvU", "title": "OPS Security", "thumb": "1RYFU5MZwGxcTgzKgIt6cU8lC4ZX0Nyd8", "thumbContain": true },
-        { "id": "11P_bYvah4mbdUngBpMVggGK90MZVqoAF", "title": "OPS Variation", "thumb": "1RYFU5MZwGxcTgzKgIt6cU8lC4ZX0Nyd8", "thumbContain": true },
-        { "id": "1bHk-9xHMkhobsn7ctUk2i6vb_RoQSq2U", "title": "Calf Buster", "thumb": "1d-DlOaVoxpGGwrQxtjQju6c5IqOEMtGI" },
-        { "id": "1K8HqFbk9JZDjH4jWpBq4rRiy0TXkayNc", "title": "Control Music Video" },
-        { "id": "14nF4kBR3UbjpmGuctEIdAypNp1O3TDey", "title": "Doritos" },
-        { "id": "1glOQONqOVu_T0yasTuAo2g1RUWaCJo6s", "title": "Top Gun Scarves" },
-        { "id": "1E7Rg-8FjhnH1-3nEkgi-FFysZ5BIe-QJ", "title": "Pain B" },
-        { "id": "1BZm4adbv73Ss1eC91-mZMetIzq1lCneC", "title": "Prime Labs Preworkout" },
-        { "id": "18IgjkulvmVcAu11Z3Mk9BBAZ8fGwJjwY", "title": "Beat Box Freestyle" }
+        {
+          "id": "1mcL064KC2TVuCGREM6e9J3e1dQKPZAWz",
+          "title": "Calf Buster and Calf Stretcher",
+          "thumb": "1d-DlOaVoxpGGwrQxtjQju6c5IqOEMtGI"
+        },
+        {
+          "id": "13QJpb6XZ1kd-R7VzQ43GchTevUw5d6j_",
+          "title": "Calf Buster Video Explanation",
+          "thumb": "1d-DlOaVoxpGGwrQxtjQju6c5IqOEMtGI"
+        },
+        {
+          "id": "1sJfVT29GsdXtNqKsRbUZZJi4EFiXtVe9",
+          "title": "Haven Hills Testimonial Compilation",
+          "thumb": "1Gs9JP5c82R_dkwdURPxMqX8qGTbkuBFC",
+          "thumbContain": true
+        },
+        {
+          "id": "1bSF41rho6WDnrqOrc6ZVxZgVuXFviX6U",
+          "title": "Haven Hills Sequence Walkthrough",
+          "thumb": "1Gs9JP5c82R_dkwdURPxMqX8qGTbkuBFC",
+          "thumbContain": true
+        },
+        {
+          "id": "1wr0JuD7G6hiFLzw5dsHkrh9ySygwsorD",
+          "title": "Haven Hills Dina",
+          "thumb": "1Gs9JP5c82R_dkwdURPxMqX8qGTbkuBFC",
+          "thumbContain": true
+        },
+        {
+          "id": "1k5Tl8ThbBH-UmqIYMybUvZlnhxKmsGn1",
+          "title": "Haven Hills Abby",
+          "thumb": "1Gs9JP5c82R_dkwdURPxMqX8qGTbkuBFC",
+          "thumbContain": true
+        },
+        {
+          "id": "1Rm3Pdefe8mOI9aDgBi8PsO0Ni-9IQXuC",
+          "title": "Haven Hills Connor Testimonial",
+          "thumb": "1Gs9JP5c82R_dkwdURPxMqX8qGTbkuBFC",
+          "thumbContain": true
+        },
+        {
+          "id": "12ahYJ3ucSO5U5B1lkAc6YgMokXJ_FDWJ",
+          "title": "Haven Hills Rose",
+          "thumb": "1Gs9JP5c82R_dkwdURPxMqX8qGTbkuBFC",
+          "thumbContain": true
+        },
+        {
+          "id": "1OsWVQQEic31sS2yXunAQNyQY88kzxAvU",
+          "title": "OPS Security",
+          "thumb": "1RYFU5MZwGxcTgzKgIt6cU8lC4ZX0Nyd8",
+          "thumbContain": true
+        },
+        {
+          "id": "11P_bYvah4mbdUngBpMVggGK90MZVqoAF",
+          "title": "OPS Variation",
+          "thumb": "1RYFU5MZwGxcTgzKgIt6cU8lC4ZX0Nyd8",
+          "thumbContain": true
+        },
+        {
+          "id": "1bHk-9xHMkhobsn7ctUk2i6vb_RoQSq2U",
+          "title": "Calf Buster",
+          "thumb": "1d-DlOaVoxpGGwrQxtjQju6c5IqOEMtGI"
+        },
+        {
+          "id": "1K8HqFbk9JZDjH4jWpBq4rRiy0TXkayNc",
+          "title": "Control Music Video"
+        },
+        {
+          "id": "14nF4kBR3UbjpmGuctEIdAypNp1O3TDey",
+          "title": "Doritos"
+        },
+        {
+          "id": "1glOQONqOVu_T0yasTuAo2g1RUWaCJo6s",
+          "title": "Top Gun Scarves"
+        },
+        {
+          "id": "1E7Rg-8FjhnH1-3nEkgi-FFysZ5BIe-QJ",
+          "title": "Pain B"
+        },
+        {
+          "id": "1BZm4adbv73Ss1eC91-mZMetIzq1lCneC",
+          "title": "Prime Labs Preworkout"
+        },
+        {
+          "id": "18IgjkulvmVcAu11Z3Mk9BBAZ8fGwJjwY",
+          "title": "Beat Box Freestyle"
+        }
       ],
       "vertical": [
-        { "id": "1BNooecCuHHBoLhOb1dDgU9aK7zDjnyqI", "title": "JBJ Faux Facade" },
-        { "id": "1YR3WsRGeNxkvP-G9wXek8zNv1ypZpFqf", "title": "Planet Fitness" },
-        { "id": "1_dBoCDZ56HsBz7al57p1Bz4EyjwGdY3V", "title": "Clue Love" },
-        { "id": "1Y8dYOxvlCRu_gTF9I9ylr8ESHQBUwf5i", "title": "Mad Muscles" },
-        { "id": "1uFHD1-2d5vCqaZSlFYe4QAoL_LrABTIw", "title": "Pawsitive Pets" },
-        { "id": "18xPTiK7kLNGXSzfCOq6OfB_V7r6AZg6K", "title": "Lifted Lumbar" },
-        { "id": "1KOpsi-SGuQuFpI2jkpjsDw7R4N6G6E7u", "title": "Ultra Omega Oil" },
-        { "id": "1ff-PNo2r3-Ax0bNnh8DjHDMVvp1BDDio", "title": "Peak" },
-        { "id": "14GpQBTTj8hP8Ohdd5CdmBqmYYFXEt1xC", "title": "Catnap" },
-        { "id": "12IsZd8g0ctcecw-1nGAFf5izfD2TtdmS", "title": "Ryde" },
-        { "id": "1BCLGoSpBLekxepwwrCaHZ1FEk9Bym8Ga", "title": "Dua Brand" },
-        { "id": "1AbTaKTXYqaK3NJ-NTgvsFvGOXD8BPyR-", "title": "Castleflexx" },
-        { "id": "1lIkkhMJeHglMLwoBpsZe39IIUSltcl10", "title": "Castleflexx Comparison" },
-        { "id": "1iMWhEQ1cm25638sAGyLdGOkMPEKk06jZ", "title": "Frog Fuel" },
-        { "id": "1RxYMuYJ3LWoydKJvro7SaVhkTYqkj8OY", "title": "Goodest Box for Goodest Boys" },
-        { "id": "1Ggy07rfL0-XREik3jMPnE2OJeOLEZv8t", "title": "The Heatrap Shirt" },
-        { "id": "1n0fxj6JSYwNbSdTC0X9kHMvP95cTygKA", "title": "Unlock Your Freak" },
-        { "id": "1GHqmI9kotYeQVKeljAoIdoylsT8rl-1-", "title": "Anabar" },
-        { "id": "1Od1iRreK50M3TcYsD-Qk3XzRQZ3Bt-cu", "title": "Protos UGC Comp" },
-        { "id": "1zNmjWYoBTifQj_NYZwRBcjhkXzS4Sgxv", "title": "Anabar Sample" },
-        { "id": "1MZBsAkbjuJBvHoivnlOsuukOUXRwCjl8", "title": "Bett Gummies" },
-        { "id": "10x30FoyRtgKzZNQz8DM7R4IaUFcn8nn2", "title": "Joggers" },
-        { "id": "12O1rzKLa2k4vNR2WGgSNJyze6g0IKs-C", "title": "Busted" },
-        { "id": "12wPkeGO8AUsLohFFoPFutdjZxupLI0RN", "title": "Crate 61" },
-        { "id": "15rkHA-9akyt-GqYIBLUFbUm0xm68r03V", "title": "Penny Stocks" },
-        { "id": "18Q-KxQbTtAlt4TPgqr6mI2sDhwuSzSzL", "title": "Max Relief Plus Broad Essentials" },
-        { "id": "19Dioc4qOCte_plOiXflIyC8tdnYfGx4y", "title": "Haven" },
-        { "id": "19X_vZHQy6MO6nIbpebyyziSTFJXLfDgi", "title": "Hypochlorous Acid Mist" },
-        { "id": "19Z6IAMCOZk7Whb3Oj14ZkT7KP_xKbjSX", "title": "JH Pro" },
-        { "id": "1Aucekz_3yT6aMh3qxjGEcyqxGtMHdrC-", "title": "Lucyd" },
-        { "id": "1BVghA5GBYlX708BU3r6XQ-GSEmnT4T89", "title": "Manta Sleep" },
-        { "id": "1CCsOt7HTscMdzepzUmfT7oz8W3g4_bRA", "title": "Revant Glasses" },
-        { "id": "1LWR6_grcQGxsIRLWxdp5a-7400-VlWK3", "title": "Shadows of the Damned" },
-        { "id": "1S-8piPwToDw8qr-Vvj42y6ryeAoUa3zZ", "title": "Hiscox Blog" },
-        { "id": "1UhjeFu8rWU2VRqMO3d0zxBXJZSkdEr01", "title": "Beckett Simonon" },
-        { "id": "1VuBFRryJfQAi_owSPg_N7N9Q-2U2b2gJ", "title": "Holm and Herd" },
-        { "id": "1Y5ekYk0VKylnP233fZaR3a1g9ZhDtpEh", "title": "Alodia" },
-        { "id": "1e-UeW-WdI1cGGB9ZijFRv5R-voQgGJAC", "title": "Sword Demo" },
-        { "id": "1eQBzRhCBzwfjwu8aNNFVnJbJDnTQfbV_", "title": "IM8" },
-        { "id": "1fNgPKtAkJgUAZrdHLpCSCzqsX0zPJJTs", "title": "Peluva" },
-        { "id": "1o4XOKWxLYMfY8melliyR_DRes5Cla4Wi", "title": "Teige Hanley" },
-        { "id": "1pUj9-5xhSUq556HFOxqDfDASxHu52zgy", "title": "Plentum" },
-        { "id": "1x-rXMl1GLxn7TyFZb1loXFHNz4xNRzIN", "title": "Tallow Soap" },
-        { "id": "1MeewMm3Dz_Dj74V1ExEzHOjz_yI-FoSD", "title": "Orange Turmeric" },
-        { "id": "1J1NsbkD9su8bz9XDfWZdln4ReSwcLmww", "title": "Becket Simonon" },
-        { "id": "1ScwwIjY9LJrRlDstR2a3BputFSr4oNB4", "title": "Dollar Shave Club" },
-        { "id": "1PGgbzjFCcfepmwQcWRvPXD5UZ85dX3Y1", "title": "Emura Pan" },
-        { "id": "15Ri413TtQtfWug0iqun4UW5vFTqdZ8Mv", "title": "Oil of Oregano" },
-        { "id": "1STV1XrPwddvOPIUlNOXJYWbH-cyY1ZJk", "title": "Blacklader Boots" },
-        { "id": "1flqesrJkDfHHjGLHCFa8R1B_Ea3Nx02w", "title": "Lifestyle Content" },
-        { "id": "1NDqfeX8w4VU3k2-_ddDir0N11l01tmdX", "title": "RC Car" },
-        { "id": "106pEK4kqMrBCVJfKyDCzS7BHGFisJToP", "title": "Resilia" },
-        { "id": "1O30zD-d9FbO5qosbi4zlFxqDr9PN0t6c", "title": "Wing Man X" },
-        { "id": "1zz_SJSMEOJebJC1vJLsXMVZRgIhslF4S", "title": "Clothing Brand" }
+        {
+          "id": "1BNooecCuHHBoLhOb1dDgU9aK7zDjnyqI",
+          "title": "JBJ Faux Facade"
+        },
+        {
+          "id": "1YR3WsRGeNxkvP-G9wXek8zNv1ypZpFqf",
+          "title": "Planet Fitness"
+        },
+        {
+          "id": "1_dBoCDZ56HsBz7al57p1Bz4EyjwGdY3V",
+          "title": "Clue Love"
+        },
+        {
+          "id": "1Y8dYOxvlCRu_gTF9I9ylr8ESHQBUwf5i",
+          "title": "Mad Muscles"
+        },
+        {
+          "id": "1uFHD1-2d5vCqaZSlFYe4QAoL_LrABTIw",
+          "title": "Pawsitive Pets"
+        },
+        {
+          "id": "18xPTiK7kLNGXSzfCOq6OfB_V7r6AZg6K",
+          "title": "Lifted Lumbar"
+        },
+        {
+          "id": "1KOpsi-SGuQuFpI2jkpjsDw7R4N6G6E7u",
+          "title": "Ultra Omega Oil"
+        },
+        {
+          "id": "1ff-PNo2r3-Ax0bNnh8DjHDMVvp1BDDio",
+          "title": "Peak"
+        },
+        {
+          "id": "14GpQBTTj8hP8Ohdd5CdmBqmYYFXEt1xC",
+          "title": "Catnap"
+        },
+        {
+          "id": "1Od1iRreK50M3TcYsD-Qk3XzRQZ3Bt-cu",
+          "title": "Protos UGC Comp"
+        },
+        {
+          "id": "1BCLGoSpBLekxepwwrCaHZ1FEk9Bym8Ga",
+          "title": "Dua Brand"
+        },
+        {
+          "id": "1AbTaKTXYqaK3NJ-NTgvsFvGOXD8BPyR-",
+          "title": "Castleflexx"
+        },
+        {
+          "id": "1lIkkhMJeHglMLwoBpsZe39IIUSltcl10",
+          "title": "Castleflexx Comparison"
+        },
+        {
+          "id": "1iMWhEQ1cm25638sAGyLdGOkMPEKk06jZ",
+          "title": "Frog Fuel"
+        },
+        {
+          "id": "1RxYMuYJ3LWoydKJvro7SaVhkTYqkj8OY",
+          "title": "Goodest Box for Goodest Boys"
+        },
+        {
+          "id": "1Ggy07rfL0-XREik3jMPnE2OJeOLEZv8t",
+          "title": "The Heatrap Shirt"
+        },
+        {
+          "id": "1n0fxj6JSYwNbSdTC0X9kHMvP95cTygKA",
+          "title": "Unlock Your Freak"
+        },
+        {
+          "id": "1GHqmI9kotYeQVKeljAoIdoylsT8rl-1-",
+          "title": "Anabar"
+        },
+        {
+          "id": "1zNmjWYoBTifQj_NYZwRBcjhkXzS4Sgxv",
+          "title": "Anabar Sample"
+        },
+        {
+          "id": "1MZBsAkbjuJBvHoivnlOsuukOUXRwCjl8",
+          "title": "Bett Gummies"
+        },
+        {
+          "id": "10x30FoyRtgKzZNQz8DM7R4IaUFcn8nn2",
+          "title": "Joggers"
+        },
+        {
+          "id": "12O1rzKLa2k4vNR2WGgSNJyze6g0IKs-C",
+          "title": "Busted"
+        },
+        {
+          "id": "12wPkeGO8AUsLohFFoPFutdjZxupLI0RN",
+          "title": "Crate 61"
+        },
+        {
+          "id": "15rkHA-9akyt-GqYIBLUFbUm0xm68r03V",
+          "title": "Penny Stocks"
+        },
+        {
+          "id": "18Q-KxQbTtAlt4TPgqr6mI2sDhwuSzSzL",
+          "title": "Max Relief Plus Broad Essentials"
+        },
+        {
+          "id": "19Dioc4qOCte_plOiXflIyC8tdnYfGx4y",
+          "title": "Haven"
+        },
+        {
+          "id": "19X_vZHQy6MO6nIbpebyyziSTFJXLfDgi",
+          "title": "Hypochlorous Acid Mist"
+        },
+        {
+          "id": "19Z6IAMCOZk7Whb3Oj14ZkT7KP_xKbjSX",
+          "title": "JH Pro"
+        },
+        {
+          "id": "1Aucekz_3yT6aMh3qxjGEcyqxGtMHdrC-",
+          "title": "Lucyd"
+        },
+        {
+          "id": "1BVghA5GBYlX708BU3r6XQ-GSEmnT4T89",
+          "title": "Manta Sleep"
+        },
+        {
+          "id": "106pEK4kqMrBCVJfKyDCzS7BHGFisJToP",
+          "title": "Resilia"
+        },
+        {
+          "id": "1NDqfeX8w4VU3k2-_ddDir0N11l01tmdX",
+          "title": "RC Car"
+        },
+        {
+          "id": "1O30zD-d9FbO5qosbi4zlFxqDr9PN0t6c",
+          "title": "Wing Man X"
+        },
+        {
+          "id": "1CCsOt7HTscMdzepzUmfT7oz8W3g4_bRA",
+          "title": "Revant Glasses"
+        },
+        {
+          "id": "1S-8piPwToDw8qr-Vvj42y6ryeAoUa3zZ",
+          "title": "Hiscox Blog"
+        },
+        {
+          "id": "1UhjeFu8rWU2VRqMO3d0zxBXJZSkdEr01",
+          "title": "Beckett Simonon"
+        },
+        {
+          "id": "1VuBFRryJfQAi_owSPg_N7N9Q-2U2b2gJ",
+          "title": "Holm and Herd"
+        },
+        {
+          "id": "1Y5ekYk0VKylnP233fZaR3a1g9ZhDtpEh",
+          "title": "Alodia"
+        },
+        {
+          "id": "1e-UeW-WdI1cGGB9ZijFRv5R-voQgGJAC",
+          "title": "Sword Demo"
+        },
+        {
+          "id": "1eQBzRhCBzwfjwu8aNNFVnJbJDnTQfbV_",
+          "title": "IM8"
+        },
+        {
+          "id": "1fNgPKtAkJgUAZrdHLpCSCzqsX0zPJJTs",
+          "title": "Peluva"
+        },
+        {
+          "id": "1o4XOKWxLYMfY8melliyR_DRes5Cla4Wi",
+          "title": "Teige Hanley"
+        },
+        {
+          "id": "1pUj9-5xhSUq556HFOxqDfDASxHu52zgy",
+          "title": "Plentum"
+        },
+        {
+          "id": "1x-rXMl1GLxn7TyFZb1loXFHNz4xNRzIN",
+          "title": "Tallow Soap"
+        },
+        {
+          "id": "1MeewMm3Dz_Dj74V1ExEzHOjz_yI-FoSD",
+          "title": "Orange Turmeric"
+        },
+        {
+          "id": "1J1NsbkD9su8bz9XDfWZdln4ReSwcLmww",
+          "title": "Becket Simonon"
+        },
+        {
+          "id": "1ScwwIjY9LJrRlDstR2a3BputFSr4oNB4",
+          "title": "Dollar Shave Club"
+        },
+        {
+          "id": "1PGgbzjFCcfepmwQcWRvPXD5UZ85dX3Y1",
+          "title": "Emura Pan"
+        },
+        {
+          "id": "15Ri413TtQtfWug0iqun4UW5vFTqdZ8Mv",
+          "title": "Oil of Oregano"
+        },
+        {
+          "id": "1STV1XrPwddvOPIUlNOXJYWbH-cyY1ZJk",
+          "title": "Blacklader Boots"
+        },
+        {
+          "id": "1flqesrJkDfHHjGLHCFa8R1B_Ea3Nx02w",
+          "title": "Lifestyle Content"
+        },
+        {
+          "id": "1zz_SJSMEOJebJC1vJLsXMVZRgIhslF4S",
+          "title": "Clothing Brand"
+        },
+        {
+          "id": "1LWR6_grcQGxsIRLWxdp5a-7400-VlWK3",
+          "title": "Shadows of the Damned"
+        }
       ]
     }
   },
@@ -126,34 +354,34 @@
           "url": "https://www.instagram.com/reel/DUbi_5jEqtc/?igsh=NTc4MTIwNjQ2YQ=="
         },
         {
-          "title": "HIT IT DJ — Preacher Bit",
+          "title": "HIT IT DJ \u2014 Preacher Bit",
           "url": "https://www.tiktok.com/@preacherlawson/video/7496631628371037486?lang=en",
-          "stats": "1M Views · TikTok"
+          "stats": "1M Views \u00b7 TikTok"
         },
         {
           "title": "How Long Have You Been Vegan?",
           "url": "https://www.youtube.com/shorts/dhIF7Z4eFYY",
-          "stats": "2M Views · TikTok | 242K Views · YouTube"
+          "stats": "2M Views \u00b7 TikTok | 242K Views \u00b7 YouTube"
         },
         {
           "title": "How Long Have You Been Vegan? (IG)",
           "url": "https://www.instagram.com/reel/DIpAoUrpzc8/?igsh=NTc4MTIwNjQ2YQ==",
-          "stats": "250K Likes · Instagram"
+          "stats": "250K Likes \u00b7 Instagram"
         },
         {
           "title": "Reformatted Preacher Lawson Bit",
           "url": "https://www.youtube.com/shorts/jj9DRbNStq4",
-          "stats": "12.7M Views · TikTok | 4.7M Views · YouTube"
+          "stats": "12.7M Views \u00b7 TikTok | 4.7M Views \u00b7 YouTube"
         },
         {
           "title": "I Didn't Know People in Spain...",
           "url": "https://www.youtube.com/shorts/IiHd9Mvzdhg",
-          "stats": "990K Views · TikTok | 100K+ Views · YouTube"
+          "stats": "990K Views \u00b7 TikTok | 100K+ Views \u00b7 YouTube"
         },
         {
           "title": "Do Y'all Know That Song?",
           "url": "https://www.tiktok.com/@preacherlawson/video/7495432134111415594",
-          "stats": "2.2M Views · TikTok"
+          "stats": "2.2M Views \u00b7 TikTok"
         }
       ]
     },
@@ -186,7 +414,7 @@
           "url": "https://www.youtube.com/watch?v=HHwleBHRtrc"
         },
         {
-          "title": "Sky Elements — Season 19 of AGT",
+          "title": "Sky Elements \u2014 Season 19 of AGT",
           "url": "https://www.youtube.com/watch?v=uHVVWH1HebA"
         }
       ]
@@ -197,48 +425,48 @@
     "experience": [
       {
         "role": "Producer",
-        "show": "Masked Singer Season 14 — FOX",
-        "period": "September 2025 – November 2025",
+        "show": "Masked Singer Season 14 \u2014 FOX",
+        "period": "September 2025 \u2013 November 2025",
         "description": "Music clearance, talent point of contact, pitch creative performance, pitching song creative for stage"
       },
       {
         "role": "Creative Producer (Freelance)",
         "show": "Sharmhill Productions",
-        "period": "2018 – Present",
+        "period": "2018 \u2013 Present",
         "description": "Independent work with a production company offering all creative production services from pre to post"
       },
       {
         "role": "Producer",
-        "show": "America's Got Talent Season 18 & 19 — NBC",
-        "period": "November 2022 – 2025",
+        "show": "America's Got Talent Season 18 & 19 \u2014 NBC",
+        "period": "November 2022 \u2013 2025",
         "description": "Casting contestants, story points during pre-production, story execution in the field, overseeing the edit of segment packages"
       },
       {
         "role": "Producer",
-        "show": "America's Got Talent All Stars — NBC",
+        "show": "America's Got Talent All Stars \u2014 NBC",
         "period": "October 2022",
         "description": "Field Producer responsible for stylized and reality B-roll for segment packages"
       },
       {
         "role": "Associate Story Producer",
-        "show": "America's Got Talent Season 17 — NBC",
+        "show": "America's Got Talent Season 17 \u2014 NBC",
         "period": "March 2022",
         "description": "Location and prop acquisition, casting, story points, execution in the field, overseeing edits"
       },
       {
         "role": "Associate Producer",
-        "show": "America's Got Talent Season 16 — NBC",
+        "show": "America's Got Talent Season 16 \u2014 NBC",
         "period": "March 2021",
         "description": "Story points during pre-production, story execution in the field, overseeing the edit of segment packages"
       },
       {
         "role": "Associate Producer",
-        "show": "Game of Talents Season 1 — FOX",
+        "show": "Game of Talents Season 1 \u2014 FOX",
         "period": "October 2020",
         "description": "Location and prop acquisition, contributing creatively to story points in pre-production"
       }
     ],
     "ugcSummary": "Worked with over 230 different brands to create more than 350 content packages for their products.",
-    "education": "Bachelors of Science in Public Health at Montana State University — Former Division 1 Full-Ride Scholarship Athlete"
+    "education": "Bachelors of Science in Public Health at Montana State University \u2014 Former Division 1 Full-Ride Scholarship Athlete"
   }
 }
