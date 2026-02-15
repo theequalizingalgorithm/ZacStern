@@ -552,9 +552,17 @@ function initModal() {
             return;
         }
 
-        // Drive video cards — open in modal
+        // Drive video cards — open in modal (support both Drive and YouTube)
         const card = e.target.closest('.video-card');
         if (!card) return;
+        const ytIdFromCard = card.dataset.ytId;
+        if (ytIdFromCard) {
+            iframe.src = `https://www.youtube.com/embed/${ytIdFromCard}?autoplay=1`;
+            modalContent.className = 'modal-content modal-horizontal';
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            return;
+        }
         const fileId = card.dataset.id;
         const orient = card.dataset.orientation;
         if (!fileId) return;
