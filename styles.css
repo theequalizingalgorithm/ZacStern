@@ -21,11 +21,11 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .anim-fade-up.visible{opacity:1;transform:translateY(0)}
 
 /* Stagger grids — all cards in a row appear simultaneously */
-.anim-stagger .video-card,.anim-stagger .reel-card,.anim-stagger .project-card,.anim-stagger .social-card{opacity:0;transform:scale(.75) translateY(30px);transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1);transition-delay:0s !important}
-.anim-stagger.visible .video-card,.anim-stagger.visible .reel-card,.anim-stagger.visible .project-card,.anim-stagger.visible .social-card{opacity:1;transform:scale(1) translateY(0)}
+.anim-stagger .video-card,.anim-stagger .project-card,.anim-stagger .social-card{opacity:0;transform:scale(.75) translateY(30px);transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1);transition-delay:0s !important}
+.anim-stagger.visible .video-card,.anim-stagger.visible .project-card,.anim-stagger.visible .social-card{opacity:1;transform:scale(1) translateY(0)}
 /* Scroll-up: cards rise from below */
-.anim-stagger.scroll-up .video-card,.anim-stagger.scroll-up .reel-card,.anim-stagger.scroll-up .project-card,.anim-stagger.scroll-up .social-card{transform:scale(.75) translateY(-30px)}
-.anim-stagger.scroll-up.visible .video-card,.anim-stagger.scroll-up.visible .reel-card,.anim-stagger.scroll-up.visible .project-card,.anim-stagger.scroll-up.visible .social-card{opacity:1;transform:scale(1) translateY(0)}
+.anim-stagger.scroll-up .video-card,.anim-stagger.scroll-up .project-card,.anim-stagger.scroll-up .social-card{transform:scale(.75) translateY(-30px)}
+.anim-stagger.scroll-up.visible .video-card,.anim-stagger.scroll-up.visible .project-card,.anim-stagger.scroll-up.visible .social-card{opacity:1;transform:scale(1) translateY(0)}
 /* UGC row-by-row animation */
 .ugc-row{display:grid;grid-template-columns:repeat(6,1fr);gap:1.2rem;justify-items:center;opacity:0;transform:scale(.75) translateY(30px);transition:opacity .55s cubic-bezier(.22,1,.36,1),transform .55s cubic-bezier(.22,1,.36,1)}
 .ugc-row.visible{opacity:1;transform:scale(1) translateY(0)}
@@ -44,8 +44,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 /* ===== BUBBLE BORDERS — non-video panels only ===== */
 .project-card,.social-card,.contact-item,.resume-item,.resume-ugc,.resume-education{position:relative;border:1.5px solid var(--bubble-border);box-shadow:var(--bubble-glow)}
 .project-card::before,.social-card::before,.contact-item::before,.resume-item::before,.resume-ugc::before,.resume-education::before{content:'';position:absolute;inset:0;border-radius:inherit;background:var(--bubble-shine);pointer-events:none;z-index:3}
-/* Video / featured / reel cards — clean, no shine overlay */
-.video-card,.featured-card,.reel-card{position:relative}
+/* Video / featured cards — clean, no shine overlay */
+.video-card,.featured-card{position:relative}
 .section-header h2{position:relative;display:inline-block;overflow:visible;padding:0 .15em}
 .section-header{position:relative;overflow:visible}
 .section-header::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:60%;max-width:300px;height:2px;background:linear-gradient(90deg,transparent,rgba(120,200,255,.5),transparent);border-radius:2px}
@@ -149,16 +149,6 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .video-card:hover .thumb{transform:scale(1.08)}
 .video-card .card-title{padding:.6rem .8rem;font-size:.8rem;font-weight:600;color:var(--light);text-align:center}
 
-/* ===== REELS SECTION ===== */
-.reels-section{padding:2.5rem 2rem;max-width:1400px;margin:0 auto;background:linear-gradient(180deg,transparent 0%,rgba(0,153,230,.06) 100%);border-top:1px solid rgba(255,255,255,.5);border-bottom:1px solid rgba(255,255,255,.5)}
-.reels-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:2rem;margin-top:2rem}
-.reel-card{background:var(--glass);backdrop-filter:blur(12px);border-radius:14px;overflow:hidden;transition:all .4s cubic-bezier(.22,1,.36,1)}
-.reel-card:hover{border-color:var(--accent);box-shadow:0 8px 30px rgba(0,153,230,.2),inset 0 1px 3px rgba(255,255,255,.5);transform:translateY(-5px)}
-.reel-video{position:relative;width:100%;padding-bottom:56.25%;height:0;overflow:hidden;background:linear-gradient(135deg,#b3e5fc,#e1f5fe)}
-.reel-video iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
-.reel-card h3{padding:1.2rem 1.2rem .3rem;font-size:1.2rem;color:var(--light)}
-.reel-card p{padding:0 1.2rem 1.2rem;color:#5a7d9a}
-
 /* ===== PROJECTS SECTION ===== */
 .projects-section{padding:2.5rem 2rem;max-width:1400px;margin:0 auto;background:linear-gradient(180deg,rgba(0,153,230,.06) 0%,transparent 100%)}
 .projects-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2rem;margin-top:2rem}
@@ -251,7 +241,6 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .hero-avatar{width:160px;height:auto}
 .hero-title{font-size:1.5rem}
 .section-header h2{font-size:1.8rem}
-.reels-container{grid-template-columns:1fr}
 .ugc-row{grid-template-columns:repeat(3,1fr);opacity:1;transform:none;transition:none}
 .horizontal-grid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
 .featured-card{min-width:160px;max-width:160px}
@@ -279,6 +268,6 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .contact-form{gap:.8rem}
 .nav-container{padding:0 1rem}
 .hero{padding:1rem}
-.directing-section,.ugc-section,.featured-section,.reels-section,.projects-section,.social-section,.resume-section,.contact-section{padding:1.5rem 1rem}
+.directing-section,.ugc-section,.featured-section,.projects-section,.social-section,.resume-section,.contact-section{padding:1.5rem 1rem}
 .video-card .play-overlay i{font-size:2rem}
 }
