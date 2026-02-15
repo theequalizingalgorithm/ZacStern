@@ -62,9 +62,8 @@ function initScrollProgress() {
 
 function initScrollAnimations() {
     const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry, i) => {
+        entries.forEach((entry) => {
             if (entry.isIntersecting) {
-                // Stagger children if it's a stagger container
                 if (entry.target.classList.contains('anim-stagger')) {
                     const children = entry.target.children;
                     Array.from(children).forEach((child, idx) => {
@@ -72,7 +71,8 @@ function initScrollAnimations() {
                     });
                 }
                 entry.target.classList.add('visible');
-                observer.unobserve(entry.target);
+            } else {
+                entry.target.classList.remove('visible');
             }
         });
     }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
@@ -84,7 +84,8 @@ function initScrollAnimations() {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('anim-visible');
-                rowObserver.unobserve(entry.target);
+            } else {
+                entry.target.classList.remove('anim-visible');
             }
         });
     }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
