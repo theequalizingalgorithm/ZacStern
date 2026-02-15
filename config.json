@@ -49,7 +49,8 @@
         { "id": "1wr0JuD7G6hiFLzw5dsHkrh9ySygwsorD", "title": "Haven Hills Dina" },
         { "id": "1k5Tl8ThbBH-UmqIYMybUvZlnhxKmsGn1", "title": "Haven Hills Abby" },
         { "id": "1Rm3Pdefe8mOI9aDgBi8PsO0Ni-9IQXuC", "title": "Haven Hills Connor Testimonial" },
-        { "id": "12ahYJ3ucSO5U5B1lkAc6YgMokXJ_FDWJ", "title": "Haven Hills Rose" }
+        { "id": "12ahYJ3ucSO5U5B1lkAc6YgMokXJ_FDWJ", "title": "Haven Hills Rose" },
+        { "id": "1BZm4adbv73Ss1eC91-mZMetIzq1lCneC", "title": "Prime Labs Preworkout" }
       ],
       "vertical": [
         { "id": "1YR3WsRGeNxkvP-G9wXek8zNv1ypZpFqf", "title": "Planet Fitness" },
@@ -99,7 +100,9 @@
         { "id": "1PGgbzjFCcfepmwQcWRvPXD5UZ85dX3Y1", "title": "Emura Pan" },
         { "id": "15Ri413TtQtfWug0iqun4UW5vFTqdZ8Mv", "title": "Oil of Oregano" },
         { "id": "1STV1XrPwddvOPIUlNOXJYWbH-cyY1ZJk", "title": "Blacklader Boots" },
-        { "id": "1flqesrJkDfHHjGLHCFa8R1B_Ea3Nx02w", "title": "Lifestyle Content" }
+        { "id": "1flqesrJkDfHHjGLHCFa8R1B_Ea3Nx02w", "title": "Lifestyle Content" },
+        { "id": "1NDqfeX8w4VU3k2-_ddDir0N11l01tmdX", "title": "RC Car" },
+        { "id": "106pEK4kqMrBCVJfKyDCzS7BHGFisJToP", "title": "Resilia" }
       ]
     }
   },
@@ -114,32 +117,32 @@
         {
           "title": "HIT IT DJ — Preacher Bit",
           "url": "https://www.tiktok.com/@preacherlawson/video/7496631628371037486?lang=en",
-          "stats": "1M views on TikTok"
+          "stats": "1M Views · TikTok"
         },
         {
           "title": "How Long Have You Been Vegan?",
           "url": "https://www.youtube.com/shorts/dhIF7Z4eFYY",
-          "stats": "2M on TikTok · 242K on YouTube"
+          "stats": "2M Views · TikTok | 242K Views · YouTube"
         },
         {
           "title": "How Long Have You Been Vegan? (IG)",
           "url": "https://www.instagram.com/reel/DIpAoUrpzc8/?igsh=NTc4MTIwNjQ2YQ==",
-          "stats": "250K Likes on IG"
+          "stats": "250K Likes · Instagram"
         },
         {
           "title": "Reformatted Preacher Lawson Bit",
           "url": "https://www.youtube.com/shorts/jj9DRbNStq4",
-          "stats": "4.7M on YouTube · 12.7M on TikTok"
+          "stats": "12.7M Views · TikTok | 4.7M Views · YouTube"
         },
         {
           "title": "I Didn't Know People in Spain...",
           "url": "https://www.youtube.com/shorts/IiHd9Mvzdhg",
-          "stats": "100K+ YouTube · 990K on TikTok"
+          "stats": "990K Views · TikTok | 100K+ Views · YouTube"
         },
         {
           "title": "Do Y'all Know That Song?",
           "url": "https://www.tiktok.com/@preacherlawson/video/7495432134111415594",
-          "stats": "2.2M on TikTok"
+          "stats": "2.2M Views · TikTok"
         }
       ]
     },
@@ -174,7 +177,7 @@
         {
           "title": "Sky Elements — Season 19 of AGT",
           "url": "https://www.youtube.com/watch?v=uHVVWH1HebA",
-          "stats": "80K views on YouTube"
+          "stats": "80K Views · YouTube"
         }
       ]
     }
