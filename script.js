@@ -216,9 +216,6 @@ function renderResume(config) {
     if (!container || !config.resume) return;
     const r = config.resume;
     let html = '';
-    if (r.url) {
-        html += `<div class="resume-header-link"><a href="${r.url}" target="_blank" rel="noopener"><i class="fas fa-file-alt"></i> View Full Resume</a></div>`;
-    }
     if (r.experience && r.experience.length) {
         html += '<div class="resume-timeline">';
         r.experience.forEach(exp => {
