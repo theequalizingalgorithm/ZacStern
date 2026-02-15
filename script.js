@@ -329,9 +329,18 @@ function getPlatformLabel(url) {
 function buildFeaturedCard(item) {
     const ytId = extractYouTubeId(item.url);
     let thumbHtml;
+    let socialDataAttr = '';
     if (ytId) {
         thumbHtml = `<img src="https://img.youtube.com/vi/${ytId}/hqdefault.jpg" alt="${item.title}" loading="lazy"
             onerror="this.src='https://img.youtube.com/vi/${ytId}/mqdefault.jpg'">`;
+    } else if (item.url.includes('tiktok.com')) {
+        const icon = getPlatformIcon(item.url);
+        thumbHtml = `<div class="thumb-placeholder"><i class="${icon}"></i></div>`;
+        socialDataAttr = ` data-tiktok-url="${item.url}"`;
+    } else if (item.url.includes('instagram.com')) {
+        const icon = getPlatformIcon(item.url);
+        thumbHtml = `<div class="thumb-placeholder"><i class="${icon}"></i></div>`;
+        socialDataAttr = ` data-instagram-url="${item.url}"`;
     } else {
         const icon = getPlatformIcon(item.url);
         thumbHtml = `<div class="thumb-placeholder"><i class="${icon}"></i></div>`;
@@ -357,7 +366,7 @@ function buildFeaturedCard(item) {
     }
 
     return `
-        <a href="${item.url}" target="_blank" rel="noopener" class="featured-card">
+        <a href="${item.url}" target="_blank" rel="noopener" class="featured-card"${socialDataAttr}>
             <div class="thumb-wrap">
                 ${thumbHtml}
                 <div class="play-overlay"><i class="fas fa-external-link-alt"></i></div>
@@ -413,6 +422,35 @@ function renderClientele(config) {
     const row = document.getElementById('clienteleRow');
     if (!row || !config.featuredWork?.socialMedia) return;
     row.innerHTML = config.featuredWork.socialMedia.items.map(buildFeaturedCard).join('');
+    fetchSocialThumbnails();
+}
+
+function fetchSocialThumbnails() {
+    // TikTok oEmbed – public, CORS-friendly
+    document.querySelectorAll('.featured-card[data-tiktok-url]').forEach(async card => {
+        try {
+            const url = card.dataset.tiktokUrl;
+            const resp = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`);
+            const data = await resp.json();
+            if (data.thumbnail_url) {
+                const ph = card.querySelector('.thumb-placeholder');
+                if (ph) ph.outerHTML = `<img src="${data.thumbnail_url}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover">`;
+            }
+        } catch(e) { /* keep placeholder */ }
+    });
+    // Instagram oEmbed – try public endpoint, graceful fallback
+    document.querySelectorAll('.featured-card[data-instagram-url]').forEach(async card => {
+        try {
+            const url = card.dataset.instagramUrl;
+            const resp = await fetch(`https://api.instagram.com/oembed?url=${encodeURIComponent(url)}`);
+            if (!resp.ok) return;
+            const data = await resp.json();
+            if (data.thumbnail_url) {
+                const ph = card.querySelector('.thumb-placeholder');
+                if (ph) ph.outerHTML = `<img src="${data.thumbnail_url}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover">`;
+            }
+        } catch(e) { /* keep placeholder */ }
+    });
 }
 
 /* ===== 4. UGC VIDEOS (Vertical) ===== */
