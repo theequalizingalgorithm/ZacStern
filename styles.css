@@ -17,12 +17,17 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .anim-fade-up{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1)}
 .anim-fade-up.visible{opacity:1;transform:translateY(0)}
 
-/* Stagger grids — all cards appear simultaneously (no per-card delay) */
+/* Stagger grids — all cards in a row appear simultaneously */
 .anim-stagger .video-card,.anim-stagger .reel-card,.anim-stagger .project-card,.anim-stagger .social-card{opacity:0;transform:scale(.75) translateY(30px);transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1);transition-delay:0s !important}
 .anim-stagger.visible .video-card,.anim-stagger.visible .reel-card,.anim-stagger.visible .project-card,.anim-stagger.visible .social-card{opacity:1;transform:scale(1) translateY(0)}
 /* Scroll-up: cards rise from below */
 .anim-stagger.scroll-up .video-card,.anim-stagger.scroll-up .reel-card,.anim-stagger.scroll-up .project-card,.anim-stagger.scroll-up .social-card{transform:scale(.75) translateY(-30px)}
 .anim-stagger.scroll-up.visible .video-card,.anim-stagger.scroll-up.visible .reel-card,.anim-stagger.scroll-up.visible .project-card,.anim-stagger.scroll-up.visible .social-card{opacity:1;transform:scale(1) translateY(0)}
+/* UGC row-by-row animation */
+.ugc-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.2rem;opacity:0;transform:scale(.75) translateY(30px);transition:opacity .55s cubic-bezier(.22,1,.36,1),transform .55s cubic-bezier(.22,1,.36,1)}
+.ugc-row.visible{opacity:1;transform:scale(1) translateY(0)}
+.ugc-row.scroll-up{transform:scale(.75) translateY(-30px)}
+.ugc-row.scroll-up.visible{opacity:1;transform:scale(1) translateY(0)}
 
 /* 3D grow for scroll-row cards */
 .scroll-row .video-card,.scroll-row .featured-card,.scroll-row .h-scroll-card{transform:scale(.75) translateY(30px);opacity:0;transition:transform .6s cubic-bezier(.22,1,.36,1),opacity .6s ease}
@@ -118,7 +123,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 
 /* ===== VIDEO GRIDS ===== */
 .video-grid{display:grid;gap:1.2rem}
-.vertical-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+.vertical-grid{display:flex;flex-direction:column;gap:1.2rem}
 .horizontal-grid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
 
 /* Video cards */

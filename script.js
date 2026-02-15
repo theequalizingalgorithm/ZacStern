@@ -228,7 +228,6 @@ function initScrollAnimations() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
             if (entry.isIntersecting) {
-                // Set direction class BEFORE adding visible so CSS picks up the right transform origin
                 if (scrollDir === 'up') {
                     entry.target.classList.add('scroll-up');
                     entry.target.classList.remove('scroll-down');
@@ -244,6 +243,43 @@ function initScrollAnimations() {
     }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
     document.querySelectorAll('.anim-fade-up, .anim-stagger').forEach(el => observer.observe(el));
+
+    // UGC row-by-row observer: each row animates individually with stagger delay
+    const ugcRows = document.querySelectorAll('.ugc-row');
+    const rowDelay = 0.12; // seconds between rows
+
+    const ugcObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                if (scrollDir === 'up') {
+                    entry.target.classList.add('scroll-up');
+                    entry.target.classList.remove('scroll-down');
+                } else {
+                    entry.target.classList.add('scroll-down');
+                    entry.target.classList.remove('scroll-up');
+                }
+
+                // Determine row index & direction-aware delay
+                const allRows = Array.from(ugcRows);
+                const idx = allRows.indexOf(entry.target);
+
+                // Find which rows are currently NOT visible to calculate relative order
+                const notVisibleRows = allRows.filter(r => !r.classList.contains('visible'));
+                const relIdx = scrollDir === 'up'
+                    ? notVisibleRows.length - 1 - notVisibleRows.indexOf(entry.target)
+                    : notVisibleRows.indexOf(entry.target);
+                const delay = Math.max(0, relIdx) * rowDelay;
+
+                entry.target.style.transitionDelay = delay + 's';
+                entry.target.classList.add('visible');
+            } else {
+                entry.target.classList.remove('visible');
+                entry.target.style.transitionDelay = '0s';
+            }
+        });
+    }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+
+    ugcRows.forEach(row => ugcObserver.observe(row));
 
     // Observe scroll rows for 3D grow animation
     const rowObserver = new IntersectionObserver((entries) => {
@@ -414,7 +450,21 @@ function renderUGC(config) {
         if (typeof item === 'string') return false;
         return item.title && item.title.trim().length > 0;
     });
-    vGrid.innerHTML = titled.map(item => createVideoCard(item, 'vertical')).join('');
+
+    // Determine how many cards per row based on container width
+    // minmax(180px, 1fr) with gap 1.2rem ≈ 19.2px
+    const containerWidth = vGrid.clientWidth || 1200;
+    const colCount = Math.max(1, Math.floor((containerWidth + 19.2) / (180 + 19.2)));
+
+    // Chunk cards into rows
+    let html = '';
+    for (let i = 0; i < titled.length; i += colCount) {
+        const rowCards = titled.slice(i, i + colCount);
+        html += '<div class="ugc-row">';
+        html += rowCards.map(item => createVideoCard(item, 'vertical')).join('');
+        html += '</div>';
+    }
+    vGrid.innerHTML = html;
 }
 
 /* ===== PROJECTS ===== */
