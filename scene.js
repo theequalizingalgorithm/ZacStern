@@ -109,7 +109,7 @@ export class World {
 
     // ===================== SKY DOME =====================
     createSky() {
-        const geo = new THREE.SphereGeometry(900, 32, 32);
+        const geo = new THREE.SphereGeometry(1400, 32, 32);
         const mat = new THREE.ShaderMaterial({
             vertexShader: skyVertexShader,
             fragmentShader: skyFragmentShader,
@@ -642,7 +642,7 @@ export class World {
 
     // ===================== ATMOSPHERE =====================
     createAtmosphere() {
-        this.scene.fog = new THREE.FogExp2(0xc5e5f5, 0.0015);
+        this.scene.fog = new THREE.FogExp2(0xc5e5f5, 0.0008);
     }
 
     // ===================== DECORATIONS (trees & flowers on sphere) =====================

@@ -327,9 +327,29 @@ function initScrollButtons() {
         const leftBtn = wrap.querySelector('.scroll-left');
         const rightBtn = wrap.querySelector('.scroll-right');
         if (!row) return;
-        const scrollAmt = 400;
-        if (leftBtn) leftBtn.addEventListener('click', () => row.scrollBy({ left: -scrollAmt, behavior: 'smooth' }));
-        if (rightBtn) rightBtn.addEventListener('click', () => row.scrollBy({ left: scrollAmt, behavior: 'smooth' }));
+
+        // Scroll amount: half the visible width so it advances by one "page"
+        const getScrollAmt = () => Math.max(200, row.clientWidth * 0.5);
+        if (leftBtn) leftBtn.addEventListener('click', () => row.scrollBy({ left: -getScrollAmt(), behavior: 'smooth' }));
+        if (rightBtn) rightBtn.addEventListener('click', () => row.scrollBy({ left: getScrollAmt(), behavior: 'smooth' }));
+
+        // Drag-to-scroll (mouse)
+        let isDragging = false, startX = 0, scrollLeft = 0;
+        row.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            row.classList.add('dragging');
+            startX = e.pageX - row.offsetLeft;
+            scrollLeft = row.scrollLeft;
+        });
+        row.addEventListener('mouseleave', () => { isDragging = false; row.classList.remove('dragging'); });
+        row.addEventListener('mouseup', () => { isDragging = false; row.classList.remove('dragging'); });
+        row.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.pageX - row.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            row.scrollLeft = scrollLeft - walk;
+        });
     });
 }
 

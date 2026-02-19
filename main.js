@@ -127,10 +127,10 @@ class App {
         this.scene = new THREE.Scene();
 
         this.camera = new THREE.PerspectiveCamera(
-            65,
+            120,
             window.innerWidth / window.innerHeight,
             0.1,
-            1200
+            1500
         );
         this.camera.position.set(0, 5, 15);
     }

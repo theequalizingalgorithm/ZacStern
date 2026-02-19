@@ -138,7 +138,15 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .featured-section{padding:1rem 0;max-width:1400px;margin:0 auto}
 
 .scroll-row-wrap{position:relative;padding:0 2.5rem}
-.scroll-row{display:flex;gap:1.2rem;overflow-x:auto;scroll-behavior:smooth;padding:1rem 0 1.5rem;-ms-overflow-style:none;scrollbar-width:none;touch-action:pan-x}
+.scroll-row{display:flex;gap:1.2rem;overflow-x:auto;scroll-behavior:smooth;padding:1rem 0 1.5rem;-ms-overflow-style:none;scrollbar-width:none;touch-action:pan-x;cursor:grab}
+.scroll-row.dragging{cursor:grabbing;scroll-behavior:auto;user-select:none}
+
+/* Content Samples: 2-up large 16:9 cards */
+#horizontalGrid .video-card.h-scroll-card,#horizontalGrid .featured-card{min-width:calc(50% - .6rem);max-width:calc(50% - .6rem)}
+#horizontalGrid .video-card .thumb-wrap,#horizontalGrid .featured-card .thumb-wrap{aspect-ratio:16/9}
+#horizontalGrid .featured-card .card-info{padding:.4rem .6rem}
+#horizontalGrid .featured-card .card-info h4{font-size:.75rem;margin-bottom:.15rem}
+#horizontalGrid .video-card .card-title{padding:.3rem .6rem;font-size:.75rem}
 .scroll-row::-webkit-scrollbar{display:none}
 .scroll-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--bubble-border);background:rgba(255,255,255,.6);backdrop-filter:blur(8px);color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease;font-size:1rem;box-shadow:var(--bubble-glow);pointer-events:auto}
 .scroll-btn:hover{background:linear-gradient(135deg,#0088cc,#00b4d8);color:#fff;border-color:transparent;box-shadow:0 6px 20px rgba(0,153,230,.4)}
@@ -317,6 +325,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .horizontal-grid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
 .featured-card{min-width:160px;max-width:160px}
 .scroll-row{padding-left:0;padding-right:0}
+#horizontalGrid .video-card.h-scroll-card,#horizontalGrid .featured-card{min-width:calc(50% - .6rem);max-width:calc(50% - .6rem)}
 #clienteleRow .featured-card,#networkRow .featured-card{min-width:180px;max-width:180px}
 .contact-container{grid-template-columns:1fr}
 .projects-grid{grid-template-columns:1fr}
@@ -346,6 +355,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .horizontal-grid{grid-template-columns:1fr}
 .featured-card{min-width:140px;max-width:140px}
 .scroll-row{padding-left:0;padding-right:0}
+#horizontalGrid .video-card.h-scroll-card,#horizontalGrid .featured-card{min-width:calc(100% - .6rem);max-width:calc(100% - .6rem)}
 #clienteleRow .featured-card,#networkRow .featured-card{min-width:160px;max-width:160px}
 .contact-form{gap:.8rem}
 .nav-container{padding:0 1rem}
