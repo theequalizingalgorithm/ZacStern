@@ -26,8 +26,8 @@ const SECTION_DATA = [
 ];
 
 // Spherical world parameters
-const SPHERE_RADIUS = 80;
-const PATH_ALTITUDE = 8;
+const SPHERE_RADIUS = 50;
+const PATH_ALTITUDE = 5;
 
 // Generate spiral path around the sphere
 function generateSpiralPath(numPoints) {
@@ -203,7 +203,7 @@ class App {
         // Set scroll spacer height
         const spacer = document.getElementById('scrollSpacer');
         if (spacer) {
-            const totalHeight = window.innerHeight * (SECTION_DATA.length + 2);
+            const totalHeight = window.innerHeight * (SECTION_DATA.length * 2 + 4);
             spacer.style.height = totalHeight + 'px';
         }
 
@@ -455,7 +455,7 @@ class App {
                 // Recalculate scroll spacer height
                 const spacer = document.getElementById('scrollSpacer');
                 if (spacer) {
-                    const totalHeight = h * (SECTION_DATA.length + 2);
+                    const totalHeight = h * (SECTION_DATA.length * 2 + 4);
                     spacer.style.height = totalHeight + 'px';
                 }
             }, 150);

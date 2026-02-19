@@ -18,10 +18,15 @@ export class SectionManager {
 
     _initPanels() {
         // Find all section panels in the DOM
-        for (const section of this.sections) {
+        for (let i = 0; i < this.sections.length; i++) {
+            const section = this.sections[i];
             const panel = document.querySelector(`.section-panel[data-section="${section.id}"]`);
             if (panel) {
                 this.panels.set(section.id, panel);
+                // Billboard side: even index = right, odd = left (matches scene.js)
+                if (section.id !== 'hero') {
+                    panel.classList.add(i % 2 === 0 ? 'panel-right' : 'panel-left');
+                }
                 // Start all hidden except hero
                 if (section.id === 'hero') {
                     panel.classList.add('active');

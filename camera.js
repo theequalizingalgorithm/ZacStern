@@ -16,7 +16,7 @@ export class CameraController {
         this.targetT = 0;
 
         // Smooth interpolation
-        this.lerpSpeed = 2.5;
+        this.lerpSpeed = 1.5;
 
         // Mouse parallax
         this.mouseX = 0;
