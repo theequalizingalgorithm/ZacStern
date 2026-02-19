@@ -366,13 +366,9 @@
     }
   },
   "featuredWork": {
-    "socialMedia": {
-      "title": "Social Media Performance with Clientele",
+    "contentSamples": {
+      "title": "Content Samples",
       "items": [
-        {
-          "title": "James Leon x Korkscrew",
-          "url": "https://www.instagram.com/reel/DUbi_5jEqtc/?igsh=NTc4MTIwNjQ2YQ=="
-        },
         {
           "title": "Instagram Reel",
           "url": "https://www.instagram.com/reel/DNoMDI3htbV/?igsh=NTc4MTIwNjQ2YQ=="
@@ -384,11 +380,21 @@
         {
           "title": "Instagram Reel",
           "url": "https://www.instagram.com/reel/CoSjTvKg_ht/?igsh=NTc4MTIwNjQ2YQ=="
+        }
+      ]
+    },
+    "socialMedia": {
+      "title": "Social Media Performance with Clientele",
+      "items": [
+        {
+          "title": "Reformatted Preacher Lawson Bit",
+          "url": "https://www.youtube.com/shorts/jj9DRbNStq4",
+          "stats": "12.7M Views \u00b7 TikTok | 4.7M Views \u00b7 YouTube"
         },
         {
-          "title": "HIT IT DJ \u2014 Preacher Bit",
-          "url": "https://www.tiktok.com/@preacherlawson/video/7496631628371037486?lang=en",
-          "stats": "1M Views \u00b7 TikTok"
+          "title": "Do Y'all Know That Song?",
+          "url": "https://www.tiktok.com/@preacherlawson/video/7495432134111415594",
+          "stats": "2.2M Views \u00b7 TikTok"
         },
         {
           "title": "How Long Have You Been Vegan?",
@@ -396,14 +402,9 @@
           "stats": "2M Views \u00b7 TikTok | 242K Views \u00b7 YouTube"
         },
         {
-          "title": "How Long Have You Been Vegan? (IG)",
-          "url": "https://www.instagram.com/reel/DIpAoUrpzc8/?igsh=NTc4MTIwNjQ2YQ==",
-          "stats": "250K Likes \u00b7 Instagram"
-        },
-        {
-          "title": "Reformatted Preacher Lawson Bit",
-          "url": "https://www.youtube.com/shorts/jj9DRbNStq4",
-          "stats": "12.7M Views \u00b7 TikTok | 4.7M Views \u00b7 YouTube"
+          "title": "HIT IT DJ \u2014 Preacher Bit",
+          "url": "https://www.tiktok.com/@preacherlawson/video/7496631628371037486?lang=en",
+          "stats": "1M Views \u00b7 TikTok"
         },
         {
           "title": "I Didn't Know People in Spain...",
@@ -411,9 +412,13 @@
           "stats": "990K Views \u00b7 TikTok | 100K+ Views \u00b7 YouTube"
         },
         {
-          "title": "Do Y'all Know That Song?",
-          "url": "https://www.tiktok.com/@preacherlawson/video/7495432134111415594",
-          "stats": "2.2M Views \u00b7 TikTok"
+          "title": "James Leon x Korkscrew",
+          "url": "https://www.instagram.com/reel/DUbi_5jEqtc/?igsh=NTc4MTIwNjQ2YQ=="
+        },
+        {
+          "title": "How Long Have You Been Vegan? (IG)",
+          "url": "https://www.instagram.com/reel/DIpAoUrpzc8/?igsh=NTc4MTIwNjQ2YQ==",
+          "stats": "250K Likes \u00b7 Instagram"
         }
       ]
     },

@@ -409,7 +409,12 @@ function buildFeaturedCard(item) {
 function renderDirecting(config) {
     const grid = document.getElementById('horizontalGrid');
     if (!grid || !config.videos?.ugc?.horizontal) return;
-    grid.innerHTML = config.videos.ugc.horizontal.map(item => createHorizontalCard(item)).join('');
+    let html = config.videos.ugc.horizontal.map(item => createHorizontalCard(item)).join('');
+    // Append Instagram content sample reels (featured card format)
+    if (config.featuredWork?.contentSamples?.items) {
+        html += config.featuredWork.contentSamples.items.map(buildFeaturedCard).join('');
+    }
+    grid.innerHTML = html;
 }
 
 function createHorizontalCard(item) {
