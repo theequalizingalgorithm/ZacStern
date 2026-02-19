@@ -233,10 +233,16 @@ class App {
             if (!this.sectionLocked) return;
             if (this._advanceCooldown) { e.preventDefault(); return; }
 
-            // Allow horizontal scrolling in scroll-rows (trackpad / shift+wheel)
+            // Allow interaction with scroll-rows (horizontal card carousels)
             const scrollRow = e.target.closest('.scroll-row');
-            if (scrollRow && Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-                return; // let browser natively horizontal-scroll the row
+            if (scrollRow) {
+                if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+                    return; // native horizontal scroll (trackpad)
+                }
+                // Convert vertical wheel → horizontal scroll on the row
+                e.preventDefault();
+                scrollRow.scrollLeft += e.deltaY;
+                return;
             }
 
             e.preventDefault();
