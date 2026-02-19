@@ -57,6 +57,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .panel-scrollable::-webkit-scrollbar-thumb{background:rgba(0,153,230,.3);border-radius:3px}
 .panel-scrollable::-webkit-scrollbar-thumb:hover{background:rgba(0,153,230,.5)}
 
+/* Scroll hint at bottom of panels — positioned outside scroll container */
+.section-panel.active .panel-inner::after{content:'';position:absolute;bottom:0;left:0;right:0;height:30px;border-radius:0 0 20px 20px;background:linear-gradient(to top,rgba(255,255,255,.55) 0%,transparent 100%);pointer-events:none;z-index:2}
+
 /* Intersection Observer reveal classes */
 .anim-fade-up{opacity:1;transform:none}
 .anim-stagger .video-card,.anim-stagger .reel-card,.anim-stagger .project-card,.anim-stagger .social-card{opacity:1;transform:none}

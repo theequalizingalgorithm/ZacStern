@@ -103,7 +103,7 @@ export class CameraController {
         this.activeSectionIndex = closestIdx;
 
         // Only consider "active" if close enough
-        if (closestDist < 0.04) {
+        if (closestDist < 0.06) {
             this.activeSection = closest;
             return closest;
         }

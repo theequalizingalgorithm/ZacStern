@@ -159,16 +159,8 @@ class App {
 
         // Navigation callback
         this.sectionManager.setNavigateCallback((direction) => {
-            let section;
-            if (direction === 'next') {
-                section = this.cameraController.goToNext();
-            } else {
-                section = this.cameraController.goToPrev();
-            }
-            if (section) {
-                // Sync scroll position to camera target
-                this.syncScrollToCamera(this.cameraController.getTargetT());
-            }
+            if (this._advanceCooldown || this.transitioning) return;
+            this._advanceSection(direction === 'next' ? 1 : -1);
         });
     }
 
@@ -195,8 +187,14 @@ class App {
         this.composer.addPass(outputPass);
     }
 
-    // ---- Scroll Handler ----
+    // ---- Scroll Handler (Section-locked navigation) ----
     initScrollHandler() {
+        this.sectionLocked = false;
+        this.transitioning = false;
+        this._lastLockedSectionId = null;
+        this._boundaryAccum = 0;
+        this._advanceCooldown = false;
+
         // Set scroll spacer height
         const spacer = document.getElementById('scrollSpacer');
         if (spacer) {
@@ -204,9 +202,10 @@ class App {
             spacer.style.height = totalHeight + 'px';
         }
 
-        // Scroll → camera progress mapping
+        // Scroll → camera progress mapping (only when NOT locked at section)
         let ticking = false;
         window.addEventListener('scroll', () => {
+            if (this.sectionLocked || this.transitioning) return;
             if (!ticking) {
                 requestAnimationFrame(() => {
                     const scrollTop = window.scrollY;
@@ -218,6 +217,137 @@ class App {
                 ticking = true;
             }
         }, { passive: true });
+
+        // Wheel interception — trap scroll at sections for panel interactivity
+        const ADVANCE_THRESHOLD = 120;
+
+        window.addEventListener('wheel', (e) => {
+            // During transition, block all wheel
+            if (this.transitioning) { e.preventDefault(); return; }
+            // If not locked at a section, let normal scroll happen
+            if (!this.sectionLocked) return;
+            if (this._advanceCooldown) { e.preventDefault(); return; }
+
+            e.preventDefault();
+
+            const activeId = this.sectionManager.activeSectionId;
+            if (!activeId) return;
+
+            // Normalize deltaY
+            let delta = e.deltaY;
+            if (e.deltaMode === 1) delta *= 40;
+            if (e.deltaMode === 2) delta *= window.innerHeight;
+
+            const panel = document.querySelector(
+                `.section-panel[data-section="${activeId}"] .panel-scrollable`
+            );
+
+            // No scrollable panel (e.g. hero) — accumulate for section change
+            if (!panel || panel.scrollHeight <= panel.clientHeight + 2) {
+                this._boundaryAccum += delta;
+                if (Math.abs(this._boundaryAccum) >= ADVANCE_THRESHOLD) {
+                    this._advanceSection(this._boundaryAccum > 0 ? 1 : -1);
+                    this._boundaryAccum = 0;
+                }
+                return;
+            }
+
+            const atTop = panel.scrollTop <= 1;
+            const atBottom = panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 2;
+
+            if ((delta > 0 && atBottom) || (delta < 0 && atTop)) {
+                // At boundary — accumulate scroll for section advance
+                this._boundaryAccum += delta;
+                if (Math.abs(this._boundaryAccum) >= ADVANCE_THRESHOLD) {
+                    this._advanceSection(this._boundaryAccum > 0 ? 1 : -1);
+                    this._boundaryAccum = 0;
+                }
+            } else {
+                // Scroll within the panel content
+                panel.scrollTop += delta;
+                this._boundaryAccum = 0;
+            }
+        }, { passive: false });
+
+        // Touch support — swipe to advance or scroll panel
+        let touchStartY = 0;
+        let touchBoundaryAccum = 0;
+
+        window.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+            touchBoundaryAccum = 0;
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+            if (this.transitioning) { e.preventDefault(); return; }
+            if (!this.sectionLocked) return;
+            e.preventDefault(); // always prevent page scroll when locked
+            if (this._advanceCooldown) return;
+
+            const touchY = e.touches[0].clientY;
+            const delta = touchStartY - touchY; // positive = scroll down
+            touchStartY = touchY;
+
+            const activeId = this.sectionManager.activeSectionId;
+            if (!activeId) return;
+
+            const panel = document.querySelector(
+                `.section-panel[data-section="${activeId}"] .panel-scrollable`
+            );
+
+            if (!panel || panel.scrollHeight <= panel.clientHeight + 2) {
+                touchBoundaryAccum += delta;
+                if (Math.abs(touchBoundaryAccum) >= 60) {
+                    this._advanceSection(touchBoundaryAccum > 0 ? 1 : -1);
+                    touchBoundaryAccum = 0;
+                }
+                return;
+            }
+
+            const atTop = panel.scrollTop <= 1;
+            const atBottom = panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 2;
+
+            if ((delta > 0 && atBottom) || (delta < 0 && atTop)) {
+                touchBoundaryAccum += delta;
+                if (Math.abs(touchBoundaryAccum) >= 60) {
+                    this._advanceSection(touchBoundaryAccum > 0 ? 1 : -1);
+                    touchBoundaryAccum = 0;
+                }
+            } else {
+                // Manually scroll the panel (default is prevented)
+                panel.scrollTop += delta;
+                touchBoundaryAccum = 0;
+            }
+        }, { passive: false });
+    }
+
+    // Advance to next/prev section
+    _advanceSection(direction) {
+        // Guard against no-op at first/last section
+        const currentIdx = this.cameraController.activeSectionIndex;
+        if (direction > 0 && currentIdx >= SECTION_DATA.length - 1) return;
+        if (direction < 0 && currentIdx <= 0) return;
+
+        this.sectionLocked = false;
+        this.transitioning = true;
+        this._advanceCooldown = true;
+        this._lastLockedSectionId = null; // allow re-lock at any section
+
+        let section;
+        if (direction > 0) {
+            section = this.cameraController.goToNext();
+        } else {
+            section = this.cameraController.goToPrev();
+        }
+
+        if (section) {
+            this.syncScrollToCamera(section.pathT);
+        }
+
+        // Cooldown prevents rapid section changes
+        setTimeout(() => { this._advanceCooldown = false; }, 600);
+        // Transition ends when camera arrives (checked in animate loop)
+        setTimeout(() => { this.transitioning = false; }, 1500);
     }
 
     // Sync scroll position to match camera target
@@ -236,12 +366,16 @@ class App {
         const navigateToHash = (href) => {
             const sectionId = href ? href.replace('#', '') : null;
             if (sectionId) {
+                this.sectionLocked = false;
+                this.transitioning = true;
+                this._lastLockedSectionId = null;
                 this.cameraController.goToSection(sectionId);
                 const section = SECTION_DATA.find(s => s.id === sectionId);
                 if (section) {
                     this.syncScrollToCamera(section.pathT);
                 }
                 document.querySelector('.nav-menu')?.classList.remove('active');
+                setTimeout(() => { this.transitioning = false; }, 1500);
             }
         };
 
@@ -375,13 +509,28 @@ class App {
         // Update world (animations, clouds, portals)
         this.world.update(delta, this.camera.position);
 
-        // Update section visibility
+        // Section locking — when camera arrives at a section, lock interaction
         if (activeSection) {
+            if (activeSection.id !== this._lastLockedSectionId) {
+                // Just arrived at a new section — lock for interaction
+                this.sectionLocked = true;
+                this.transitioning = false;
+                this._lastLockedSectionId = activeSection.id;
+                this._boundaryAccum = 0;
+
+                // Reset panel scroll to top for fresh section entry
+                const panel = document.querySelector(
+                    `.section-panel[data-section="${activeSection.id}"] .panel-scrollable`
+                );
+                if (panel) panel.scrollTop = 0;
+            }
+
             this.world.setActiveSection(activeSection.id);
             this.sectionManager.updateActiveSection(activeSection.id, this.cameraController);
         } else {
             this.world.setActiveSection(null);
             this.sectionManager.showTransition();
+            this._lastLockedSectionId = null;
         }
 
         // Render

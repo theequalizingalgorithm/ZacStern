@@ -7,8 +7,7 @@ import * as THREE from 'three';
 import {
     skyVertexShader, skyFragmentShader,
     roadVertexShader, roadFragmentShader,
-    cloudVertexShader, cloudFragmentShader,
-    portalVertexShader, portalFragmentShader
+    cloudVertexShader, cloudFragmentShader
 } from './shaders/environment.js';
 
 // ---- Noise utilities for terrain ----
@@ -51,7 +50,7 @@ export class World {
         this.portalMeshes = [];
         this.roadUniforms = null;
         this.cloudMaterials = [];
-        this.portalMaterials = [];
+        this.landmarkMeshes = [];
 
         this.createLighting();
         this.createSky();
@@ -330,179 +329,271 @@ export class World {
         }
     }
 
-    // ===================== SECTION PORTALS =====================
+    // ===================== SECTION LANDMARKS =====================
     createPortals() {
+        this.landmarkMeshes = []; // rotating landmark objects
         for (const section of this.sectionPositions) {
-            const portal = this.createPortalStructure(section);
-            this.scene.add(portal.group);
-            this.portalMeshes.push(portal);
+            const landmark = this.createLandmark(section);
+            this.scene.add(landmark.group);
+            this.portalMeshes.push(landmark);
+            if (landmark.spinning) this.landmarkMeshes.push(landmark.spinning);
         }
     }
 
-    createPortalStructure(section) {
+    createLandmark(section) {
         const group = new THREE.Group();
         group.position.copy(section.pos);
 
-        // Rotate portal to face incoming camera direction
+        // Face incoming camera direction
         const tangent = this.cameraPath.getTangent(section.pathT);
         const lookTarget = new THREE.Vector3().copy(section.pos).add(tangent);
         lookTarget.y = section.pos.y;
         group.lookAt(lookTarget);
 
-        // Portal frame — two columns + arch
-        const portalHeight = 12;
-        const portalWidth = 8;
-        const columnRadius = 0.4;
+        const color = new THREE.Color(section.color || 0x0099e6);
 
-        // Column geometry
-        const columnGeo = new THREE.CylinderGeometry(columnRadius, columnRadius * 1.2, portalHeight, 12);
-
-        const portalUniforms = {
-            time: { value: 0 },
-            portalColor: { value: new THREE.Color(section.color || 0x0099e6) },
-            active: { value: 0 }
-        };
-
-        const portalMat = new THREE.ShaderMaterial({
-            vertexShader: portalVertexShader,
-            fragmentShader: portalFragmentShader,
-            uniforms: portalUniforms,
-            transparent: true,
-            side: THREE.DoubleSide,
-            depthWrite: false
-        });
-
-        // Left column
-        const leftCol = new THREE.Mesh(columnGeo, portalMat);
-        leftCol.position.set(-portalWidth / 2, portalHeight / 2, 0);
-        group.add(leftCol);
-
-        // Right column
-        const rightCol = new THREE.Mesh(columnGeo, portalMat);
-        rightCol.position.set(portalWidth / 2, portalHeight / 2, 0);
-        group.add(rightCol);
-
-        // Arch (torus segment)
-        const archGeo = new THREE.TorusGeometry(portalWidth / 2, columnRadius, 8, 24, Math.PI);
-        const arch = new THREE.Mesh(archGeo, portalMat);
-        arch.position.set(0, portalHeight, 0);
-        arch.rotation.z = Math.PI;
-        group.add(arch);
-
-        // Glass pane (inner portal surface)
-        const glassGeo = new THREE.PlaneGeometry(portalWidth - 1, portalHeight - 1);
-        const glassMat = new THREE.MeshPhysicalMaterial({
-            color: section.color || 0x0099e6,
-            transparent: true,
-            opacity: 0.08,
-            roughness: 0.05,
-            metalness: 0.1,
-            transmission: 0.9,
-            thickness: 0.5,
-            side: THREE.DoubleSide
-        });
-        const glass = new THREE.Mesh(glassGeo, glassMat);
-        glass.position.set(0, portalHeight / 2, 0);
-        group.add(glass);
-
-        // Title text — render to canvas texture
-        const titleTexture = this.createTextTexture(section.name, section.color || 0x0099e6);
-        const titleGeo = new THREE.PlaneGeometry(portalWidth * 0.8, 2);
-        const titleMat = new THREE.MeshBasicMaterial({
-            map: titleTexture,
-            transparent: true,
-            depthWrite: false,
-            side: THREE.DoubleSide
-        });
-        const titleMesh = new THREE.Mesh(titleGeo, titleMat);
-        titleMesh.position.set(0, portalHeight + 1.5, 0);
-        group.add(titleMesh);
-
-        // Base platform
-        const baseGeo = new THREE.CylinderGeometry(portalWidth / 2 + 1, portalWidth / 2 + 1.5, 0.4, 16);
+        // Base platform — metallic disc
+        const baseGeo = new THREE.CylinderGeometry(4, 4.5, 0.4, 24);
         const baseMat = new THREE.MeshStandardMaterial({
-            color: 0xe0e0e0,
-            roughness: 0.3,
-            metalness: 0.7
+            color: 0xe0e0e0, roughness: 0.25, metalness: 0.8
         });
         const base = new THREE.Mesh(baseGeo, baseMat);
-        base.position.set(0, -0.8, 0);
+        base.position.set(0, -0.6, 0);
         base.receiveShadow = true;
         group.add(base);
 
-        // Floating particles near portal
-        const particleGroup = this.createPortalParticles(section.color || 0x0099e6);
-        particleGroup.position.set(0, portalHeight / 2, 0);
-        group.add(particleGroup);
+        // Accent ring
+        const ringGeo = new THREE.TorusGeometry(4.2, 0.1, 8, 48);
+        const ringMat = new THREE.MeshStandardMaterial({
+            color: color, emissive: color, emissiveIntensity: 0.3,
+            roughness: 0.15, metalness: 0.9
+        });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.rotation.x = Math.PI / 2;
+        ring.position.set(0, -0.3, 0);
+        group.add(ring);
 
-        this.portalMaterials.push(portalUniforms);
+        // Create themed 3D object
+        const themedObj = this._createThemedObject(section.id, color);
+        themedObj.position.y = 6;
+        themedObj.traverse(child => { if (child.isMesh) child.castShadow = true; });
+        group.add(themedObj);
+
+        // Soft glow point light at landmark
+        const glow = new THREE.PointLight(color, 0.6, 20);
+        glow.position.set(0, 6, 0);
+        group.add(glow);
 
         return {
             group,
-            uniforms: portalUniforms,
             sectionId: section.id,
-            pathT: section.pathT
+            pathT: section.pathT,
+            spinning: themedObj
         };
     }
 
-    createTextTexture(text, color) {
-        const canvas = document.createElement('canvas');
-        canvas.width = 512;
-        canvas.height = 128;
-        const ctx = canvas.getContext('2d');
-
-        ctx.clearRect(0, 0, 512, 128);
-
-        // Try Aerobics font, fallback to sans-serif
-        ctx.font = 'bold 48px "Aerobics Regular", "Segoe UI", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-
-        // Glow effect
-        const hexColor = '#' + new THREE.Color(color).getHexString();
-        ctx.shadowColor = hexColor;
-        ctx.shadowBlur = 15;
-        ctx.fillStyle = hexColor;
-        ctx.fillText(text, 256, 64);
-
-        // White overlay for readability
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = '#ffffff';
-        ctx.globalAlpha = 0.6;
-        ctx.fillText(text, 256, 64);
-
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.needsUpdate = true;
-        return texture;
-    }
-
-    createPortalParticles(color) {
-        const count = 30;
-        const geo = new THREE.BufferGeometry();
-        const positions = new Float32Array(count * 3);
-        const sizes = new Float32Array(count);
-
-        for (let i = 0; i < count; i++) {
-            positions[i * 3]     = (Math.random() - 0.5) * 8;
-            positions[i * 3 + 1] = (Math.random() - 0.5) * 12;
-            positions[i * 3 + 2] = (Math.random() - 0.5) * 3;
-            sizes[i] = 0.05 + Math.random() * 0.15;
-        }
-
-        geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-
-        const mat = new THREE.PointsMaterial({
+    _createThemedObject(sectionId, color) {
+        const mat = new THREE.MeshPhysicalMaterial({
             color: color,
-            size: 0.15,
-            transparent: true,
-            opacity: 0.5,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false,
-            sizeAttenuation: true
+            roughness: 0.12,
+            metalness: 0.65,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.05,
+            emissive: color,
+            emissiveIntensity: 0.08
         });
 
-        return new THREE.Points(geo, mat);
+        let mesh;
+        switch (sectionId) {
+            case 'hero': {
+                // Crystalline dodecahedron — matches the scroll indicator
+                const geo = new THREE.DodecahedronGeometry(3, 0);
+                mesh = new THREE.Mesh(geo, mat);
+                break;
+            }
+            case 'directing': {
+                // Clapperboard / diamond shape — creative vision
+                const geo = new THREE.OctahedronGeometry(2.8, 0);
+                mesh = new THREE.Mesh(geo, mat);
+                break;
+            }
+            case 'network': {
+                // Monitor / screen shape — broadcast media
+                const grp = new THREE.Group();
+                const screenGeo = new THREE.BoxGeometry(5, 3.5, 0.3);
+                const screen = new THREE.Mesh(screenGeo, mat);
+                grp.add(screen);
+                // Screen bezel glow
+                const bezelGeo = new THREE.BoxGeometry(5.4, 3.9, 0.1);
+                const bezelMat = new THREE.MeshStandardMaterial({
+                    color: 0xc0c0c0, roughness: 0.2, metalness: 0.9
+                });
+                const bezel = new THREE.Mesh(bezelGeo, bezelMat);
+                bezel.position.z = -0.15;
+                grp.add(bezel);
+                // Stand
+                const standGeo = new THREE.CylinderGeometry(0.15, 0.15, 2, 8);
+                const stand = new THREE.Mesh(standGeo, bezelMat);
+                stand.position.y = -2.8;
+                grp.add(stand);
+                const standBaseGeo = new THREE.CylinderGeometry(1.2, 1.2, 0.15, 16);
+                const standBase = new THREE.Mesh(standBaseGeo, bezelMat);
+                standBase.position.y = -3.8;
+                grp.add(standBase);
+                mesh = grp;
+                break;
+            }
+            case 'ugc': {
+                // Smartphone shape — vertical content
+                const grp = new THREE.Group();
+                const phoneGeo = new THREE.BoxGeometry(2.2, 4.2, 0.2);
+                const phoneMat = new THREE.MeshPhysicalMaterial({
+                    color: 0x1a1a2e, roughness: 0.1, metalness: 0.8,
+                    clearcoat: 1, clearcoatRoughness: 0.02
+                });
+                const phone = new THREE.Mesh(phoneGeo, phoneMat);
+                grp.add(phone);
+                // Screen
+                const screenGeo = new THREE.PlaneGeometry(1.9, 3.6);
+                const screenMat = new THREE.MeshPhysicalMaterial({
+                    color: color, roughness: 0.05, metalness: 0.1,
+                    emissive: color, emissiveIntensity: 0.4,
+                    transmission: 0.3, thickness: 0.1
+                });
+                const scr = new THREE.Mesh(screenGeo, screenMat);
+                scr.position.z = 0.11;
+                grp.add(scr);
+                mesh = grp;
+                break;
+            }
+            case 'clientele': {
+                // Elegant torus knot — interconnected relationships
+                const geo = new THREE.TorusKnotGeometry(2, 0.45, 80, 12, 2, 3);
+                mesh = new THREE.Mesh(geo, mat);
+                break;
+            }
+            case 'projects': {
+                // Multi-faceted icosahedron — many projects
+                const geo = new THREE.IcosahedronGeometry(2.8, 0);
+                mesh = new THREE.Mesh(geo, mat);
+                break;
+            }
+            case 'social': {
+                // Connected spheres — social network graph
+                const grp = new THREE.Group();
+                const nodeMat = mat;
+                const positions = [
+                    [0, 0, 0],
+                    [2.2, 1, 0.5], [-2, 1.2, -0.3],
+                    [1.5, -1.5, 0.8], [-1.8, -1, -0.5],
+                    [0.5, 2, -1]
+                ];
+                const radii = [1.0, 0.6, 0.6, 0.55, 0.55, 0.5];
+                positions.forEach((p, i) => {
+                    const s = new THREE.Mesh(
+                        new THREE.SphereGeometry(radii[i], 16, 16), nodeMat
+                    );
+                    s.position.set(p[0], p[1], p[2]);
+                    grp.add(s);
+                });
+                // Connection lines
+                const lineMat = new THREE.MeshStandardMaterial({
+                    color: color, roughness: 0.3, metalness: 0.7
+                });
+                for (let i = 1; i < positions.length; i++) {
+                    const start = new THREE.Vector3(...positions[0]);
+                    const end = new THREE.Vector3(...positions[i]);
+                    const dir = new THREE.Vector3().subVectors(end, start);
+                    const len = dir.length();
+                    const rod = new THREE.Mesh(
+                        new THREE.CylinderGeometry(0.06, 0.06, len, 6), lineMat
+                    );
+                    rod.position.copy(start).add(dir.multiplyScalar(0.5));
+                    rod.lookAt(end);
+                    rod.rotateX(Math.PI / 2);
+                    grp.add(rod);
+                }
+                mesh = grp;
+                break;
+            }
+            case 'resume': {
+                // Classical column / obelisk — professional experience
+                const grp = new THREE.Group();
+                const colMat = new THREE.MeshPhysicalMaterial({
+                    color: 0xf0e6d3, roughness: 0.35, metalness: 0.3,
+                    clearcoat: 0.5
+                });
+                const shaft = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.9, 1.1, 5, 12), colMat
+                );
+                grp.add(shaft);
+                // Capital (top)
+                const cap = new THREE.Mesh(
+                    new THREE.CylinderGeometry(1.4, 0.9, 0.6, 12), colMat
+                );
+                cap.position.y = 2.8;
+                grp.add(cap);
+                // Base
+                const colBase = new THREE.Mesh(
+                    new THREE.CylinderGeometry(1.1, 1.3, 0.5, 12), colMat
+                );
+                colBase.position.y = -2.75;
+                grp.add(colBase);
+                // Accent ring at top
+                const topRing = new THREE.Mesh(
+                    new THREE.TorusGeometry(1.3, 0.08, 8, 24), new THREE.MeshStandardMaterial({
+                        color: color, emissive: color, emissiveIntensity: 0.3,
+                        metalness: 0.9, roughness: 0.1
+                    })
+                );
+                topRing.rotation.x = Math.PI / 2;
+                topRing.position.y = 3.2;
+                grp.add(topRing);
+                mesh = grp;
+                break;
+            }
+            case 'contact': {
+                // Beacon / lighthouse — reaching out
+                const grp = new THREE.Group();
+                const beaconMat = new THREE.MeshPhysicalMaterial({
+                    color: color, roughness: 0.1, metalness: 0.7,
+                    clearcoat: 1, emissive: color, emissiveIntensity: 0.15
+                });
+                // Tall cone
+                const cone = new THREE.Mesh(
+                    new THREE.ConeGeometry(1.5, 4, 12), beaconMat
+                );
+                grp.add(cone);
+                // Glowing ring beacon
+                const beacon = new THREE.Mesh(
+                    new THREE.TorusGeometry(2, 0.25, 8, 32), new THREE.MeshStandardMaterial({
+                        color: color, emissive: color, emissiveIntensity: 0.6,
+                        metalness: 0.8, roughness: 0.1
+                    })
+                );
+                beacon.rotation.x = Math.PI / 2;
+                beacon.position.y = 1;
+                grp.add(beacon);
+                // Second smaller ring
+                const ring2 = new THREE.Mesh(
+                    new THREE.TorusGeometry(1.3, 0.15, 8, 24), new THREE.MeshStandardMaterial({
+                        color: color, emissive: color, emissiveIntensity: 0.4,
+                        metalness: 0.8, roughness: 0.1
+                    })
+                );
+                ring2.rotation.x = Math.PI / 2;
+                ring2.position.y = 2.2;
+                grp.add(ring2);
+                mesh = grp;
+                break;
+            }
+            default: {
+                const geo = new THREE.SphereGeometry(2.5, 24, 24);
+                mesh = new THREE.Mesh(geo, mat);
+            }
+        }
+
+        return mesh;
     }
 
     // ===================== ATMOSPHERE =====================
@@ -598,12 +689,11 @@ export class World {
         return h;
     }
 
-    // ===================== SET PORTAL ACTIVE STATE =====================
+    // ===================== SET LANDMARK ACTIVE STATE =====================
     setActiveSection(sectionId) {
         for (const portal of this.portalMeshes) {
             const isActive = portal.sectionId === sectionId;
-            // Animate towards target
-            portal.uniforms.active.targetValue = isActive ? 1 : 0;
+            portal._isActive = isActive;
         }
     }
 
@@ -627,13 +717,9 @@ export class World {
             cloud.position.y += Math.sin(this.time * 0.12 + cloud.userData.wobble * 2) * 0.005;
         }
 
-        // Update portal uniforms
-        for (const pu of this.portalMaterials) {
-            pu.time.value = this.time;
-            // Smooth lerp active state
-            if (pu.active.targetValue !== undefined) {
-                pu.active.value += (pu.active.targetValue - pu.active.value) * 3 * deltaTime;
-            }
+        // Animate landmarks — gentle rotation
+        for (const lm of this.landmarkMeshes) {
+            if (lm) lm.rotation.y += deltaTime * 0.3;
         }
 
         // Move camera light near camera
