@@ -112,15 +112,9 @@ export class SectionManager {
                 this.navArrows.prev.style.opacity = '1';
                 this.navArrows.prev.style.pointerEvents = 'auto';
                 this.navArrows.prev.title = this.sections[currentIdx - 1]?.name || 'Previous';
-                // Rotate arrow to point toward previous section direction
-                if (navInfo.prev) {
-                    const angle = Math.atan2(navInfo.prev.x, -navInfo.prev.z) * (180 / Math.PI);
-                    this.navArrows.prev.style.transform = `rotate(${angle}deg)`;
-                }
             } else {
                 this.navArrows.prev.style.opacity = '0.3';
                 this.navArrows.prev.style.pointerEvents = 'none';
-                this.navArrows.prev.style.transform = 'rotate(0deg)';
             }
         }
 
@@ -130,14 +124,9 @@ export class SectionManager {
                 this.navArrows.next.style.opacity = '1';
                 this.navArrows.next.style.pointerEvents = 'auto';
                 this.navArrows.next.title = this.sections[currentIdx + 1]?.name || 'Next';
-                if (navInfo.next) {
-                    const angle = Math.atan2(navInfo.next.x, -navInfo.next.z) * (180 / Math.PI);
-                    this.navArrows.next.style.transform = `rotate(${angle}deg)`;
-                }
             } else {
                 this.navArrows.next.style.opacity = '0.3';
                 this.navArrows.next.style.pointerEvents = 'none';
-                this.navArrows.next.style.transform = 'rotate(180deg)';
             }
         }
 

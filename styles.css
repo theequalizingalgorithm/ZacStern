@@ -77,7 +77,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .ugc-row{display:grid;grid-template-columns:repeat(6,1fr);gap:1.2rem;justify-items:center}
 
 /* ===== 3D DODECAHEDRON + NAV ARROWS ===== */
-.scroll-progress{position:fixed;top:50%;right:16px;z-index:999;width:64px;display:flex;flex-direction:column;align-items:center;gap:4px;transform:translateY(-50%)}
+.scroll-progress{position:fixed;bottom:16px;left:50%;z-index:999;display:flex;flex-direction:column;align-items:center;gap:6px;transform:translateX(-50%)}
 #dodecaCanvas{width:64px;height:64px;display:block}
 .scroll-progress-label{font-size:.7rem;font-weight:800;color:#0077b6;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 6px rgba(0,119,182,.6);-webkit-text-stroke:.5px #fff;pointer-events:none}
 
@@ -85,6 +85,15 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .nav-arrow{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--bubble-border);background:rgba(255,255,255,.5);backdrop-filter:blur(8px);color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease;font-size:.85rem;box-shadow:var(--bubble-glow);pointer-events:auto}
 .nav-arrow:hover{background:linear-gradient(135deg,#0088cc,#00b4d8);color:#fff;border-color:transparent;box-shadow:0 4px 15px rgba(0,153,230,.4);transform:scale(1.1)}
 .nav-arrow:active{transform:scale(0.95)}
+
+/* Single forward arrow above dodecahedron */
+.nav-prev{display:none!important}
+.nav-next{order:-1;width:44px;height:44px;border:none;background:transparent;box-shadow:none;backdrop-filter:none;padding:0;margin-bottom:2px}
+.nav-next i{display:none}
+.nav-next::before{content:'';width:28px;height:28px;display:block;clip-path:polygon(50% 0,100% 64%,72% 64%,72% 100%,28% 100%,28% 64%,0 64%);background:linear-gradient(180deg,#9be7ff 0%,#37b8ff 52%,#0c7ac0 100%);border:1px solid rgba(255,255,255,.7);box-shadow:0 0 16px rgba(0,180,216,.35),0 4px 10px rgba(0,0,0,.28);transform:perspective(110px) rotateX(42deg) translateY(-1px)}
+.nav-next:hover{transform:translateY(-1px);background:transparent;box-shadow:none}
+.nav-next:active{transform:translateY(1px)}
+.nav-next:hover::before{box-shadow:0 0 20px rgba(0,180,216,.5),0 6px 12px rgba(0,0,0,.3)}
 
 /* Section Name Label */
 .section-name-label{font-family:'Aerobics Regular','Segoe UI',sans-serif;font-size:.6rem;color:#0077b6;text-transform:uppercase;letter-spacing:2px;white-space:nowrap;opacity:0;transition:opacity .3s ease;pointer-events:none;text-align:center;max-width:80px;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
@@ -344,10 +353,11 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .btn{width:100%;text-align:center}
 .resume-timeline{padding-left:1.5rem}
 .scroll-row-wrap{padding:0 2rem}
-.scroll-progress{width:48px;right:10px}
+.scroll-progress{bottom:14px;left:50%;transform:translateX(-50%)}
 #dodecaCanvas{width:48px;height:48px}
 .scroll-progress-label{font-size:.6rem}
-.nav-arrow{width:28px;height:28px;font-size:.7rem}
+.nav-next{width:38px;height:38px}
+.nav-next::before{width:24px;height:24px}
 .panel-inner{padding:1rem .6rem;max-height:calc(100vh - 56px)}
 }
 @media(max-width:480px){
@@ -369,9 +379,10 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .nav-container{padding:0 1rem}
 .directing-section,.ugc-section,.featured-section,.projects-section,.social-section,.resume-section,.contact-section{padding:.5rem 0}
 .video-card .play-overlay i{font-size:2rem}
-.scroll-progress{width:40px;right:8px}
+.scroll-progress{bottom:10px;left:50%;transform:translateX(-50%)}
 #dodecaCanvas{width:40px;height:40px}
 .scroll-progress-label{font-size:.5rem}
-.nav-arrow{width:24px;height:24px;font-size:.6rem}
+.nav-next{width:34px;height:34px}
+.nav-next::before{width:20px;height:20px}
 .panel-inner{padding:.6rem .4rem;max-height:calc(100vh - 48px)}
 }
