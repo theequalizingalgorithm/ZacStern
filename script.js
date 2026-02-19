@@ -657,7 +657,7 @@ function initModal() {
             e.preventDefault();
             e.stopPropagation();
             const ytId = featuredCard.dataset.ytId;
-            iframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1`;
+            iframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&playsinline=1&rel=0`;
             modalContent.className = 'modal-content modal-horizontal';
             modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
@@ -669,7 +669,7 @@ function initModal() {
         if (!card) return;
         const ytIdFromCard = card.dataset.ytId;
         if (ytIdFromCard) {
-            iframe.src = `https://www.youtube.com/embed/${ytIdFromCard}?autoplay=1`;
+            iframe.src = `https://www.youtube.com/embed/${ytIdFromCard}?autoplay=1&playsinline=1&rel=0`;
             modalContent.className = 'modal-content modal-horizontal';
             modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
@@ -678,7 +678,7 @@ function initModal() {
         const fileId = card.dataset.id;
         const orient = card.dataset.orientation;
         if (!fileId) return;
-        iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
+        iframe.src = `https://drive.google.com/file/d/${fileId}/preview?autoplay=1`;
         modalContent.className = 'modal-content ' + (orient === 'horizontal' ? 'modal-horizontal' : 'modal-vertical');
         modal.style.display = 'block';
         document.body.style.overflow = 'hidden';
