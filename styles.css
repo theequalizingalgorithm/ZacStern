@@ -44,7 +44,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 
 /* ===== SECTION OVERLAY PANELS ===== */
 .section-panel{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s cubic-bezier(.22,1,.36,1);padding:60px 20px 20px}
-@media(max-width:768px){.section-panel{padding:60px 11% 20px}}
+@media(max-width:768px){.section-panel{padding:48px 4% 10px}}
 
 .section-panel.active{opacity:1;pointer-events:auto;animation:panelEnter .5s cubic-bezier(.22,1,.36,1) both}
 .section-panel.exiting{opacity:0;pointer-events:none;animation:panelExit .4s cubic-bezier(.22,1,.36,1) both}
@@ -331,7 +331,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 #dodecaCanvas{width:48px;height:48px}
 .scroll-progress-label{font-size:.6rem}
 .nav-arrow{width:28px;height:28px;font-size:.7rem}
-.panel-inner{padding:1.5rem 1rem;max-height:calc(100vh - 80px)}
+.panel-inner{padding:1rem .6rem;max-height:calc(100vh - 56px)}
 }
 @media(max-width:480px){
 .nav-menu{gap:.4rem;padding:.8rem}
@@ -355,5 +355,5 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 #dodecaCanvas{width:40px;height:40px}
 .scroll-progress-label{font-size:.5rem}
 .nav-arrow{width:24px;height:24px;font-size:.6rem}
-.panel-inner{padding:1rem .75rem;max-height:calc(100vh - 70px)}
+.panel-inner{padding:.6rem .4rem;max-height:calc(100vh - 48px)}
 }
