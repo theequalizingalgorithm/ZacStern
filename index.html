@@ -4,142 +4,222 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zac Stern - Creative Producer & Director</title>
-    <link rel="stylesheet" href="styles.css?v=27">
+    <link rel="stylesheet" href="styles.css?v=30">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Three.js Import Map -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo">WELCOME TO MY PORTFOLIO</div>
-            <ul class="nav-menu">
-                <li><a href="#hero" class="nav-link">Home</a></li>
-                <li><a href="#directing" class="nav-link">Directing</a></li>
-                <li><a href="#network" class="nav-link">Network</a></li>
-                <li><a href="#ugc" class="nav-link">UGC</a></li>
-                <li><a href="#clientele" class="nav-link">Clientele</a></li>
-                <li><a href="#resume" class="nav-link">Resume</a></li>
-                <li><a href="#contact" class="nav-link">Contact</a></li>
-            </ul>
-            <div class="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
-    </nav>
 
-    <!-- 3D Scroll Progress Indicator -->
-    <div class="scroll-progress" id="scrollProgress">
-        <canvas id="dodecaCanvas" width="128" height="128"></canvas>
-        <div class="scroll-progress-label" id="progressLabel">0%</div>
+    <!-- ===================== THREE.JS CANVAS ===================== -->
+    <canvas id="worldCanvas"></canvas>
+
+    <!-- ===================== SCROLL SPACER ===================== -->
+    <div id="scrollSpacer"></div>
+
+    <!-- ===================== LOADING SCREEN ===================== -->
+    <div id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Entering the Aero World&hellip;</p>
+        </div>
     </div>
 
-    <!-- Hero Section -->
-    <section id="hero" class="hero">
-        <div class="hero-inner">
-            <div class="hero-content">
-                <p class="hero-tag">ZAC STERN</p>
-                <h1 class="hero-title">Creative <span class="accent">Producer</span> &amp; <span class="accent">Director</span></h1>
-                <p class="hero-subtitle">UGC Specialist &middot; Network &amp; Content Producer</p>
-                <div class="hero-buttons">
-                    <a href="#directing" class="btn btn-primary">View My Work</a>
-                    <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+    <!-- ===================== FIXED UI OVERLAY ===================== -->
+    <div id="uiOverlay">
+
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="logo">WELCOME TO MY PORTFOLIO</div>
+                <ul class="nav-menu">
+                    <li><a href="#hero" class="nav-link">Home</a></li>
+                    <li><a href="#directing" class="nav-link">Directing</a></li>
+                    <li><a href="#network" class="nav-link">Network</a></li>
+                    <li><a href="#ugc" class="nav-link">UGC</a></li>
+                    <li><a href="#clientele" class="nav-link">Clientele</a></li>
+                    <li><a href="#resume" class="nav-link">Resume</a></li>
+                    <li><a href="#contact" class="nav-link">Contact</a></li>
+                </ul>
+                <div class="nav-right">
+                    <button id="flatModeToggle" class="flat-toggle" title="Toggle flat scroll mode">
+                        <i class="fas fa-layer-group"></i>
+                    </button>
+                    <div class="hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
                 </div>
             </div>
-            <div class="hero-avatar">
-                <img src="https://drive.google.com/thumbnail?id=1d3FVEYHQPDUEQzDo5MbPvBd7so4bOPTU&sz=w600" alt="Zac Stern"
-                     onerror="this.src='https://lh3.googleusercontent.com/d/1d3FVEYHQPDUEQzDo5MbPvBd7so4bOPTU=w600'">
+        </nav>
+
+        <!-- ===================== SECTION PANELS ===================== -->
+
+        <!-- Hero Section -->
+        <div class="section-panel" data-section="hero">
+            <div class="panel-inner">
+                <section id="hero" class="hero">
+                    <div class="hero-inner">
+                        <div class="hero-content">
+                            <p class="hero-tag">ZAC STERN</p>
+                            <h1 class="hero-title">Creative <span class="accent">Producer</span> &amp; <span class="accent">Director</span></h1>
+                            <p class="hero-subtitle">UGC Specialist &middot; Network &amp; Content Producer</p>
+                            <div class="hero-buttons">
+                                <a href="#directing" class="btn btn-primary">View My Work</a>
+                                <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+                            </div>
+                        </div>
+                        <div class="hero-avatar">
+                            <img src="https://drive.google.com/thumbnail?id=1d3FVEYHQPDUEQzDo5MbPvBd7so4bOPTU&sz=w600" alt="Zac Stern"
+                                 onerror="this.src='https://lh3.googleusercontent.com/d/1d3FVEYHQPDUEQzDo5MbPvBd7so4bOPTU=w600'">
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
-    </section>
 
-    <!-- 1. Content Samples 16:9 (Horizontal UGC) — horizontal scroll -->
-    <section id="directing" class="directing-section">
-        <div class="section-header anim-fade-up">
-            <h2>Content Samples</h2>
+        <!-- Content Samples (Horizontal UGC) -->
+        <div class="section-panel" data-section="directing">
+            <div class="panel-inner panel-scrollable">
+                <section id="directing" class="directing-section">
+                    <div class="section-header anim-fade-up">
+                        <h2>Content Samples</h2>
+                    </div>
+                    <div class="scroll-row-wrap">
+                        <button class="scroll-btn scroll-left" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
+                        <div class="scroll-row" id="horizontalGrid"></div>
+                        <button class="scroll-btn scroll-right" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </section>
+            </div>
         </div>
-        <div class="scroll-row-wrap">
-            <button class="scroll-btn scroll-left" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
-            <div class="scroll-row" id="horizontalGrid"></div>
-            <button class="scroll-btn scroll-right" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
-        </div>
-    </section>
 
-    <!-- 2. Network Segments (AGT) — horizontal scroll -->
-    <section id="network" class="featured-section">
-        <div class="section-header anim-fade-up">
-            <h2>Network Segments</h2>
+        <!-- Network Segments (AGT) -->
+        <div class="section-panel" data-section="network">
+            <div class="panel-inner panel-scrollable">
+                <section id="network" class="featured-section">
+                    <div class="section-header anim-fade-up">
+                        <h2>Network Segments</h2>
+                    </div>
+                    <div class="scroll-row-wrap">
+                        <button class="scroll-btn scroll-left" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
+                        <div class="scroll-row" id="networkRow"></div>
+                        <button class="scroll-btn scroll-right" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </section>
+            </div>
         </div>
-        <div class="scroll-row-wrap">
-            <button class="scroll-btn scroll-left" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
-            <div class="scroll-row" id="networkRow"></div>
-            <button class="scroll-btn scroll-right" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
-        </div>
-    </section>
 
-    <!-- 3. UGC Videos (Vertical Grid) -->
-    <section id="ugc" class="ugc-section">
-        <div class="section-header anim-fade-up">
-            <h2>UGC Content</h2>
+        <!-- UGC Videos (Vertical Grid) -->
+        <div class="section-panel" data-section="ugc">
+            <div class="panel-inner panel-scrollable">
+                <section id="ugc" class="ugc-section">
+                    <div class="section-header anim-fade-up">
+                        <h2>UGC Content</h2>
+                    </div>
+                    <div class="video-grid vertical-grid" id="verticalGrid"></div>
+                </section>
+            </div>
         </div>
-        <div class="video-grid vertical-grid" id="verticalGrid"></div>
-    </section>
 
-    <!-- 4. Social Media Performance with Clientele — horizontal scroll -->
-    <section id="clientele" class="featured-section">
-        <div class="section-header anim-fade-up">
-            <h2>Social Media Performance with Clientele</h2>
-            <p class="retainer-list">Retainer-Based Clientele: James Leron &middot; Preacher Lawson &middot; Ops Security &middot; Protos VA &middot; Therapy Markets &middot; The Masked Singer &middot; America's Got Talent</p>
+        <!-- Social Media Performance with Clientele -->
+        <div class="section-panel" data-section="clientele">
+            <div class="panel-inner panel-scrollable">
+                <section id="clientele" class="featured-section">
+                    <div class="section-header anim-fade-up">
+                        <h2>Social Media Performance with Clientele</h2>
+                        <p class="retainer-list">Retainer-Based Clientele: James Leron &middot; Preacher Lawson &middot; Ops Security &middot; Protos VA &middot; Therapy Markets &middot; The Masked Singer &middot; America's Got Talent</p>
+                    </div>
+                    <div class="scroll-row-wrap">
+                        <button class="scroll-btn scroll-left" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
+                        <div class="scroll-row" id="clienteleRow"></div>
+                        <button class="scroll-btn scroll-right" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </section>
+            </div>
         </div>
-        <div class="scroll-row-wrap">
-            <button class="scroll-btn scroll-left" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
-            <div class="scroll-row" id="clienteleRow"></div>
-            <button class="scroll-btn scroll-right" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
-        </div>
-    </section>
 
-    <!-- 6. Projects -->
-    <section id="projects" class="projects-section">
-        <div class="section-header anim-fade-up">
-            <h2>Featured Projects</h2>
+        <!-- Projects -->
+        <div class="section-panel" data-section="projects">
+            <div class="panel-inner panel-scrollable">
+                <section id="projects" class="projects-section">
+                    <div class="section-header anim-fade-up">
+                        <h2>Featured Projects</h2>
+                    </div>
+                    <div class="projects-grid anim-stagger" id="projectsGrid"></div>
+                </section>
+            </div>
         </div>
-        <div class="projects-grid anim-stagger" id="projectsGrid"></div>
-    </section>
 
-    <!-- 7. Social Media Follow -->
-    <section id="social" class="social-section">
-        <div class="section-header anim-fade-up">
-            <h2>Follow My Work</h2>
+        <!-- Social Media Follow -->
+        <div class="section-panel" data-section="social">
+            <div class="panel-inner panel-scrollable">
+                <section id="social" class="social-section">
+                    <div class="section-header anim-fade-up">
+                        <h2>Follow My Work</h2>
+                    </div>
+                    <div class="social-grid anim-stagger" id="socialGrid"></div>
+                </section>
+            </div>
         </div>
-        <div class="social-grid anim-stagger" id="socialGrid"></div>
-    </section>
 
-    <!-- 8. Resume -->
-    <section id="resume" class="resume-section">
-        <div class="section-header anim-fade-up">
-            <h2>Resume</h2>
+        <!-- Resume -->
+        <div class="section-panel" data-section="resume">
+            <div class="panel-inner panel-scrollable">
+                <section id="resume" class="resume-section">
+                    <div class="section-header anim-fade-up">
+                        <h2>Resume</h2>
+                    </div>
+                    <div id="resumeContainer"></div>
+                </section>
+            </div>
         </div>
-        <div id="resumeContainer"></div>
-    </section>
 
-    <!-- 9. Contact -->
-    <section id="contact" class="contact-section">
-        <div class="section-header anim-fade-up">
-            <h2>Let's Create</h2>
+        <!-- Contact -->
+        <div class="section-panel" data-section="contact">
+            <div class="panel-inner panel-scrollable">
+                <section id="contact" class="contact-section">
+                    <div class="section-header anim-fade-up">
+                        <h2>Let's Create</h2>
+                    </div>
+                    <div class="contact-container anim-fade-up">
+                        <div class="contact-info" id="contactInfo"></div>
+                        <form class="contact-form" id="contactForm">
+                            <input type="text" placeholder="Your Name" required>
+                            <input type="email" placeholder="Your Email" required>
+                            <textarea placeholder="Your Message" rows="6" required></textarea>
+                            <button type="submit" class="btn btn-primary">Send Message</button>
+                        </form>
+                    </div>
+                </section>
+            </div>
         </div>
-        <div class="contact-container anim-fade-up">
-            <div class="contact-info" id="contactInfo"></div>
-            <form class="contact-form" id="contactForm">
-                <input type="text" placeholder="Your Name" required>
-                <input type="email" placeholder="Your Email" required>
-                <textarea placeholder="Your Message" rows="6" required></textarea>
-                <button type="submit" class="btn btn-primary">Send Message</button>
-            </form>
-        </div>
-    </section>
 
-    <!-- Video Modal -->
+        <!-- ===================== 3D SCROLL PROGRESS + NAV ARROWS ===================== -->
+        <div class="scroll-progress" id="scrollProgress">
+            <button class="nav-arrow nav-prev" id="navPrev" aria-label="Previous section" title="Previous section">
+                <i class="fas fa-chevron-up"></i>
+            </button>
+            <canvas id="dodecaCanvas" width="128" height="128"></canvas>
+            <div class="scroll-progress-label" id="progressLabel">0%</div>
+            <button class="nav-arrow nav-next" id="navNext" aria-label="Next section" title="Next section">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="section-name-label" id="sectionLabel"></div>
+        </div>
+
+    </div><!-- end uiOverlay -->
+
+    <!-- ===================== VIDEO MODAL ===================== -->
     <div id="videoModal" class="modal">
         <div class="modal-content" id="modalContent">
             <span class="close" id="modalClose">&times;</span>
@@ -149,8 +229,8 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
+    <!-- Footer (visible in flat mode) -->
+    <footer class="footer" id="siteFooter">
         <div class="footer-content">
             <p>&copy; 2024 Zac Stern. All rights reserved.</p>
             <div class="footer-links">
@@ -164,6 +244,11 @@
         </div>
     </footer>
 
-    <script src="script.js?v=27"></script>
+    <!-- ===================== SCRIPTS ===================== -->
+    <!-- Existing content rendering (config.json → DOM) -->
+    <script src="script.js?v=30"></script>
+
+    <!-- 3D Immersive World (ES Module) -->
+    <script type="module" src="main.js"></script>
 </body>
 </html>

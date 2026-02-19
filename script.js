@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     initClickSound();
+    initContactForm();
     fetch('config.json')
         .then(r => r.json())
         .then(config => {
@@ -14,8 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
             initModal();
             initHamburger();
             initScrollButtons();
-            initScrollAnimations();
+            // Only init scroll animations in flat mode (3D mode handles visibility)
+            if (document.body.classList.contains('flat-mode')) {
+                initScrollAnimations();
+            }
             initScrollProgress();
+            // Signal that content is ready for the 3D system
+            window.dispatchEvent(new Event('contentReady'));
         })
         .catch(err => console.error('Failed to load config:', err));
 });
@@ -42,6 +48,25 @@ function initClickSound() {
         if (e.target.closest('.btn, .scroll-btn, .nav-link, .video-card, .featured-card, .social-card, .project-card, .follow-btn, .hamburger, .close, .footer-links a, .portfolio-links a, .resume-header-link a')) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             playClick();
+        }
+    });
+}
+
+/* ===== CONTACT FORM ===== */
+function initContactForm() {
+    const form = document.getElementById('contactForm');
+    if (!form) return;
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const btn = form.querySelector('button[type="submit"]');
+        if (btn) {
+            btn.textContent = 'Message Sent!';
+            btn.style.background = 'linear-gradient(135deg, #43a047, #66bb6a)';
+            setTimeout(() => {
+                btn.textContent = 'Send Message';
+                btn.style.background = '';
+                form.reset();
+            }, 3000);
         }
     });
 }
@@ -198,13 +223,15 @@ function initScrollProgress() {
     }
     requestAnimationFrame(animate);
 
-    // On scroll: boost rotation speed based on scroll velocity + update label
+    // On scroll: boost rotation speed based on scroll velocity
+    // (label updated by main.js in 3D mode)
     let prevScroll = window.scrollY;
     window.addEventListener('scroll', () => {
         const scrollTop = window.scrollY;
         const docHeight = document.documentElement.scrollHeight - window.innerHeight;
         const pct = docHeight > 0 ? Math.round((scrollTop / docHeight) * 100) : 0;
-        if (label) label.textContent = pct + '%';
+        // Only update label in flat mode (3D mode's main.js handles it)
+        if (document.body.classList.contains('flat-mode') && label) label.textContent = pct + '%';
 
         // Add rotation proportional to scroll delta
         const delta = scrollTop - prevScroll;
