@@ -383,8 +383,8 @@ export class World {
         // Compute right vector (perpendicular to tangent, on sphere surface)
         const right = new THREE.Vector3().crossVectors(tangent, radialUp).normalize();
 
-        // Offset position: 12 units left or right of road center, on sphere surface
-        const offsetDist = 12;
+        // Offset position: 14 units left or right of road center, on sphere surface
+        const offsetDist = 14;
         const offsetPt = pathPt.clone().addScaledVector(right, side * offsetDist);
 
         // Project back onto sphere surface
@@ -415,36 +415,91 @@ export class World {
 
         const color = new THREE.Color(section.color || 0x0099e6);
 
-        // Base platform
-        const baseGeo = new THREE.CylinderGeometry(4, 4.5, 0.4, 24);
-        const baseMat = new THREE.MeshStandardMaterial({
-            color: 0xe0e0e0, roughness: 0.25, metalness: 0.8
-        });
-        const base = new THREE.Mesh(baseGeo, baseMat);
-        base.position.set(0, 0, 0);
-        base.receiveShadow = true;
-        group.add(base);
+        // ---- BILLBOARD STRUCTURE ----
 
-        // Accent ring
-        const ringGeo = new THREE.TorusGeometry(4.2, 0.1, 8, 48);
-        const ringMat = new THREE.MeshStandardMaterial({
-            color: color, emissive: color, emissiveIntensity: 0.3,
-            roughness: 0.15, metalness: 0.9
+        // Two vertical wooden support posts
+        const postMat = new THREE.MeshStandardMaterial({
+            color: 0x6b4c3b, roughness: 0.75, metalness: 0.15
         });
-        const ring = new THREE.Mesh(ringGeo, ringMat);
-        ring.rotation.x = Math.PI / 2;
-        ring.position.set(0, 0.3, 0);
-        group.add(ring);
+        const postGeo = new THREE.CylinderGeometry(0.2, 0.28, 8, 8);
+        for (const px of [-3.2, 3.2]) {
+            const post = new THREE.Mesh(postGeo, postMat);
+            post.position.set(px, 4, 0);
+            post.castShadow = true;
+            group.add(post);
+        }
 
-        // Themed 3D object
+        // Horizontal cross-brace between posts near ground
+        const braceGeo = new THREE.CylinderGeometry(0.1, 0.1, 6.4, 6);
+        const brace = new THREE.Mesh(braceGeo, postMat);
+        brace.rotation.z = Math.PI / 2;
+        brace.position.set(0, 1.2, 0);
+        group.add(brace);
+
+        // Diagonal back-braces for structural support
+        const diagGeo = new THREE.CylinderGeometry(0.08, 0.08, 5.5, 6);
+        for (const px of [-2.8, 2.8]) {
+            const diag = new THREE.Mesh(diagGeo, postMat);
+            diag.position.set(px, 4.5, -1.8);
+            diag.rotation.x = Math.PI * 0.18;
+            diag.castShadow = true;
+            group.add(diag);
+        }
+
+        // Main billboard panel (wide rectangle)
+        const panelGeo = new THREE.BoxGeometry(8, 5, 0.2);
+        const panelMat = new THREE.MeshStandardMaterial({
+            color: 0xf0ebe0, roughness: 0.5, metalness: 0.05
+        });
+        const panel = new THREE.Mesh(panelGeo, panelMat);
+        panel.position.set(0, 6.8, 0.15);
+        panel.receiveShadow = true;
+        panel.castShadow = true;
+        group.add(panel);
+
+        // Color accent band across the top of the panel
+        const bandGeo = new THREE.BoxGeometry(7.8, 1.4, 0.25);
+        const bandMat = new THREE.MeshStandardMaterial({
+            color: color, emissive: color, emissiveIntensity: 0.15,
+            roughness: 0.3, metalness: 0.5
+        });
+        const band = new THREE.Mesh(bandGeo, bandMat);
+        band.position.set(0, 8.2, 0.25);
+        group.add(band);
+
+        // Wooden frame border around the panel
+        const frameMat = new THREE.MeshStandardMaterial({
+            color: 0x8b7355, roughness: 0.6, metalness: 0.25
+        });
+        const frameH = new THREE.BoxGeometry(8.4, 0.22, 0.3);
+        const frameV = new THREE.BoxGeometry(0.22, 5.4, 0.3);
+
+        const topFrame = new THREE.Mesh(frameH, frameMat);
+        topFrame.position.set(0, 9.5, 0.15);
+        group.add(topFrame);
+
+        const botFrame = new THREE.Mesh(frameH, frameMat);
+        botFrame.position.set(0, 4.1, 0.15);
+        group.add(botFrame);
+
+        const lFrame = new THREE.Mesh(frameV, frameMat);
+        lFrame.position.set(-4.1, 6.8, 0.15);
+        group.add(lFrame);
+
+        const rFrame = new THREE.Mesh(frameV, frameMat);
+        rFrame.position.set(4.1, 6.8, 0.15);
+        group.add(rFrame);
+
+        // Small themed 3D icon perched on top of billboard
         const themedObj = this._createThemedObject(section.id, color);
-        themedObj.position.y = 6;
+        themedObj.position.y = 11;
+        themedObj.scale.setScalar(0.5);
         themedObj.traverse(child => { if (child.isMesh) child.castShadow = true; });
         group.add(themedObj);
 
-        // Glow light
-        const glow = new THREE.PointLight(color, 0.6, 25);
-        glow.position.set(0, 6, 0);
+        // Spotlight illuminating the billboard face
+        const glow = new THREE.PointLight(color, 0.8, 30);
+        glow.position.set(0, 7, 4);
         group.add(glow);
 
         return {
