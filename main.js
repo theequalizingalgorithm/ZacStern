@@ -231,11 +231,11 @@ class App {
             if (this.transitioning) { e.preventDefault(); return; }
             // If not locked at a section, let normal scroll happen
             if (!this.sectionLocked) return;
-            if (this._advanceCooldown) { e.preventDefault(); return; }
 
             // Allow interaction with scroll-rows (horizontal card carousels)
-            const scrollRow = e.target.closest('.scroll-row');
-            if (scrollRow) {
+            const scrollRowWrap = e.target.closest('.scroll-row, .scroll-row-wrap');
+            if (scrollRowWrap) {
+                const scrollRow = scrollRowWrap.closest('.scroll-row-wrap')?.querySelector('.scroll-row') || scrollRowWrap;
                 if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
                     return; // native horizontal scroll (trackpad)
                 }
@@ -244,6 +244,8 @@ class App {
                 scrollRow.scrollLeft += e.deltaY;
                 return;
             }
+
+            if (this._advanceCooldown) { e.preventDefault(); return; }
 
             e.preventDefault();
 

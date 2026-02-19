@@ -333,22 +333,41 @@ function initScrollButtons() {
         if (leftBtn) leftBtn.addEventListener('click', () => row.scrollBy({ left: -getScrollAmt(), behavior: 'smooth' }));
         if (rightBtn) rightBtn.addEventListener('click', () => row.scrollBy({ left: getScrollAmt(), behavior: 'smooth' }));
 
-        // Drag-to-scroll (mouse)
+        // Desktop wheel: force horizontal scroll while over row
+        row.addEventListener('wheel', (e) => {
+            if (Math.abs(e.deltaY) >= Math.abs(e.deltaX)) {
+                e.preventDefault();
+                e.stopPropagation();
+                row.scrollLeft += e.deltaY;
+            }
+        }, { passive: false });
+
+        // Drag-to-scroll (pointer)
         let isDragging = false, startX = 0, scrollLeft = 0;
-        row.addEventListener('mousedown', (e) => {
+        row.addEventListener('pointerdown', (e) => {
+            if (e.button !== 0) return;
             isDragging = true;
             row.classList.add('dragging');
-            startX = e.pageX - row.offsetLeft;
+            startX = e.pageX;
             scrollLeft = row.scrollLeft;
+            row.setPointerCapture?.(e.pointerId);
         });
-        row.addEventListener('mouseleave', () => { isDragging = false; row.classList.remove('dragging'); });
-        row.addEventListener('mouseup', () => { isDragging = false; row.classList.remove('dragging'); });
-        row.addEventListener('mousemove', (e) => {
+        row.addEventListener('pointerleave', () => { isDragging = false; row.classList.remove('dragging'); });
+        row.addEventListener('pointerup', (e) => {
+            isDragging = false;
+            row.classList.remove('dragging');
+            row.releasePointerCapture?.(e.pointerId);
+        });
+        row.addEventListener('pointermove', (e) => {
             if (!isDragging) return;
             e.preventDefault();
-            const x = e.pageX - row.offsetLeft;
-            const walk = (x - startX) * 1.5;
+            const walk = (e.pageX - startX) * 1.5;
             row.scrollLeft = scrollLeft - walk;
+        });
+
+        // Avoid native image dragging interfering with row dragging
+        row.querySelectorAll('img').forEach(img => {
+            img.setAttribute('draggable', 'false');
         });
     });
 }
