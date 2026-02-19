@@ -165,33 +165,33 @@ export class CameraController {
         this.currentParallaxX += (this.mouseX * this.parallaxAmount - this.currentParallaxX) * pLerp;
         this.currentParallaxY += (this.mouseY * this.parallaxAmount * 0.5 - this.currentParallaxY) * pLerp;
 
-        // Compute camera up vector (world up with slight tilt)
-        const up = new THREE.Vector3(0, 1, 0);
-        const right = new THREE.Vector3().crossVectors(tangent, up).normalize();
+        // Radial up vector (away from sphere center) — works correctly on a globe
+        const radialUp = position.clone().normalize();
 
-        // Apply parallax offset
+        // Right vector: perpendicular to tangent on the sphere surface
+        const right = new THREE.Vector3().crossVectors(tangent, radialUp).normalize();
+
+        // Apply parallax offset along sphere-surface-local axes
         const offsetPos = new THREE.Vector3()
             .copy(position)
             .addScaledVector(right, this.currentParallaxX)
-            .addScaledVector(up, this.currentParallaxY * 0.3);
+            .addScaledVector(radialUp, this.currentParallaxY * 0.3);
 
-        // Raise camera above path
-        offsetPos.y = position.y + 4;
-
-        // Gentle bob
+        // Gentle bob along radial direction
         const bob = Math.sin(this.currentT * Math.PI * 20) * 0.08;
-        offsetPos.y += bob;
+        offsetPos.addScaledVector(radialUp, bob);
 
-        // Set camera position and look-at
+        // Set camera position
         this.camera.position.copy(offsetPos);
 
         // LookAt with parallax influence
         const lookTarget = new THREE.Vector3()
             .copy(lookAt)
             .addScaledVector(right, this.currentParallaxX * 0.3)
-            .addScaledVector(up, this.currentParallaxY * 0.15);
-        lookTarget.y = lookAt.y + 3;
+            .addScaledVector(radialUp, this.currentParallaxY * 0.15);
 
+        // Set camera up to radial direction so it stays oriented on the globe
+        this.camera.up.copy(radialUp);
         this.camera.lookAt(lookTarget);
 
         return this.getActiveSection();

@@ -138,9 +138,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .featured-section{padding:1rem 0;max-width:1400px;margin:0 auto}
 
 .scroll-row-wrap{position:relative;padding:0 2.5rem}
-.scroll-row{display:flex;gap:1.2rem;overflow-x:auto;scroll-behavior:smooth;padding:1rem 0 1.5rem;-ms-overflow-style:none;scrollbar-width:none}
+.scroll-row{display:flex;gap:1.2rem;overflow-x:auto;scroll-behavior:smooth;padding:1rem 0 1.5rem;-ms-overflow-style:none;scrollbar-width:none;touch-action:pan-x}
 .scroll-row::-webkit-scrollbar{display:none}
-.scroll-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--bubble-border);background:rgba(255,255,255,.6);backdrop-filter:blur(8px);color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease;font-size:1rem;box-shadow:var(--bubble-glow)}
+.scroll-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--bubble-border);background:rgba(255,255,255,.6);backdrop-filter:blur(8px);color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease;font-size:1rem;box-shadow:var(--bubble-glow);pointer-events:auto}
 .scroll-btn:hover{background:linear-gradient(135deg,#0088cc,#00b4d8);color:#fff;border-color:transparent;box-shadow:0 6px 20px rgba(0,153,230,.4)}
 .scroll-left{left:0}
 .scroll-right{right:0}

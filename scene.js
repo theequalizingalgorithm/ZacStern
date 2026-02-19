@@ -1,6 +1,6 @@
 // ============================================================
-// SCENE.JS — 3D World Environment
-// Terrain, Sky, Clouds, Road, Portals, Lighting, Atmosphere
+// SCENE.JS — 3D Spherical World Environment
+// Green valley globe with iridescent road, landmarks, atmosphere
 // ============================================================
 
 import * as THREE from 'three';
@@ -39,18 +39,36 @@ function fbm(x, y, octaves = 5) {
     return val / max;
 }
 
+function smoothstep(edge0, edge1, x) {
+    const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+    return t * t * (3 - 2 * t);
+}
+
 // ---- Exported World class ----
 export class World {
-    constructor(scene, cameraPath, sectionPositions) {
+    constructor(scene, cameraPath, sectionPositions, sphereRadius = 80) {
         this.scene = scene;
-        this.cameraPath = cameraPath;           // CatmullRomCurve3
-        this.sectionPositions = sectionPositions; // [{pos: Vector3, ...}, ...]
+        this.cameraPath = cameraPath;
+        this.sectionPositions = sectionPositions;
+        this.sphereRadius = sphereRadius;
         this.time = 0;
         this.clouds = [];
         this.portalMeshes = [];
         this.roadUniforms = null;
         this.cloudMaterials = [];
         this.landmarkMeshes = [];
+
+        // Pre-sample path on sphere surface for road flattening / avoidance
+        this._pathSurfaceSamples = [];
+        for (let i = 0; i <= 200; i++) {
+            const t = i / 200;
+            const pt = this.cameraPath.getPoint(t);
+            const dir = pt.clone().normalize();
+            this._pathSurfaceSamples.push({
+                pos: dir.clone().multiplyScalar(this.sphereRadius),
+                dir
+            });
+        }
 
         this.createLighting();
         this.createSky();
@@ -64,38 +82,34 @@ export class World {
 
     // ===================== LIGHTING =====================
     createLighting() {
-        // Hemisphere (sky / ground bounce)
-        const hemi = new THREE.HemisphereLight(0x87CEEB, 0x56c596, 0.5);
+        const hemi = new THREE.HemisphereLight(0x87CEEB, 0x56c596, 0.6);
         this.scene.add(hemi);
 
-        // Directional sunlight
         const sun = new THREE.DirectionalLight(0xfff5e6, 1.2);
-        sun.position.set(80, 120, -60);
+        sun.position.set(200, 300, 150);
         sun.castShadow = true;
         sun.shadow.mapSize.set(1024, 1024);
         sun.shadow.camera.near = 0.5;
-        sun.shadow.camera.far = 500;
-        sun.shadow.camera.left = -150;
-        sun.shadow.camera.right = 150;
-        sun.shadow.camera.top = 150;
-        sun.shadow.camera.bottom = -150;
+        sun.shadow.camera.far = 600;
+        sun.shadow.camera.left = -200;
+        sun.shadow.camera.right = 200;
+        sun.shadow.camera.top = 200;
+        sun.shadow.camera.bottom = -200;
         this.scene.add(sun);
         this.scene.add(sun.target);
         this.sunLight = sun;
 
-        // Soft ambient fill
-        const ambient = new THREE.AmbientLight(0xb3e5fc, 0.35);
+        const ambient = new THREE.AmbientLight(0xb3e5fc, 0.4);
         this.scene.add(ambient);
 
-        // Subtle warm point light following camera area
         this.cameraLight = new THREE.PointLight(0xffe0b2, 0.3, 60);
-        this.cameraLight.position.set(0, 10, 0);
+        this.cameraLight.position.set(0, 100, 0);
         this.scene.add(this.cameraLight);
     }
 
     // ===================== SKY DOME =====================
     createSky() {
-        const geo = new THREE.SphereGeometry(800, 32, 32);
+        const geo = new THREE.SphereGeometry(900, 32, 32);
         const mat = new THREE.ShaderMaterial({
             vertexShader: skyVertexShader,
             fragmentShader: skyFragmentShader,
@@ -113,59 +127,58 @@ export class World {
         this.scene.add(this.skyMesh);
     }
 
-    // ===================== TERRAIN =====================
+    // ===================== SPHERICAL TERRAIN =====================
     createTerrain() {
-        const width = 600, depth = 1400;
-        const segW = 128, segD = 256;
-        const geo = new THREE.PlaneGeometry(width, depth, segW, segD);
-        geo.rotateX(-Math.PI / 2);
-
-        // Get path points for road flattening (sparse sampling)
-        const pathSamples = 150;
-        const pathPoints2D = [];
-        for (let i = 0; i <= pathSamples; i++) {
-            const t = i / pathSamples;
-            const pt = this.cameraPath.getPoint(t);
-            pathPoints2D.push({ x: pt.x, z: pt.z });
-        }
+        const R = this.sphereRadius;
+        const geo = new THREE.SphereGeometry(R, 160, 160);
 
         const positions = geo.attributes.position;
         const colors = new Float32Array(positions.count * 3);
 
         for (let i = 0; i < positions.count; i++) {
             const x = positions.getX(i);
+            const y = positions.getY(i);
             const z = positions.getZ(i);
 
-            // Base terrain height from noise
-            let h = fbm(x * 0.007 + 50, z * 0.005 + 50, 5) * 30 - 8;
-            h += Math.sin(x * 0.015) * Math.cos(z * 0.012) * 5;
+            const r = Math.sqrt(x * x + y * y + z * z);
+            if (r === 0) continue;
+            const nx = x / r, ny = y / r, nz = z / r;
 
-            // Flatten near road path (quick nearest-neighbor check)
+            // Use spherical coords for noise input
+            const theta = Math.atan2(nz, nx);
+            const phi = Math.acos(Math.max(-1, Math.min(1, ny)));
+
+            // Terrain height displacement (radial)
+            let h = fbm(theta * 4 + 50, phi * 6 + 50, 5) * 4 - 1;
+            h += Math.sin(theta * 5) * Math.cos(phi * 4) * 0.8;
+
+            // Flatten near road path (angular distance on sphere)
             let minDist = Infinity;
-            for (const pp of pathPoints2D) {
-                const dx = x - pp.x, dz = z - pp.z;
-                const d2 = dx * dx + dz * dz;
-                if (d2 < minDist) minDist = d2;
+            for (const pp of this._pathSurfaceSamples) {
+                const dot = nx * pp.dir.x + ny * pp.dir.y + nz * pp.dir.z;
+                const angle = Math.acos(Math.max(-1, Math.min(1, dot)));
+                const arcDist = angle * R;
+                if (arcDist < minDist) minDist = arcDist;
             }
-            minDist = Math.sqrt(minDist);
-            const roadWidth = 6;
-            const blendWidth = 15;
+
+            const roadWidth = 4;
+            const blendWidth = 10;
             if (minDist < roadWidth + blendWidth) {
                 const blend = Math.max(0, (minDist - roadWidth) / blendWidth);
-                const flatH = -1.5;
-                h = flatH + (h - flatH) * smoothstep(0, 1, blend);
+                h = h * smoothstep(0, 1, blend);
             }
 
-            positions.setY(i, h);
+            // Apply radial displacement
+            const newR = R + h;
+            positions.setX(i, nx * newR);
+            positions.setY(i, ny * newR);
+            positions.setZ(i, nz * newR);
 
-            // Vertex colors: green with subtle variation
-            const greenBase = 0.35 + fbm(x * 0.02, z * 0.02, 3) * 0.15;
-            const r = 0.18 + Math.random() * 0.05;
-            const g = greenBase + Math.random() * 0.05;
-            const b = 0.15 + Math.random() * 0.04;
-            colors[i * 3] = r;
-            colors[i * 3 + 1] = g;
-            colors[i * 3 + 2] = b;
+            // Vertex colors: lush green valley
+            const greenBase = 0.35 + fbm(theta * 2, phi * 2, 3) * 0.15;
+            colors[i * 3]     = 0.16 + Math.random() * 0.05;
+            colors[i * 3 + 1] = greenBase + Math.random() * 0.05;
+            colors[i * 3 + 2] = 0.13 + Math.random() * 0.04;
         }
 
         geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
@@ -183,11 +196,12 @@ export class World {
         this.scene.add(this.terrainMesh);
     }
 
-    // ===================== CLOUDS =====================
+    // ===================== CLOUDS (orbiting around the globe) =====================
     createClouds() {
         const cloudGeo = new THREE.IcosahedronGeometry(1, 3);
+        const R = this.sphereRadius;
 
-        for (let i = 0; i < 45; i++) {
+        for (let i = 0; i < 35; i++) {
             const mat = new THREE.ShaderMaterial({
                 vertexShader: cloudVertexShader,
                 fragmentShader: cloudFragmentShader,
@@ -200,7 +214,6 @@ export class World {
                 depthWrite: false
             });
 
-            // Create cloud cluster (3-6 overlapping spheres)
             const group = new THREE.Group();
             const puffCount = 3 + Math.floor(Math.random() * 4);
             for (let j = 0; j < puffCount; j++) {
@@ -215,13 +228,24 @@ export class World {
                 group.add(puff);
             }
 
+            // Position clouds on a sphere shell above the terrain
+            const cloudAlt = R + 25 + Math.random() * 35;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.PI * 0.2 + Math.random() * Math.PI * 0.6;
             group.position.set(
-                (Math.random() - 0.5) * 500,
-                55 + Math.random() * 60,
-                (Math.random() - 0.5) * 1400
+                cloudAlt * Math.sin(phi) * Math.cos(theta),
+                cloudAlt * Math.cos(phi),
+                cloudAlt * Math.sin(phi) * Math.sin(theta)
             );
 
-            group.userData.speed = 0.02 + Math.random() * 0.04;
+            // Orient cloud to face outward from sphere
+            group.lookAt(0, 0, 0);
+            group.rotateX(Math.PI);
+
+            group.userData.theta = theta;
+            group.userData.phi = phi;
+            group.userData.alt = cloudAlt;
+            group.userData.speed = 0.003 + Math.random() * 0.005;
             group.userData.wobble = Math.random() * Math.PI * 2;
 
             this.scene.add(group);
@@ -232,11 +256,11 @@ export class World {
 
     // ===================== IRIDESCENT BRICK ROAD =====================
     createRoad() {
-        // Sample the path to create road geometry
-        const pathPoints = this.cameraPath.getSpacedPoints(300);
+        const pathPoints = this.cameraPath.getSpacedPoints(400);
+        const R = this.sphereRadius;
+        const roadWidth = 4;
+        const roadLift = 0.4;
 
-        // Create road as a flat ribbon along the path
-        const roadWidth = 5;
         const vertices = [];
         const uvs = [];
         const indices = [];
@@ -246,26 +270,27 @@ export class World {
             const p = pathPoints[i];
             const t = i / (pathPoints.length - 1);
 
-            // Get tangent for perpendicular direction
-            const tangent = this.cameraPath.getTangent(t);
-            const up = new THREE.Vector3(0, 1, 0);
-            const right = new THREE.Vector3().crossVectors(tangent, up).normalize();
+            // Project point onto sphere surface + small lift
+            const dir = p.clone().normalize();
+            const surfaceR = R + roadLift;
+            const surfPt = dir.clone().multiplyScalar(surfaceR);
 
-            const leftPt  = new THREE.Vector3().copy(p).addScaledVector(right, -roadWidth / 2);
-            const rightPt = new THREE.Vector3().copy(p).addScaledVector(right,  roadWidth / 2);
+            // Get tangent along path (use getTangentAt for arc-length parameterization)
+            const tangent = this.cameraPath.getTangentAt(t);
+            // Radial up at this point = dir
+            const right = new THREE.Vector3().crossVectors(tangent, dir).normalize();
 
-            // Position road slightly above terrain
-            leftPt.y  = -1.0;
-            rightPt.y = -1.0;
+            const leftPt  = new THREE.Vector3().copy(surfPt).addScaledVector(right, -roadWidth / 2);
+            const rightPt = new THREE.Vector3().copy(surfPt).addScaledVector(right,  roadWidth / 2);
 
             vertices.push(leftPt.x, leftPt.y, leftPt.z);
             vertices.push(rightPt.x, rightPt.y, rightPt.z);
 
-            uvs.push(0, t * 20);
-            uvs.push(1, t * 20);
+            uvs.push(0, t * 30);
+            uvs.push(1, t * 30);
 
-            normals.push(0, 1, 0);
-            normals.push(0, 1, 0);
+            normals.push(dir.x, dir.y, dir.z);
+            normals.push(dir.x, dir.y, dir.z);
 
             if (i < pathPoints.length - 1) {
                 const idx = i * 2;
@@ -282,7 +307,7 @@ export class World {
 
         this.roadUniforms = {
             time: { value: 0 },
-            baseColor: { value: new THREE.Color(0xd4a84b) }  // Golden base
+            baseColor: { value: new THREE.Color(0xd4a84b) }
         };
 
         const mat = new THREE.ShaderMaterial({
@@ -296,7 +321,6 @@ export class World {
         road.receiveShadow = true;
         this.scene.add(road);
 
-        // Road border stones
         this.createRoadBorders(pathPoints);
     }
 
@@ -308,20 +332,23 @@ export class World {
             metalness: 0.4
         });
 
-        const roadWidth = 5;
-        const spacing = 4;
+        const R = this.sphereRadius;
+        const roadWidth = 4;
+        const spacing = 5;
 
         for (let i = 0; i < pathPoints.length; i += spacing) {
             const p = pathPoints[i];
             const t = i / (pathPoints.length - 1);
-            const tangent = this.cameraPath.getTangent(t);
-            const up = new THREE.Vector3(0, 1, 0);
-            const right = new THREE.Vector3().crossVectors(tangent, up).normalize();
+
+            const dir = p.clone().normalize();
+            const surfPt = dir.clone().multiplyScalar(R + 0.5);
+
+            const tangent = this.cameraPath.getTangentAt(t);
+            const right = new THREE.Vector3().crossVectors(tangent, dir).normalize();
 
             for (const side of [-1, 1]) {
                 const stone = new THREE.Mesh(stoneGeo, stoneMat);
-                stone.position.copy(p).addScaledVector(right, side * roadWidth / 2 * 1.1);
-                stone.position.y = -0.8;
+                stone.position.copy(surfPt).addScaledVector(right, side * roadWidth / 2 * 1.15);
                 stone.rotation.set(Math.random() * 0.5, Math.random() * Math.PI, 0);
                 stone.castShadow = true;
                 this.scene.add(stone);
@@ -329,36 +356,72 @@ export class World {
         }
     }
 
-    // ===================== SECTION LANDMARKS =====================
+    // ===================== SECTION LANDMARKS (offset left/right of road) =====================
     createPortals() {
-        this.landmarkMeshes = []; // rotating landmark objects
-        for (const section of this.sectionPositions) {
-            const landmark = this.createLandmark(section);
+        this.landmarkMeshes = [];
+        const R = this.sphereRadius;
+
+        for (let idx = 0; idx < this.sectionPositions.length; idx++) {
+            const section = this.sectionPositions[idx];
+            // Alternate landmarks left/right of the road
+            const side = (idx % 2 === 0) ? 1 : -1;
+            const landmark = this.createLandmark(section, side, R);
             this.scene.add(landmark.group);
             this.portalMeshes.push(landmark);
             if (landmark.spinning) this.landmarkMeshes.push(landmark.spinning);
         }
     }
 
-    createLandmark(section) {
+    createLandmark(section, side, R) {
         const group = new THREE.Group();
-        group.position.copy(section.pos);
 
-        // Face incoming camera direction
+        // Get path position and tangent
+        const pathPt = this.cameraPath.getPoint(section.pathT);
         const tangent = this.cameraPath.getTangent(section.pathT);
-        const lookTarget = new THREE.Vector3().copy(section.pos).add(tangent);
-        lookTarget.y = section.pos.y;
-        group.lookAt(lookTarget);
+        const radialUp = pathPt.clone().normalize();
+
+        // Compute right vector (perpendicular to tangent, on sphere surface)
+        const right = new THREE.Vector3().crossVectors(tangent, radialUp).normalize();
+
+        // Offset position: 12 units left or right of road center, on sphere surface
+        const offsetDist = 12;
+        const offsetPt = pathPt.clone().addScaledVector(right, side * offsetDist);
+
+        // Project back onto sphere surface
+        const offsetDir = offsetPt.clone().normalize();
+        const surfacePos = offsetDir.clone().multiplyScalar(R + 0.3);
+
+        group.position.copy(surfacePos);
+
+        // Orient the group: up = radial outward, face toward road
+        const localUp = offsetDir.clone();
+
+        // Forward direction: toward the road point, projected onto sphere tangent plane
+        const toRoad = new THREE.Vector3().subVectors(pathPt, surfacePos);
+        const localForward = toRoad.clone();
+        localForward.addScaledVector(localUp, -localForward.dot(localUp)).normalize();
+
+        const localRight = new THREE.Vector3().crossVectors(localUp, localForward).normalize();
+
+        // Build orientation matrix (columns: right, up, -forward for lookAt convention)
+        const m = new THREE.Matrix4();
+        m.set(
+            localRight.x,  localUp.x,  -localForward.x, 0,
+            localRight.y,  localUp.y,  -localForward.y, 0,
+            localRight.z,  localUp.z,  -localForward.z, 0,
+            0,              0,           0,               1
+        );
+        group.quaternion.setFromRotationMatrix(m);
 
         const color = new THREE.Color(section.color || 0x0099e6);
 
-        // Base platform — metallic disc
+        // Base platform
         const baseGeo = new THREE.CylinderGeometry(4, 4.5, 0.4, 24);
         const baseMat = new THREE.MeshStandardMaterial({
             color: 0xe0e0e0, roughness: 0.25, metalness: 0.8
         });
         const base = new THREE.Mesh(baseGeo, baseMat);
-        base.position.set(0, -0.6, 0);
+        base.position.set(0, 0, 0);
         base.receiveShadow = true;
         group.add(base);
 
@@ -370,17 +433,17 @@ export class World {
         });
         const ring = new THREE.Mesh(ringGeo, ringMat);
         ring.rotation.x = Math.PI / 2;
-        ring.position.set(0, -0.3, 0);
+        ring.position.set(0, 0.3, 0);
         group.add(ring);
 
-        // Create themed 3D object
+        // Themed 3D object
         const themedObj = this._createThemedObject(section.id, color);
         themedObj.position.y = 6;
         themedObj.traverse(child => { if (child.isMesh) child.castShadow = true; });
         group.add(themedObj);
 
-        // Soft glow point light at landmark
-        const glow = new THREE.PointLight(color, 0.6, 20);
+        // Glow light
+        const glow = new THREE.PointLight(color, 0.6, 25);
         glow.position.set(0, 6, 0);
         group.add(glow);
 
@@ -406,24 +469,20 @@ export class World {
         let mesh;
         switch (sectionId) {
             case 'hero': {
-                // Crystalline dodecahedron — matches the scroll indicator
                 const geo = new THREE.DodecahedronGeometry(3, 0);
                 mesh = new THREE.Mesh(geo, mat);
                 break;
             }
             case 'directing': {
-                // Clapperboard / diamond shape — creative vision
                 const geo = new THREE.OctahedronGeometry(2.8, 0);
                 mesh = new THREE.Mesh(geo, mat);
                 break;
             }
             case 'network': {
-                // Monitor / screen shape — broadcast media
                 const grp = new THREE.Group();
                 const screenGeo = new THREE.BoxGeometry(5, 3.5, 0.3);
                 const screen = new THREE.Mesh(screenGeo, mat);
                 grp.add(screen);
-                // Screen bezel glow
                 const bezelGeo = new THREE.BoxGeometry(5.4, 3.9, 0.1);
                 const bezelMat = new THREE.MeshStandardMaterial({
                     color: 0xc0c0c0, roughness: 0.2, metalness: 0.9
@@ -431,7 +490,6 @@ export class World {
                 const bezel = new THREE.Mesh(bezelGeo, bezelMat);
                 bezel.position.z = -0.15;
                 grp.add(bezel);
-                // Stand
                 const standGeo = new THREE.CylinderGeometry(0.15, 0.15, 2, 8);
                 const stand = new THREE.Mesh(standGeo, bezelMat);
                 stand.position.y = -2.8;
@@ -444,7 +502,6 @@ export class World {
                 break;
             }
             case 'ugc': {
-                // Smartphone shape — vertical content
                 const grp = new THREE.Group();
                 const phoneGeo = new THREE.BoxGeometry(2.2, 4.2, 0.2);
                 const phoneMat = new THREE.MeshPhysicalMaterial({
@@ -453,62 +510,57 @@ export class World {
                 });
                 const phone = new THREE.Mesh(phoneGeo, phoneMat);
                 grp.add(phone);
-                // Screen
-                const screenGeo = new THREE.PlaneGeometry(1.9, 3.6);
+                const screenGeo2 = new THREE.PlaneGeometry(1.9, 3.6);
                 const screenMat = new THREE.MeshPhysicalMaterial({
                     color: color, roughness: 0.05, metalness: 0.1,
                     emissive: color, emissiveIntensity: 0.4,
                     transmission: 0.3, thickness: 0.1
                 });
-                const scr = new THREE.Mesh(screenGeo, screenMat);
+                const scr = new THREE.Mesh(screenGeo2, screenMat);
                 scr.position.z = 0.11;
                 grp.add(scr);
                 mesh = grp;
                 break;
             }
             case 'clientele': {
-                // Elegant torus knot — interconnected relationships
                 const geo = new THREE.TorusKnotGeometry(2, 0.45, 80, 12, 2, 3);
                 mesh = new THREE.Mesh(geo, mat);
                 break;
             }
             case 'projects': {
-                // Multi-faceted icosahedron — many projects
                 const geo = new THREE.IcosahedronGeometry(2.8, 0);
                 mesh = new THREE.Mesh(geo, mat);
                 break;
             }
             case 'social': {
-                // Connected spheres — social network graph
                 const grp = new THREE.Group();
                 const nodeMat = mat;
-                const positions = [
+                const nodePositions = [
                     [0, 0, 0],
                     [2.2, 1, 0.5], [-2, 1.2, -0.3],
                     [1.5, -1.5, 0.8], [-1.8, -1, -0.5],
                     [0.5, 2, -1]
                 ];
                 const radii = [1.0, 0.6, 0.6, 0.55, 0.55, 0.5];
-                positions.forEach((p, i) => {
+                nodePositions.forEach((p, i) => {
                     const s = new THREE.Mesh(
                         new THREE.SphereGeometry(radii[i], 16, 16), nodeMat
                     );
                     s.position.set(p[0], p[1], p[2]);
                     grp.add(s);
                 });
-                // Connection lines
                 const lineMat = new THREE.MeshStandardMaterial({
                     color: color, roughness: 0.3, metalness: 0.7
                 });
-                for (let i = 1; i < positions.length; i++) {
-                    const start = new THREE.Vector3(...positions[0]);
-                    const end = new THREE.Vector3(...positions[i]);
-                    const dir = new THREE.Vector3().subVectors(end, start);
-                    const len = dir.length();
+                for (let i = 1; i < nodePositions.length; i++) {
+                    const start = new THREE.Vector3(...nodePositions[0]);
+                    const end = new THREE.Vector3(...nodePositions[i]);
+                    const d = new THREE.Vector3().subVectors(end, start);
+                    const len = d.length();
                     const rod = new THREE.Mesh(
                         new THREE.CylinderGeometry(0.06, 0.06, len, 6), lineMat
                     );
-                    rod.position.copy(start).add(dir.multiplyScalar(0.5));
+                    rod.position.copy(start).add(d.multiplyScalar(0.5));
                     rod.lookAt(end);
                     rod.rotateX(Math.PI / 2);
                     grp.add(rod);
@@ -517,7 +569,6 @@ export class World {
                 break;
             }
             case 'resume': {
-                // Classical column / obelisk — professional experience
                 const grp = new THREE.Group();
                 const colMat = new THREE.MeshPhysicalMaterial({
                     color: 0xf0e6d3, roughness: 0.35, metalness: 0.3,
@@ -527,19 +578,16 @@ export class World {
                     new THREE.CylinderGeometry(0.9, 1.1, 5, 12), colMat
                 );
                 grp.add(shaft);
-                // Capital (top)
-                const cap = new THREE.Mesh(
+                const capMesh = new THREE.Mesh(
                     new THREE.CylinderGeometry(1.4, 0.9, 0.6, 12), colMat
                 );
-                cap.position.y = 2.8;
-                grp.add(cap);
-                // Base
+                capMesh.position.y = 2.8;
+                grp.add(capMesh);
                 const colBase = new THREE.Mesh(
                     new THREE.CylinderGeometry(1.1, 1.3, 0.5, 12), colMat
                 );
                 colBase.position.y = -2.75;
                 grp.add(colBase);
-                // Accent ring at top
                 const topRing = new THREE.Mesh(
                     new THREE.TorusGeometry(1.3, 0.08, 8, 24), new THREE.MeshStandardMaterial({
                         color: color, emissive: color, emissiveIntensity: 0.3,
@@ -553,28 +601,24 @@ export class World {
                 break;
             }
             case 'contact': {
-                // Beacon / lighthouse — reaching out
                 const grp = new THREE.Group();
                 const beaconMat = new THREE.MeshPhysicalMaterial({
                     color: color, roughness: 0.1, metalness: 0.7,
                     clearcoat: 1, emissive: color, emissiveIntensity: 0.15
                 });
-                // Tall cone
                 const cone = new THREE.Mesh(
                     new THREE.ConeGeometry(1.5, 4, 12), beaconMat
                 );
                 grp.add(cone);
-                // Glowing ring beacon
-                const beacon = new THREE.Mesh(
+                const beaconRing = new THREE.Mesh(
                     new THREE.TorusGeometry(2, 0.25, 8, 32), new THREE.MeshStandardMaterial({
                         color: color, emissive: color, emissiveIntensity: 0.6,
                         metalness: 0.8, roughness: 0.1
                     })
                 );
-                beacon.rotation.x = Math.PI / 2;
-                beacon.position.y = 1;
-                grp.add(beacon);
-                // Second smaller ring
+                beaconRing.rotation.x = Math.PI / 2;
+                beaconRing.position.y = 1;
+                grp.add(beaconRing);
                 const ring2 = new THREE.Mesh(
                     new THREE.TorusGeometry(1.3, 0.15, 8, 24), new THREE.MeshStandardMaterial({
                         color: color, emissive: color, emissiveIntensity: 0.4,
@@ -598,46 +642,42 @@ export class World {
 
     // ===================== ATMOSPHERE =====================
     createAtmosphere() {
-        this.scene.fog = new THREE.FogExp2(0xc5e5f5, 0.0025);
+        this.scene.fog = new THREE.FogExp2(0xc5e5f5, 0.0015);
     }
 
-    // ===================== DECORATIONS =====================
+    // ===================== DECORATIONS (trees & flowers on sphere) =====================
     createDecorations() {
-        // Grass tufts / small plants scattered on terrain
+        const R = this.sphereRadius;
         const treeGeo = new THREE.ConeGeometry(1.5, 5, 6);
         const treeTrunkGeo = new THREE.CylinderGeometry(0.2, 0.3, 2, 6);
         const treeMat = new THREE.MeshStandardMaterial({ color: 0x2d8f4e, roughness: 0.85 });
         const trunkMat = new THREE.MeshStandardMaterial({ color: 0x8d6e4c, roughness: 0.9 });
 
-        // Sample path for avoidance
-        const pathSamples = [];
-        for (let i = 0; i <= 100; i++) {
-            const pt = this.cameraPath.getPoint(i / 100);
-            pathSamples.push(pt);
-        }
-
-        for (let i = 0; i < 120; i++) {
-            const x = (Math.random() - 0.5) * 400;
-            const z = (Math.random() - 0.5) * 1200;
+        for (let i = 0; i < 100; i++) {
+            // Random point on sphere (mid-latitudes matching path band)
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.PI * 0.2 + Math.random() * Math.PI * 0.6;
+            const dir = new THREE.Vector3(
+                Math.sin(phi) * Math.cos(theta),
+                Math.cos(phi),
+                Math.sin(phi) * Math.sin(theta)
+            );
 
             // Avoid road area
             let tooClose = false;
-            for (const pp of pathSamples) {
-                if (Math.sqrt((x - pp.x) ** 2 + (z - pp.z) ** 2) < 12) {
-                    tooClose = true;
-                    break;
-                }
+            for (const pp of this._pathSurfaceSamples) {
+                const dot = dir.dot(pp.dir);
+                const angle = Math.acos(Math.max(-1, Math.min(1, dot)));
+                if (angle * R < 10) { tooClose = true; break; }
             }
             if (tooClose) continue;
 
             const treeGroup = new THREE.Group();
 
-            // Trunk
             const trunk = new THREE.Mesh(treeTrunkGeo, trunkMat);
             trunk.position.y = 1;
             treeGroup.add(trunk);
 
-            // Canopy (2-3 stacked cones)
             const layers = 2 + Math.floor(Math.random() * 2);
             for (let j = 0; j < layers; j++) {
                 const cone = new THREE.Mesh(treeGeo, treeMat);
@@ -646,54 +686,66 @@ export class World {
                 treeGroup.add(cone);
             }
 
-            const h = this.getTerrainHeight(x, z);
-            treeGroup.position.set(x, h, z);
-            const sc = 0.5 + Math.random() * 0.8;
+            const h = this._getSurfaceDisplacement(theta, phi);
+            const surfPos = dir.clone().multiplyScalar(R + h);
+            treeGroup.position.copy(surfPos);
+
+            // Orient tree to stand upright on sphere (local +Y → radial outward)
+            const radialDir = surfPos.clone().normalize();
+            treeGroup.quaternion.setFromUnitVectors(
+                new THREE.Vector3(0, 1, 0), radialDir
+            );
+
+            const sc = 0.5 + Math.random() * 0.7;
             treeGroup.scale.setScalar(sc);
             treeGroup.castShadow = true;
-
             this.scene.add(treeGroup);
         }
 
-        // Flowers / grass patches
+        // Flowers on sphere surface
         const flowerColors = [0xff6b9d, 0xffd93d, 0x6bcb77, 0xc084fc, 0xffa07a];
         const flowerGeo = new THREE.SphereGeometry(0.15, 4, 4);
 
-        for (let i = 0; i < 200; i++) {
-            const x = (Math.random() - 0.5) * 350;
-            const z = (Math.random() - 0.5) * 1100;
+        for (let i = 0; i < 160; i++) {
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.PI * 0.2 + Math.random() * Math.PI * 0.6;
+            const dir = new THREE.Vector3(
+                Math.sin(phi) * Math.cos(theta),
+                Math.cos(phi),
+                Math.sin(phi) * Math.sin(theta)
+            );
 
             let tooClose = false;
-            for (const pp of pathSamples) {
-                if (Math.sqrt((x - pp.x) ** 2 + (z - pp.z) ** 2) < 8) {
-                    tooClose = true;
-                    break;
-                }
+            for (const pp of this._pathSurfaceSamples) {
+                const dot = dir.dot(pp.dir);
+                const angle = Math.acos(Math.max(-1, Math.min(1, dot)));
+                if (angle * R < 6) { tooClose = true; break; }
             }
             if (tooClose) continue;
 
-            const color = flowerColors[Math.floor(Math.random() * flowerColors.length)];
-            const mat = new THREE.MeshStandardMaterial({
-                color, emissive: color, emissiveIntensity: 0.2, roughness: 0.8
+            const fColor = flowerColors[Math.floor(Math.random() * flowerColors.length)];
+            const fMat = new THREE.MeshStandardMaterial({
+                color: fColor, emissive: fColor, emissiveIntensity: 0.2, roughness: 0.8
             });
-            const flower = new THREE.Mesh(flowerGeo, mat);
-            const h = this.getTerrainHeight(x, z);
-            flower.position.set(x, h + 0.2, z);
+            const flower = new THREE.Mesh(flowerGeo, fMat);
+
+            const h = this._getSurfaceDisplacement(theta, phi);
+            flower.position.copy(dir.clone().multiplyScalar(R + h + 0.2));
             this.scene.add(flower);
         }
     }
 
-    getTerrainHeight(x, z) {
-        let h = fbm(x * 0.007 + 50, z * 0.005 + 50, 5) * 30 - 8;
-        h += Math.sin(x * 0.015) * Math.cos(z * 0.012) * 5;
+    // Compute terrain noise displacement at given spherical coords
+    _getSurfaceDisplacement(theta, phi) {
+        let h = fbm(theta * 4 + 50, phi * 6 + 50, 5) * 4 - 1;
+        h += Math.sin(theta * 5) * Math.cos(phi * 4) * 0.8;
         return h;
     }
 
     // ===================== SET LANDMARK ACTIVE STATE =====================
     setActiveSection(sectionId) {
         for (const portal of this.portalMeshes) {
-            const isActive = portal.sectionId === sectionId;
-            portal._isActive = isActive;
+            portal._isActive = portal.sectionId === sectionId;
         }
     }
 
@@ -711,10 +763,19 @@ export class World {
             mat.uniforms.time.value = this.time;
         }
 
-        // Animate clouds
+        // Animate clouds — gentle orbit around the globe
         for (const cloud of this.clouds) {
-            cloud.position.x += Math.sin(this.time * 0.08 + cloud.userData.wobble) * cloud.userData.speed;
-            cloud.position.y += Math.sin(this.time * 0.12 + cloud.userData.wobble * 2) * 0.005;
+            cloud.userData.theta += cloud.userData.speed * deltaTime;
+            const t = cloud.userData.theta;
+            const p = cloud.userData.phi;
+            const alt = cloud.userData.alt;
+            cloud.position.set(
+                alt * Math.sin(p) * Math.cos(t),
+                alt * Math.cos(p),
+                alt * Math.sin(p) * Math.sin(t)
+            );
+            cloud.lookAt(0, 0, 0);
+            cloud.rotateX(Math.PI);
         }
 
         // Animate landmarks — gentle rotation
@@ -725,30 +786,20 @@ export class World {
         // Move camera light near camera
         if (cameraPos) {
             this.cameraLight.position.copy(cameraPos);
-            this.cameraLight.position.y += 5;
         }
 
-        // Move sky dome with camera (so it never ends)
-        if (cameraPos) {
-            this.skyMesh.position.x = cameraPos.x;
-            this.skyMesh.position.z = cameraPos.z;
+        // Sky dome centered on sphere origin
+        if (this.skyMesh) {
+            this.skyMesh.position.set(0, 0, 0);
         }
 
-        // Move sun direction with camera
+        // Sun tracks camera direction so lighting is always good
         if (cameraPos) {
-            this.sunLight.position.set(
-                cameraPos.x + 80,
-                120,
-                cameraPos.z - 60
-            );
-            this.sunLight.target.position.copy(cameraPos);
+            const sunDir = cameraPos.clone().normalize();
+            this.sunLight.position.copy(sunDir.clone().multiplyScalar(300));
+            this.sunLight.position.y += 150;
+            this.sunLight.target.position.set(0, 0, 0);
             this.sunLight.target.updateMatrixWorld();
         }
     }
-}
-
-// Utility
-function smoothstep(edge0, edge1, x) {
-    const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
-    return t * t * (3 - 2 * t);
 }

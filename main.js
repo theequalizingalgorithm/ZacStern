@@ -25,26 +25,31 @@ const SECTION_DATA = [
     { id: 'contact',    name: "Let's Create",      pathT: 0.96,  color: 0x00b4d8 }
 ];
 
-// Path control points — winding S-curve through the world
-const PATH_POINTS = [
-    new THREE.Vector3(  0,   2,   15),
-    new THREE.Vector3(  6,   2.5, -15),
-    new THREE.Vector3( 15,   3,  -50),
-    new THREE.Vector3( 10,   2.5, -85),
-    new THREE.Vector3( -2,   2,  -120),
-    new THREE.Vector3(-15,   3,  -155),
-    new THREE.Vector3(-12,   2.5, -190),
-    new THREE.Vector3(  0,   2,  -225),
-    new THREE.Vector3( 12,   3,  -260),
-    new THREE.Vector3( 16,   2.5, -295),
-    new THREE.Vector3(  5,   2,  -330),
-    new THREE.Vector3( -8,   3,  -365),
-    new THREE.Vector3(-14,   2.5, -400),
-    new THREE.Vector3( -5,   2,  -435),
-    new THREE.Vector3(  8,   3,  -470),
-    new THREE.Vector3(  3,   2.5, -505),
-    new THREE.Vector3(  0,   2,  -530)
-];
+// Spherical world parameters
+const SPHERE_RADIUS = 80;
+const PATH_ALTITUDE = 8;
+
+// Generate spiral path around the sphere
+function generateSpiralPath(numPoints) {
+    const points = [];
+    const r = SPHERE_RADIUS + PATH_ALTITUDE;
+    for (let i = 0; i < numPoints; i++) {
+        const t = i / (numPoints - 1);
+        // ~1.2 full revolutions around the globe
+        const theta = t * Math.PI * 2.4;
+        // Latitude band: 54° to 126° from north pole
+        const phi = Math.PI * 0.3 + t * Math.PI * 0.4;
+        points.push(new THREE.Vector3(
+            r * Math.sin(phi) * Math.cos(theta),
+            r * Math.cos(phi),
+            r * Math.sin(phi) * Math.sin(theta)
+        ));
+    }
+    return points;
+}
+
+// Path control points — spiral around the spherical world
+const PATH_POINTS = generateSpiralPath(40);
 
 // ===================== PERFORMANCE DETECTION =====================
 function detectPerformanceTier() {
@@ -141,7 +146,7 @@ class App {
             pos: this.cameraPath.getPoint(s.pathT)
         }));
 
-        this.world = new World(this.scene, this.cameraPath, sectionPositions);
+        this.world = new World(this.scene, this.cameraPath, sectionPositions, SPHERE_RADIUS);
     }
 
     // ---- Camera Controller ----
@@ -228,6 +233,12 @@ class App {
             if (!this.sectionLocked) return;
             if (this._advanceCooldown) { e.preventDefault(); return; }
 
+            // Allow horizontal scrolling in scroll-rows (trackpad / shift+wheel)
+            const scrollRow = e.target.closest('.scroll-row');
+            if (scrollRow && Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+                return; // let browser natively horizontal-scroll the row
+            }
+
             e.preventDefault();
 
             const activeId = this.sectionManager.activeSectionId;
@@ -271,21 +282,39 @@ class App {
 
         // Touch support — swipe to advance or scroll panel
         let touchStartY = 0;
+        let touchStartX = 0;
         let touchBoundaryAccum = 0;
 
         window.addEventListener('touchstart', (e) => {
             touchStartY = e.touches[0].clientY;
+            touchStartX = e.touches[0].clientX;
             touchBoundaryAccum = 0;
         }, { passive: true });
 
         window.addEventListener('touchmove', (e) => {
             if (this.transitioning) { e.preventDefault(); return; }
             if (!this.sectionLocked) return;
-            e.preventDefault(); // always prevent page scroll when locked
+
+            const touchX = e.touches[0].clientX;
+            const touchY = e.touches[0].clientY;
+            const deltaX = touchStartX - touchX;
+            const delta = touchStartY - touchY; // positive = scroll down
+
+            // Allow horizontal swiping in scroll-rows
+            const scrollRow = e.target.closest('.scroll-row, .scroll-row-wrap');
+            if (scrollRow && Math.abs(deltaX) > Math.abs(delta)) {
+                e.preventDefault();
+                const row = scrollRow.closest('.scroll-row-wrap')?.querySelector('.scroll-row') || scrollRow;
+                row.scrollLeft += deltaX;
+                touchStartX = touchX;
+                touchStartY = touchY;
+                return;
+            }
+
+            e.preventDefault(); // prevent page scroll when locked
             if (this._advanceCooldown) return;
 
-            const touchY = e.touches[0].clientY;
-            const delta = touchStartY - touchY; // positive = scroll down
+            touchStartX = touchX;
             touchStartY = touchY;
 
             const activeId = this.sectionManager.activeSectionId;
