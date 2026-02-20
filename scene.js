@@ -802,6 +802,12 @@ export class World {
                 const targetZ = portal._isActive ? 0.05 : THREE.MathUtils.lerp(0.26, 0.09, nearT);
                 const targetXY = portal._isActive ? 1.05 : THREE.MathUtils.lerp(1.0, 1.03, nearT);
 
+                if (portal._isActive) {
+                    const radialUp = portal.group.position.clone().normalize();
+                    portal.group.up.copy(radialUp);
+                    portal.group.lookAt(cameraPos);
+                }
+
                 portal.group.scale.x += (targetXY - portal.group.scale.x) * 0.12;
                 portal.group.scale.y += (targetXY - portal.group.scale.y) * 0.12;
                 portal.group.scale.z += (targetZ - portal.group.scale.z) * 0.14;

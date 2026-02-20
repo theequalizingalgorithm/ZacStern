@@ -346,10 +346,11 @@ function initScrollButtons() {
         let isDragging = false, startX = 0, scrollLeft = 0;
         let dragActivated = false;
         let suppressClick = false;
+        let suppressTimer = null;
         row.addEventListener('pointerdown', (e) => {
             if (e.button !== 0) return;
             // Keep arrow/button clicks intact, allow dragging from cards/thumbnails
-            if (e.target.closest('.scroll-btn, button')) return;
+            if (e.target.closest('.scroll-btn, button, .video-card, .featured-card, a, .play-overlay, .thumb-wrap, img')) return;
 
             isDragging = true;
             dragActivated = false;
@@ -359,9 +360,13 @@ function initScrollButtons() {
         });
         row.addEventListener('pointerleave', () => { isDragging = false; row.classList.remove('dragging'); });
         row.addEventListener('pointerup', () => {
+            suppressClick = dragActivated;
             isDragging = false;
             dragActivated = false;
             row.classList.remove('dragging');
+
+            if (suppressTimer) clearTimeout(suppressTimer);
+            suppressTimer = setTimeout(() => { suppressClick = false; }, 200);
         });
         row.addEventListener('pointermove', (e) => {
             if (!isDragging) return;
@@ -380,6 +385,10 @@ function initScrollButtons() {
             e.preventDefault();
             e.stopPropagation();
             suppressClick = false;
+            if (suppressTimer) {
+                clearTimeout(suppressTimer);
+                suppressTimer = null;
+            }
         }, true);
 
         // Avoid native image dragging interfering with row dragging
