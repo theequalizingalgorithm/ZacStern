@@ -184,29 +184,11 @@ class App {
 
     // ---- Camera Controller ----
     initCamera() {
-        // New paradigm: world rotates, camera is mostly static.
-        // Pass sections and sphereRadius (no path needed).
         this.cameraController = new CameraController(
             this.camera,
-            SECTION_DATA,
-            SPHERE_RADIUS
+            this.cameraPath,
+            SECTION_DATA
         );
-
-        // Give the controller a reference to the world group it will rotate
-        this.cameraController.setWorldGroup(this.world.worldGroup);
-
-        // Register each billboard's initial world position (before any rotation)
-        // so the controller can compute the quaternion to bring it to face +Z.
-        for (const section of SECTION_DATA) {
-            const pos = this.world.getBillboardPosition(section.id);
-            if (pos) this.cameraController.registerBillboard(section.id, pos);
-        }
-
-        // Navigate immediately to the first section and snap the world there
-        // so there is no spinning animation on page load.
-        this.cameraController.goToSection(SECTION_DATA[0].id);
-        const startQ = this.cameraController._sectionQuaternions.get(SECTION_DATA[0].id);
-        if (startQ) this.world.worldGroup.quaternion.copy(startQ);
     }
 
     // ---- Section Manager ----
@@ -704,13 +686,13 @@ class App {
             }
         }
 
-        // Update camera — pass billboard target for look-at blending
-        let billboardTarget = null;
+        // Update camera — pass billboard face info for dock mode
+        let billboardFaceInfo = null;
         const nearestSection = this.cameraController.getActiveSection();
         if (nearestSection) {
-            billboardTarget = this.world.getBillboardPosition(nearestSection.id);
+            billboardFaceInfo = this.world.getBillboardFaceInfo(nearestSection.id);
         }
-        const activeSection = this.cameraController.update(delta, billboardTarget);
+        const activeSection = this.cameraController.update(delta, billboardFaceInfo);
 
         // Update scroll progress UI
         const pct = this.cameraController.getScrollPercent();

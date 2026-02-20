@@ -794,11 +794,37 @@ export class World {
     getBillboardPosition(sectionId) {
         const portal = this.portalMeshes.find(p => p.sectionId === sectionId);
         if (!portal || !portal.board) return null;
-        // Return the world-space center of the board face, not the group anchor
         portal.board.updateWorldMatrix(true, false);
         const center = new THREE.Vector3(0, 0, 0.35);
         center.applyMatrix4(portal.board.matrixWorld);
         return center;
+    }
+
+    // Get the exact face center, face normal, and billboard world-up for dock mode.
+    // normal: direction the face points (toward camera / road side).
+    // up:     billboard's own world-Y so camera.up can match it (zero apparent roll).
+    getBillboardFaceInfo(sectionId) {
+        const portal = this.portalMeshes.find(p => p.sectionId === sectionId);
+        if (!portal || !portal.board) return null;
+
+        const board = portal.board;
+        board.updateWorldMatrix(true, false);
+
+        // Face centre on the +Z face of the board
+        const center = new THREE.Vector3(0, 0, 0.35).applyMatrix4(board.matrixWorld);
+
+        // Face normal = board local +Z mapped to world, then subtract the mapped origin
+        const origin   = new THREE.Vector3(0, 0, 0).applyMatrix4(board.matrixWorld);
+        const normalPt = new THREE.Vector3(0, 0, 1).applyMatrix4(board.matrixWorld);
+        const normal   = normalPt.sub(origin).normalize();
+
+        // Billboard world-up = group's local Y in world space
+        // Using the group's world quaternion so we get exact orientation
+        const groupQuat = new THREE.Quaternion();
+        portal.group.getWorldQuaternion(groupQuat);
+        const up = new THREE.Vector3(0, 1, 0).applyQuaternion(groupQuat).normalize();
+
+        return { center, normal, up };
     }
 
     // Get the 4 world-space corners of a billboard's board face
