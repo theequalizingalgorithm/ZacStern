@@ -342,14 +342,13 @@ function initScrollButtons() {
             }
         }, { passive: false });
 
-        // Drag-to-scroll (pointer)
+        // Drag-to-scroll (pointer) with click-safe threshold
         let isDragging = false, startX = 0, scrollLeft = 0;
         let dragActivated = false;
+        let suppressClick = false;
         row.addEventListener('pointerdown', (e) => {
             if (e.button !== 0) return;
-
-            // Let cards/buttons/icons receive normal clicks
-            if (e.target.closest('.video-card, .featured-card, .scroll-btn, a, button, .play-overlay')) {
+            if (e.target.closest('.scroll-btn, button')) {
                 return;
             }
 
@@ -370,10 +369,19 @@ function initScrollButtons() {
             const dx = e.pageX - startX;
             if (!dragActivated && Math.abs(dx) < 6) return;
             dragActivated = true;
+            suppressClick = true;
             e.preventDefault();
             const walk = dx * 1.5;
             row.scrollLeft = scrollLeft - walk;
         });
+
+        // If a drag happened, suppress the trailing click so modal doesn't open accidentally
+        row.addEventListener('click', (e) => {
+            if (!suppressClick) return;
+            e.preventDefault();
+            e.stopPropagation();
+            suppressClick = false;
+        }, true);
 
         // Avoid native image dragging interfering with row dragging
         row.querySelectorAll('img').forEach(img => {

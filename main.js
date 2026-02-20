@@ -26,8 +26,8 @@ const SECTION_DATA = [
 ];
 
 // Spherical world parameters
-const SPHERE_RADIUS = 50;
-const PATH_ALTITUDE = 5;
+const SPHERE_RADIUS = 42;
+const PATH_ALTITUDE = 4.5;
 
 // Generate spiral path around the sphere
 function generateSpiralPath(numPoints) {
@@ -35,10 +35,10 @@ function generateSpiralPath(numPoints) {
     const r = SPHERE_RADIUS + PATH_ALTITUDE;
     for (let i = 0; i < numPoints; i++) {
         const t = i / (numPoints - 1);
-        // Compact loop around the globe
-        const theta = t * Math.PI * 1.8;
-        // Narrow latitude band to avoid stretched long-world feel
-        const phi = Math.PI * 0.38 + t * Math.PI * 0.24;
+        // Winding curved path around the globe
+        const theta = t * Math.PI * 2.8;
+        // Keep path in a compact latitude band for spherical feel
+        const phi = Math.PI * 0.34 + t * Math.PI * 0.30;
         points.push(new THREE.Vector3(
             r * Math.sin(phi) * Math.cos(theta),
             r * Math.cos(phi),
