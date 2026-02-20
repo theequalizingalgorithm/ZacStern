@@ -389,7 +389,7 @@ export class World {
 
         // Project back onto sphere surface
         const offsetDir = offsetPt.clone().normalize();
-        const surfacePos = offsetDir.clone().multiplyScalar(R + 1.6);
+        const surfacePos = offsetDir.clone().multiplyScalar(R + 2.5);
 
         group.position.copy(surfacePos);
 
@@ -408,7 +408,7 @@ export class World {
             roughness: 0.55,
             metalness: 0.03
         });
-        const boardGeo = new THREE.BoxGeometry(boardW, boardH, 0.22);
+        const boardGeo = new THREE.BoxGeometry(boardW, boardH, 0.5);
         const board = new THREE.Mesh(boardGeo, boardMat);
         board.position.set(0, 6.2, 0.1);
         board.receiveShadow = true;
@@ -453,8 +453,25 @@ export class World {
         glow.position.set(0, 6.6, 2.7);
         group.add(glow);
 
-        // Default slightly extruded; flattens when camera approaches
-        group.scale.set(1, 1, 0.26);
+        // Support posts — legs anchoring billboard to the ground
+        const postMat = new THREE.MeshStandardMaterial({
+            color: 0x6b5b45,
+            roughness: 0.75,
+            metalness: 0.15
+        });
+        const postGeo = new THREE.CylinderGeometry(0.18, 0.22, 6, 8);
+        const leftPost = new THREE.Mesh(postGeo, postMat);
+        leftPost.position.set(-(boardW / 2 - 0.5), 0, 0);
+        leftPost.castShadow = true;
+        group.add(leftPost);
+
+        const rightPost = new THREE.Mesh(postGeo, postMat);
+        rightPost.position.set(boardW / 2 - 0.5, 0, 0);
+        rightPost.castShadow = true;
+        group.add(rightPost);
+
+        // Default with visible depth; flattens further when camera approaches
+        group.scale.set(1, 1, 0.55);
 
         return {
             group,
@@ -800,8 +817,8 @@ export class World {
                 if (!portal?.group) continue;
                 const d = portal.group.position.distanceTo(cameraPos);
                 const nearT = THREE.MathUtils.clamp((80 - d) / 55, 0, 1);
-                const targetZ = portal._isActive ? 0.05 : THREE.MathUtils.lerp(0.26, 0.09, nearT);
-                const targetXY = portal._isActive ? 1.05 : THREE.MathUtils.lerp(1.0, 1.03, nearT);
+                const targetZ = portal._isActive ? 0.08 : THREE.MathUtils.lerp(0.55, 0.15, nearT);
+                const targetXY = portal._isActive ? 1.05 : THREE.MathUtils.lerp(1.0, 1.04, nearT);
 
                 // Smoothly face camera as user approaches (not only when active)
                 const faceBlend = portal._isActive ? 1 : THREE.MathUtils.smoothstep(nearT, 0.12, 0.95);

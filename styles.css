@@ -8,7 +8,7 @@
 @font-face{font-family:'Aerobics Regular';font-style:normal;font-weight:normal;src:local('Aerobics Regular'),url('fonts/AerobicsRegular-mLRZP.woff') format('woff')}
 
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--primary:#e8f4fd;--secondary:#fff;--accent:#0099e6;--accent2:#0077b6;--light:#1a3a5c;--text:#2c3e50;--border:rgba(255,255,255,.55);--success:#43a047;--glass:rgba(255,255,255,.45);--glass-border:rgba(255,255,255,.7);--sky-top:#7ec8e3;--sky-mid:#a8d8ea;--sky-bot:#d4f1f9;--green:#56c596;--warm:#ffe0b2;--pink:#f8bbd0;--lavender:#d1c4e9;--bubble-shine:linear-gradient(135deg,rgba(255,255,255,.6) 0%,rgba(255,255,255,.15) 40%,transparent 60%);--bubble-border:rgba(120,200,255,.5);--bubble-glow:0 4px 18px rgba(80,180,255,.12),inset 0 1px 3px rgba(255,255,255,.5),0 0 0 1px rgba(120,200,255,.2);--panel-glass:rgba(250,244,232,.98);--panel-blur:0px}
+:root{--primary:#e8f4fd;--secondary:#fff;--accent:#0099e6;--accent2:#0077b6;--light:#1a3a5c;--text:#2c3e50;--border:rgba(255,255,255,.55);--success:#43a047;--glass:rgba(255,255,255,.45);--glass-border:rgba(255,255,255,.7);--sky-top:#7ec8e3;--sky-mid:#a8d8ea;--sky-bot:#d4f1f9;--green:#56c596;--warm:#ffe0b2;--pink:#f8bbd0;--lavender:#d1c4e9;--bubble-shine:linear-gradient(135deg,rgba(255,255,255,.6) 0%,rgba(255,255,255,.15) 40%,transparent 60%);--bubble-border:rgba(120,200,255,.5);--bubble-glow:0 4px 18px rgba(80,180,255,.12),inset 0 1px 3px rgba(255,255,255,.5),0 0 0 1px rgba(120,200,255,.2);--panel-glass:rgb(250,244,232);--panel-blur:0px}
 html{scroll-behavior:smooth}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;color:var(--text);line-height:1.6;overflow-x:hidden;min-height:100vh}
 
@@ -58,8 +58,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .section-panel[data-section="clientele"].panel-right .panel-inner,
 .section-panel[data-section="clientele"].panel-left .panel-inner{max-width:860px}
 
-@media(max-width:768px){.section-panel{padding:28px .5% 0}
-.section-panel.panel-right,.section-panel.panel-left{justify-content:center;padding-left:1%;padding-right:1%}
+@media(max-width:768px){.section-panel{padding:44px 2px 2px}
+.section-panel.panel-right,.section-panel.panel-left{justify-content:center;padding-left:2px;padding-right:2px}
 .section-panel.panel-right .panel-inner,.section-panel.panel-left .panel-inner{max-width:100%}}
 
 .section-panel.active{opacity:1;pointer-events:auto;animation:panelEnter .5s cubic-bezier(.22,1,.36,1) both}
@@ -356,7 +356,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .ugc-row{grid-template-columns:repeat(3,1fr);width:100%}
 .horizontal-grid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
 .featured-card{min-width:150px;max-width:150px}
-.scroll-row{padding-left:24px;padding-right:24px}
+.scroll-row{padding-left:20px;padding-right:20px}
 #horizontalGrid .video-card.h-scroll-card,#horizontalGrid .featured-card{min-width:calc(50% - .6rem);max-width:calc(50% - .6rem)}
 #networkRow .featured-card{min-width:calc(50% - .5rem);max-width:calc(50% - .5rem)}
 #clienteleRow .featured-card{min-width:180px;max-width:180px}
@@ -368,12 +368,12 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .hero-buttons{flex-direction:column}
 .btn{width:100%;text-align:center}
 .resume-timeline{padding-left:1.5rem}
-.scroll-row-wrap{padding:0 .25rem}
+.scroll-row-wrap{padding:0 2px}
 .scroll-progress{top:50%;right:10px;left:auto;bottom:auto;transform:translateY(-50%)}
 #dodecaCanvas{width:48px;height:48px}
 .scroll-progress-label{font-size:.6rem}
 .nav-next,.nav-prev{width:38px;height:38px;--arrow-size:24px;--arrow-depth:7px}
-.panel-inner{padding:.5rem .5rem;max-height:calc(100vh - 36px)}
+.panel-inner{padding:.25rem .2rem;max-height:calc(100vh - 46px)}
 }
 @media(max-width:480px){
 .nav-menu{gap:.4rem;padding:.8rem}
@@ -387,7 +387,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .ugc-row{grid-template-columns:repeat(2,1fr);width:100%}
 .horizontal-grid{grid-template-columns:1fr}
 .featured-card{min-width:130px;max-width:130px}
-.scroll-row{padding-left:20px;padding-right:20px}
+.scroll-row{padding-left:16px;padding-right:16px}
 #horizontalGrid .video-card.h-scroll-card,#horizontalGrid .featured-card{min-width:calc(100% - .6rem);max-width:calc(100% - .6rem)}
 #networkRow .featured-card{min-width:calc(100% - .6rem);max-width:calc(100% - .6rem)}
 #clienteleRow .featured-card{min-width:66%;max-width:66%}
@@ -399,5 +399,5 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 #dodecaCanvas{width:40px;height:40px}
 .scroll-progress-label{font-size:.5rem}
 .nav-next,.nav-prev{width:34px;height:34px;--arrow-size:20px;--arrow-depth:6px}
-.panel-inner{padding:.4rem .35rem;max-height:calc(100vh - 30px)}
+.panel-inner{padding:.15rem .1rem;max-height:calc(100vh - 46px)}
 }

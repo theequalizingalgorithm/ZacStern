@@ -27,7 +27,7 @@ const SECTION_DATA = [
 
 // Spherical world parameters
 const SPHERE_RADIUS = 42;
-const PATH_ALTITUDE = 4.5;
+const PATH_ALTITUDE = 6;
 
 // Generate spiral path around the sphere
 function generateSpiralPath(numPoints) {
@@ -127,7 +127,7 @@ class App {
         this.scene = new THREE.Scene();
 
         this.camera = new THREE.PerspectiveCamera(
-            120,
+            75,
             window.innerWidth / window.innerHeight,
             0.1,
             1500

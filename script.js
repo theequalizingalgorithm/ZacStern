@@ -349,31 +349,30 @@ function initScrollButtons() {
         let suppressTimer = null;
         row.addEventListener('pointerdown', (e) => {
             if (e.button !== 0) return;
-            // Only skip scroll buttons — allow drag from cards/thumbnails
             if (e.target.closest('.scroll-btn')) return;
 
             isDragging = true;
             dragActivated = false;
-            row.classList.add('dragging');
             startX = e.pageX;
             scrollLeft = row.scrollLeft;
         });
         row.addEventListener('pointerleave', () => { isDragging = false; row.classList.remove('dragging'); });
         row.addEventListener('pointerup', () => {
-            suppressClick = dragActivated;
+            if (dragActivated) {
+                suppressClick = true;
+                if (suppressTimer) clearTimeout(suppressTimer);
+                suppressTimer = setTimeout(() => { suppressClick = false; }, 300);
+            }
             isDragging = false;
             dragActivated = false;
             row.classList.remove('dragging');
-
-            if (suppressTimer) clearTimeout(suppressTimer);
-            suppressTimer = setTimeout(() => { suppressClick = false; }, 200);
         });
         row.addEventListener('pointermove', (e) => {
             if (!isDragging) return;
             const dx = e.pageX - startX;
-            if (!dragActivated && Math.abs(dx) < 6) return;
+            if (!dragActivated && Math.abs(dx) < 8) return;
             dragActivated = true;
-            suppressClick = true;
+            row.classList.add('dragging');
             e.preventDefault();
             const walk = dx * 1.5;
             row.scrollLeft = scrollLeft - walk;
