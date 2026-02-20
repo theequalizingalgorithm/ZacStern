@@ -232,8 +232,21 @@ export class CameraController {
             }
         }
 
-        // Set camera up to radial direction so it stays oriented on the globe
-        this.camera.up.copy(radialUp);
+        // Camera up: normally the camera's own radialUp.
+        // BUT the billboard is ~6 world units off to the side, so its local vertical
+        // (offsetDir = billboardTarget.normalize()) is rotated ~7° from radialUp.
+        // That 7° mismatch shows up as a ROLL tilt on all billboard text/headers.
+        // Fix: blend camera.up toward the billboard's own vertical when locked.
+        let cameraUp = radialUp.clone();
+        if (billboardTarget && this.activeSection) {
+            const dist = Math.abs(this.currentT - this.activeSection.pathT);
+            const blendT = THREE.MathUtils.smoothstep(1 - dist / 0.06, 0, 1);
+            if (blendT > 0.001) {
+                const billboardUp = billboardTarget.clone().normalize();
+                cameraUp.lerp(billboardUp, blendT).normalize();
+            }
+        }
+        this.camera.up.copy(cameraUp);
         this.camera.lookAt(lookTarget);
 
         return this.getActiveSection();
