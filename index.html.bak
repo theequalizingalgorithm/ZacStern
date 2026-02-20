@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zac Stern - Creative Producer & Director</title>
+    <link rel="stylesheet" href="styles.css?v=27">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">WELCOME TO MY PORTFOLIO</div>
+            <ul class="nav-menu">
+                <li><a href="#hero" class="nav-link">Home</a></li>
+                <li><a href="#directing" class="nav-link">Directing</a></li>
+                <li><a href="#network" class="nav-link">Network</a></li>
+                <li><a href="#ugc" class="nav-link">UGC</a></li>
+                <li><a href="#clientele" class="nav-link">Clientele</a></li>
+                <li><a href="#resume" class="nav-link">Resume</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 3D Scroll Progress Indicator -->
+    <div class="scroll-progress" id="scrollProgress">
+        <canvas id="dodecaCanvas" width="128" height="128"></canvas>
+        <div class="scroll-progress-label" id="progressLabel">0%</div>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero">
+        <div class="hero-inner">
+            <div class="hero-content">
+                <p class="hero-tag">ZAC STERN</p>
+                <h1 class="hero-title">Creative <span class="accent">Producer</span> &amp; <span class="accent">Director</span></h1>
+                <p class="hero-subtitle">UGC Specialist &middot; Network &amp; Content Producer</p>
+                <div class="hero-buttons">
+                    <a href="#directing" class="btn btn-primary">View My Work</a>
+                    <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+                </div>
+            </div>
+            <div class="hero-avatar">
+                <img src="https://drive.google.com/thumbnail?id=1d3FVEYHQPDUEQzDo5MbPvBd7so4bOPTU&sz=w600" alt="Zac Stern"
+                     onerror="this.src='https://lh3.googleusercontent.com/d/1d3FVEYHQPDUEQzDo5MbPvBd7so4bOPTU=w600'">
+            </div>
+        </div>
+    </section>
+
+    <!-- 1. Content Samples 16:9 (Horizontal UGC) — horizontal scroll -->
+    <section id="directing" class="directing-section">
+        <div class="section-header anim-fade-up">
+            <h2>Content Samples</h2>
+        </div>
+        <div class="scroll-row-wrap">
+            <button class="scroll-btn scroll-left" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
+            <div class="scroll-row" id="horizontalGrid"></div>
+            <button class="scroll-btn scroll-right" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </section>
+
+    <!-- 2. Network Segments (AGT) — horizontal scroll -->
+    <section id="network" class="featured-section">
+        <div class="section-header anim-fade-up">
+            <h2>Network Segments</h2>
+        </div>
+        <div class="scroll-row-wrap">
+            <button class="scroll-btn scroll-left" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
+            <div class="scroll-row" id="networkRow"></div>
+            <button class="scroll-btn scroll-right" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </section>
+
+    <!-- 3. UGC Videos (Vertical Grid) -->
+    <section id="ugc" class="ugc-section">
+        <div class="section-header anim-fade-up">
+            <h2>UGC Content</h2>
+        </div>
+        <div class="video-grid vertical-grid" id="verticalGrid"></div>
+    </section>
+
+    <!-- 4. Social Media Performance with Clientele — horizontal scroll -->
+    <section id="clientele" class="featured-section">
+        <div class="section-header anim-fade-up">
+            <h2>Social Media Performance with Clientele</h2>
+            <p class="retainer-list">Retainer-Based Clientele: James Leron &middot; Preacher Lawson &middot; Ops Security &middot; Protos VA &middot; Therapy Markets &middot; The Masked Singer &middot; America's Got Talent</p>
+        </div>
+        <div class="scroll-row-wrap">
+            <button class="scroll-btn scroll-left" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
+            <div class="scroll-row" id="clienteleRow"></div>
+            <button class="scroll-btn scroll-right" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </section>
+
+    <!-- 6. Projects -->
+    <section id="projects" class="projects-section">
+        <div class="section-header anim-fade-up">
+            <h2>Featured Projects</h2>
+        </div>
+        <div class="projects-grid anim-stagger" id="projectsGrid"></div>
+    </section>
+
+    <!-- 7. Social Media Follow -->
+    <section id="social" class="social-section">
+        <div class="section-header anim-fade-up">
+            <h2>Follow My Work</h2>
+        </div>
+        <div class="social-grid anim-stagger" id="socialGrid"></div>
+    </section>
+
+    <!-- 8. Resume -->
+    <section id="resume" class="resume-section">
+        <div class="section-header anim-fade-up">
+            <h2>Resume</h2>
+        </div>
+        <div id="resumeContainer"></div>
+    </section>
+
+    <!-- 9. Contact -->
+    <section id="contact" class="contact-section">
+        <div class="section-header anim-fade-up">
+            <h2>Let's Create</h2>
+        </div>
+        <div class="contact-container anim-fade-up">
+            <div class="contact-info" id="contactInfo"></div>
+            <form class="contact-form" id="contactForm">
+                <input type="text" placeholder="Your Name" required>
+                <input type="email" placeholder="Your Email" required>
+                <textarea placeholder="Your Message" rows="6" required></textarea>
+                <button type="submit" class="btn btn-primary">Send Message</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Video Modal -->
+    <div id="videoModal" class="modal">
+        <div class="modal-content" id="modalContent">
+            <span class="close" id="modalClose">&times;</span>
+            <div class="modal-video">
+                <iframe id="modalIframe" src="" allow="autoplay" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Zac Stern. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#hero">Home</a>
+                <a href="#directing">Directing</a>
+                <a href="#network">Network</a>
+                <a href="#ugc">UGC</a>
+                <a href="#resume">Resume</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js?v=27"></script>
+</body>
+</html>
