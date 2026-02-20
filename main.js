@@ -611,26 +611,31 @@ class App {
         // Horizontal offset to center content when scale is capped at 1
         const xOff = (bbW - designW * scale) / 2;
 
-        // Panel = clipping viewport positioned at the billboard rect
+        // Panel = clipping viewport positioned at the billboard rect.
+        // display:block overrides the default flex so the inner sits at top-left,
+        // giving transform-origin:top-left a deterministic anchor.
         panel.style.cssText = `
             position: fixed; inset: auto;
             left: ${bbL}px; top: ${bbT}px;
             width: ${bbW}px; height: ${bbH}px;
+            display: block;
             overflow: hidden; padding: 0;
             z-index: 15; opacity: 1; visibility: visible;
             pointer-events: auto;
         `;
 
-        // Inner renders at design width, then CSS-transform scales to fit
-        inner.style.width       = designW + 'px';
-        inner.style.height      = virtualH + 'px';
-        inner.style.maxWidth    = 'none';
-        inner.style.maxHeight   = 'none';
-        inner.style.transform   = `translate(${xOff}px, 0) scale(${scale})`;
+        // Inner renders at design width, then CSS-transform scales it down to fit.
+        // translate(xOff, 0) centres horizontally when content is narrower than panel.
+        // transform-origin:top left so the scale anchor matches the translation.
+        inner.style.width           = designW + 'px';
+        inner.style.height          = virtualH + 'px';
+        inner.style.maxWidth        = 'none';
+        inner.style.maxHeight       = 'none';
+        inner.style.transform       = `translate(${xOff}px, 0) scale(${scale})`;
         inner.style.transformOrigin = 'top left';
-        inner.style.borderRadius = '4px';
-        inner.style.boxSizing   = 'border-box';
-        inner.style.overflow    = 'hidden';   // panel-scrollable handles scroll
+        inner.style.borderRadius    = '4px';
+        inner.style.boxSizing       = 'border-box';
+        inner.style.overflow        = 'hidden';   // panel-scrollable handles scroll
 
         // Ensure scrollable area fills remaining flex space & scrolls
         const scrollable = panel.querySelector('.panel-scrollable');
