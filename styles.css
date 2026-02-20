@@ -174,8 +174,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 #horizontalGrid .featured-card .card-info{padding:.4rem .6rem}
 #horizontalGrid .featured-card .card-info h4{font-size:.75rem;margin-bottom:.15rem}
 #horizontalGrid .video-card .card-title{padding:.3rem .6rem;font-size:.75rem}
-#networkRow .featured-card,#clienteleRow .featured-card{min-width:calc(50% - .5rem);max-width:calc(50% - .5rem)}
-#networkRow .featured-card .thumb-wrap,#clienteleRow .featured-card .thumb-wrap{aspect-ratio:16/9}
+#networkRow .featured-card{min-width:calc(50% - .5rem);max-width:calc(50% - .5rem)}
+#networkRow .featured-card .thumb-wrap{aspect-ratio:16/9}
+#clienteleRow .featured-card .thumb-wrap{aspect-ratio:9/16}
 .scroll-row::-webkit-scrollbar{display:none}
 .scroll-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--bubble-border);background:rgba(255,255,255,.6);backdrop-filter:blur(8px);color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease;font-size:1rem;box-shadow:var(--bubble-glow);pointer-events:auto}
 .scroll-btn:hover{background:linear-gradient(135deg,#0088cc,#00b4d8);color:#fff;border-color:transparent;box-shadow:0 6px 20px rgba(0,153,230,.4)}
@@ -356,7 +357,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .featured-card{min-width:150px;max-width:150px}
 .scroll-row{padding-left:0;padding-right:0}
 #horizontalGrid .video-card.h-scroll-card,#horizontalGrid .featured-card{min-width:calc(50% - .6rem);max-width:calc(50% - .6rem)}
-#clienteleRow .featured-card,#networkRow .featured-card{min-width:calc(50% - .5rem);max-width:calc(50% - .5rem)}
+#networkRow .featured-card{min-width:calc(50% - .5rem);max-width:calc(50% - .5rem)}
+#clienteleRow .featured-card{min-width:180px;max-width:180px}
 .contact-container{grid-template-columns:1fr}
 .projects-grid{grid-template-columns:1fr}
 .social-grid{grid-template-columns:1fr}
@@ -386,7 +388,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .featured-card{min-width:130px;max-width:130px}
 .scroll-row{padding-left:0;padding-right:0}
 #horizontalGrid .video-card.h-scroll-card,#horizontalGrid .featured-card{min-width:calc(100% - .6rem);max-width:calc(100% - .6rem)}
-#clienteleRow .featured-card,#networkRow .featured-card{min-width:calc(100% - .6rem);max-width:calc(100% - .6rem)}
+#networkRow .featured-card{min-width:calc(100% - .6rem);max-width:calc(100% - .6rem)}
+#clienteleRow .featured-card{min-width:66%;max-width:66%}
 .contact-form{gap:.8rem}
 .nav-container{padding:0 1rem}
 .directing-section,.ugc-section,.featured-section,.projects-section,.social-section,.resume-section,.contact-section{padding:.15rem 0}
