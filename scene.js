@@ -408,7 +408,9 @@ export class World {
         const boardMat = new THREE.MeshStandardMaterial({
             color: 0xf5f0e8,
             roughness: 0.55,
-            metalness: 0.03
+            metalness: 0.03,
+            transparent: true,
+            opacity: 1.0
         });
         const boardGeo = new THREE.BoxGeometry(boardW, boardH, 0.5);
         const board = new THREE.Mesh(boardGeo, boardMat);
@@ -783,6 +785,43 @@ export class World {
         return portal ? portal.group.position.clone() : null;
     }
 
+    // Get the 4 world-space corners of a billboard's board face
+    // Returns { center, topLeft, topRight, bottomLeft, bottomRight } in world coords
+    getBillboardCorners(sectionId) {
+        const portal = this.portalMeshes.find(p => p.sectionId === sectionId);
+        if (!portal || !portal.board) return null;
+
+        const board = portal.board;
+        const group = portal.group;
+
+        // Board local dimensions: 11 wide x 7 tall, positioned at (0, 6.2, 0.35)
+        const hw = 11 / 2;  // half width
+        const hh = 7 / 2;   // half height
+
+        // Local-space corner positions on the FRONT face of the board
+        const corners = [
+            new THREE.Vector3(-hw, hh, 0.35),   // top-left
+            new THREE.Vector3(hw, hh, 0.35),    // top-right
+            new THREE.Vector3(-hw, -hh, 0.35),  // bottom-left
+            new THREE.Vector3(hw, -hh, 0.35)    // bottom-right
+        ];
+
+        // Transform from board local → group local → world
+        const boardWorldMatrix = new THREE.Matrix4();
+        board.updateWorldMatrix(true, false);
+        boardWorldMatrix.copy(board.matrixWorld);
+
+        const worldCorners = corners.map(c => c.clone().applyMatrix4(boardWorldMatrix));
+
+        return {
+            topLeft: worldCorners[0],
+            topRight: worldCorners[1],
+            bottomLeft: worldCorners[2],
+            bottomRight: worldCorners[3],
+            center: new THREE.Vector3().addVectors(worldCorners[0], worldCorners[3]).multiplyScalar(0.5)
+        };
+    }
+
     // ===================== UPDATE LOOP =====================
     update(deltaTime, cameraPos) {
         this.time += deltaTime;
@@ -861,6 +900,12 @@ export class World {
                 portal.group.scale.x += (targetXY - portal.group.scale.x) * 0.12;
                 portal.group.scale.y += (targetXY - portal.group.scale.y) * 0.12;
                 portal.group.scale.z += (targetZ - portal.group.scale.z) * 0.14;
+
+                // Fade board face when active so HTML panel replaces it
+                if (portal.board && portal.board.material) {
+                    const targetOpacity = portal._isActive ? 0.15 : 1.0;
+                    portal.board.material.opacity += (targetOpacity - portal.board.material.opacity) * 0.1;
+                }
             }
         }
 

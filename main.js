@@ -532,6 +532,113 @@ class App {
         this.initAccessibilityToggle();
     }
 
+    // ---- Position HTML panel to match billboard screen projection ----
+    _positionPanelOnBillboard(sectionId) {
+        const panel = document.querySelector(`.section-panel[data-section="${sectionId}"]`);
+        if (!panel) return;
+
+        const corners = this.world.getBillboardCorners(sectionId);
+        if (!corners) return;
+
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+
+        // Project each corner to screen coordinates
+        const project = (worldPt) => {
+            const v = worldPt.clone().project(this.camera);
+            return {
+                x: (v.x * 0.5 + 0.5) * w,
+                y: (-v.y * 0.5 + 0.5) * h,
+                z: v.z
+            };
+        };
+
+        const sTL = project(corners.topLeft);
+        const sTR = project(corners.topRight);
+        const sBL = project(corners.bottomLeft);
+        const sBR = project(corners.bottomRight);
+
+        // Billboard behind camera or off-screen — don't reposition
+        if (sTL.z > 1 || sTR.z > 1 || sBL.z > 1 || sBR.z > 1) return;
+
+        // Compute screen-space bounding rect of the projected quad
+        let left   = Math.min(sTL.x, sTR.x, sBL.x, sBR.x);
+        let right  = Math.max(sTL.x, sTR.x, sBL.x, sBR.x);
+        let top    = Math.min(sTL.y, sTR.y, sBL.y, sBR.y);
+        let bottom = Math.max(sTL.y, sTR.y, sBL.y, sBR.y);
+
+        // Clamp to viewport with margin for navbar
+        const navH = 50;
+        left   = Math.max(4, left);
+        top    = Math.max(navH, top);
+        right  = Math.min(w - 4, right);
+        bottom = Math.min(h - 4, bottom);
+
+        const rectW = right - left;
+        const rectH = bottom - top;
+
+        // Only apply billboard positioning when billboard is large enough on screen
+        // (camera is close enough). Below this threshold, use default centered layout.
+        const minSize = 80; // px
+        if (rectW < minSize || rectH < minSize) {
+            panel.style.cssText = '';
+            return;
+        }
+
+        // Add padding inside the billboard frame (inset from edges)
+        const padX = rectW * 0.04;
+        const padY = rectH * 0.04;
+
+        const innerLeft = left + padX;
+        const innerTop  = top + padY;
+        const innerW    = rectW - padX * 2;
+        const innerH    = rectH - padY * 2;
+
+        // Apply positioning — override the default flex-center layout
+        panel.style.cssText = `
+            position: fixed;
+            left: ${innerLeft}px;
+            top: ${innerTop}px;
+            width: ${innerW}px;
+            height: ${innerH}px;
+            display: flex;
+            align-items: stretch;
+            justify-content: stretch;
+            padding: 0;
+            z-index: 15;
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        `;
+
+        // Also constrain the panel-inner to fill the billboard rect
+        const inner = panel.querySelector('.panel-inner');
+        if (inner) {
+            inner.style.maxWidth = '100%';
+            inner.style.maxHeight = '100%';
+            inner.style.width = '100%';
+            inner.style.height = '100%';
+            inner.style.borderRadius = '2px';
+            inner.style.overflow = 'hidden';
+        }
+    }
+
+    // Reset panel positioning when leaving a section (called by section manager)
+    _resetPanelPosition(sectionId) {
+        const panel = document.querySelector(`.section-panel[data-section="${sectionId}"]`);
+        if (!panel) return;
+        panel.style.cssText = '';
+        const inner = panel.querySelector('.panel-inner');
+        if (inner) {
+            inner.style.maxWidth = '';
+            inner.style.maxHeight = '';
+            inner.style.width = '';
+            inner.style.height = '';
+            inner.style.borderRadius = '';
+            inner.style.overflow = '';
+        }
+    }
+
     // ---- Loading Screen ----
     hideLoadingScreen() {
         const screen = document.getElementById('loadingScreen');
@@ -583,9 +690,18 @@ class App {
         // Update world (animations, clouds, portals)
         this.world.update(delta, this.camera.position);
 
+        // Project billboard corners to screen and position panel
+        if (activeSection) {
+            this._positionPanelOnBillboard(activeSection.id);
+        }
+
         // Section locking — when camera arrives at a section, lock interaction
         if (activeSection) {
             if (activeSection.id !== this._lastLockedSectionId) {
+                // Reset previous panel positioning
+                if (this._lastLockedSectionId) {
+                    this._resetPanelPosition(this._lastLockedSectionId);
+                }
                 // Just arrived at a new section — lock for interaction
                 this.sectionLocked = true;
                 this.transitioning = false;
@@ -604,6 +720,10 @@ class App {
         } else {
             this.world.setActiveSection(null);
             this.sectionManager.showTransition();
+            // Reset panel positioning for the section we just left
+            if (this._lastLockedSectionId) {
+                this._resetPanelPosition(this._lastLockedSectionId);
+            }
             this._lastLockedSectionId = null;
         }
 

@@ -70,6 +70,17 @@ export class SectionManager {
             const prevPanel = this.panels.get(prevId);
             prevPanel.classList.remove('active');
             prevPanel.classList.add('exiting');
+            // Clear billboard-projection inline styles
+            prevPanel.style.cssText = '';
+            const prevInner = prevPanel.querySelector('.panel-inner');
+            if (prevInner) {
+                prevInner.style.maxWidth = '';
+                prevInner.style.maxHeight = '';
+                prevInner.style.width = '';
+                prevInner.style.height = '';
+                prevInner.style.borderRadius = '';
+                prevInner.style.overflow = '';
+            }
             setTimeout(() => {
                 prevPanel.classList.remove('exiting');
             }, this.transitionDuration);
@@ -93,6 +104,17 @@ export class SectionManager {
             const panel = this.panels.get(this.activeSectionId);
             panel.classList.remove('active');
             panel.classList.add('exiting');
+            // Clear billboard-projection inline styles
+            panel.style.cssText = '';
+            const inner = panel.querySelector('.panel-inner');
+            if (inner) {
+                inner.style.maxWidth = '';
+                inner.style.maxHeight = '';
+                inner.style.width = '';
+                inner.style.height = '';
+                inner.style.borderRadius = '';
+                inner.style.overflow = '';
+            }
             setTimeout(() => {
                 panel.classList.remove('exiting');
             }, this.transitionDuration);
