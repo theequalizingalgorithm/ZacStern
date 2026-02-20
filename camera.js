@@ -160,10 +160,16 @@ export class CameraController {
         const lookAheadT = Math.min(this.currentT + 0.01, 0.999);
         const lookAt = this.path.getPoint(lookAheadT);
 
-        // Smooth parallax
+        // Smooth parallax — reduce when locked at a section
         const pLerp = 1 - Math.exp(-4 * deltaTime);
-        this.currentParallaxX += (this.mouseX * this.parallaxAmount - this.currentParallaxX) * pLerp;
-        this.currentParallaxY += (this.mouseY * this.parallaxAmount * 0.5 - this.currentParallaxY) * pLerp;
+        let effectiveParallax = this.parallaxAmount;
+        if (this.activeSection) {
+            const dist = Math.abs(this.currentT - this.activeSection.pathT);
+            const lockT = THREE.MathUtils.smoothstep(1 - dist / 0.06, 0, 1);
+            effectiveParallax *= (1 - lockT * 0.85); // reduce parallax by 85% when locked
+        }
+        this.currentParallaxX += (this.mouseX * effectiveParallax - this.currentParallaxX) * pLerp;
+        this.currentParallaxY += (this.mouseY * effectiveParallax * 0.5 - this.currentParallaxY) * pLerp;
 
         // Radial up vector (away from sphere center) — works correctly on a globe
         const radialUp = position.clone().normalize();
@@ -195,7 +201,7 @@ export class CameraController {
             const dist = Math.abs(this.currentT - this.activeSection.pathT);
             const blendT = THREE.MathUtils.smoothstep(1 - dist / 0.06, 0, 1);
             if (blendT > 0.01) {
-                lookTarget.lerp(billboardTarget, blendT * 0.65);
+                lookTarget.lerp(billboardTarget, blendT * 0.92);
             }
         }
 

@@ -386,7 +386,7 @@ export class World {
         const right = new THREE.Vector3().crossVectors(tangent, radialUp).normalize();
 
         // Offset position: billboard placed beside road, close enough to fill frame
-        const offsetDist = 7;
+        const offsetDist = 5;
         const offsetPt = pathPt.clone().addScaledVector(right, side * offsetDist);
 
         // Project back onto sphere surface
@@ -402,8 +402,8 @@ export class World {
         const color = new THREE.Color(section.color || 0x0099e6);
 
         // ---- FLAT SECTION-SURFACE BILLBOARD ----
-        const boardW = 11;
-        const boardH = 7;
+        const boardW = 14;
+        const boardH = 10;
 
         const boardMat = new THREE.MeshStandardMaterial({
             color: 0xf5f0e8,
@@ -414,7 +414,7 @@ export class World {
         });
         const boardGeo = new THREE.BoxGeometry(boardW, boardH, 0.5);
         const board = new THREE.Mesh(boardGeo, boardMat);
-        board.position.set(0, 6.2, 0.1);
+        board.position.set(0, 7.0, 0.1);
         board.receiveShadow = true;
         board.castShadow = true;
         group.add(board);
@@ -424,20 +424,21 @@ export class World {
             roughness: 0.62,
             metalness: 0.2
         });
-        const frameTop = new THREE.Mesh(new THREE.BoxGeometry(boardW + 0.5, 0.3, 0.3), frameMat);
-        frameTop.position.set(0, 9.85, 0.1);
+        // Frame edges: board center Y=7, half-height=5 → top=12, bottom=2
+        const frameTop = new THREE.Mesh(new THREE.BoxGeometry(boardW + 0.5, 0.35, 0.35), frameMat);
+        frameTop.position.set(0, 12.2, 0.1);
         group.add(frameTop);
 
-        const frameBottom = new THREE.Mesh(new THREE.BoxGeometry(boardW + 0.5, 0.3, 0.3), frameMat);
-        frameBottom.position.set(0, 2.55, 0.1);
+        const frameBottom = new THREE.Mesh(new THREE.BoxGeometry(boardW + 0.5, 0.35, 0.35), frameMat);
+        frameBottom.position.set(0, 1.8, 0.1);
         group.add(frameBottom);
 
-        const frameLeft = new THREE.Mesh(new THREE.BoxGeometry(0.3, boardH + 0.3, 0.3), frameMat);
-        frameLeft.position.set(-(boardW / 2 + 0.1), 6.2, 0.1);
+        const frameLeft = new THREE.Mesh(new THREE.BoxGeometry(0.35, boardH + 0.35, 0.35), frameMat);
+        frameLeft.position.set(-(boardW / 2 + 0.15), 7.0, 0.1);
         group.add(frameLeft);
 
-        const frameRight = new THREE.Mesh(new THREE.BoxGeometry(0.3, boardH + 0.3, 0.3), frameMat);
-        frameRight.position.set(boardW / 2 + 0.1, 6.2, 0.1);
+        const frameRight = new THREE.Mesh(new THREE.BoxGeometry(0.35, boardH + 0.35, 0.35), frameMat);
+        frameRight.position.set(boardW / 2 + 0.15, 7.0, 0.1);
         group.add(frameRight);
 
         const accent = new THREE.Mesh(
@@ -450,11 +451,11 @@ export class World {
                 metalness: 0.45
             })
         );
-        accent.position.set(0, 8.7, 0.13);
+        accent.position.set(0, 11.2, 0.13);
         group.add(accent);
 
-        const glow = new THREE.PointLight(color, 0.65, 18);
-        glow.position.set(0, 6.6, 2.7);
+        const glow = new THREE.PointLight(color, 0.65, 22);
+        glow.position.set(0, 7.0, 3.5);
         group.add(glow);
 
         // Support posts — legs anchoring billboard to the ground
@@ -463,14 +464,14 @@ export class World {
             roughness: 0.75,
             metalness: 0.15
         });
-        const postGeo = new THREE.CylinderGeometry(0.18, 0.22, 6, 8);
+        const postGeo = new THREE.CylinderGeometry(0.2, 0.26, 7, 8);
         const leftPost = new THREE.Mesh(postGeo, postMat);
-        leftPost.position.set(-(boardW / 2 - 0.5), 0, 0);
+        leftPost.position.set(-(boardW / 2 - 0.5), -1.5, 0);
         leftPost.castShadow = true;
         group.add(leftPost);
 
         const rightPost = new THREE.Mesh(postGeo, postMat);
-        rightPost.position.set(boardW / 2 - 0.5, 0, 0);
+        rightPost.position.set(boardW / 2 - 0.5, -1.5, 0);
         rightPost.castShadow = true;
         group.add(rightPost);
 
@@ -779,10 +780,15 @@ export class World {
         }
     }
 
-    // Get billboard world position for camera look-at blending
+    // Get billboard BOARD FACE CENTER in world space for camera look-at blending
     getBillboardPosition(sectionId) {
         const portal = this.portalMeshes.find(p => p.sectionId === sectionId);
-        return portal ? portal.group.position.clone() : null;
+        if (!portal || !portal.board) return null;
+        // Return the world-space center of the board face, not the group anchor
+        portal.board.updateWorldMatrix(true, false);
+        const center = new THREE.Vector3(0, 0, 0.35);
+        center.applyMatrix4(portal.board.matrixWorld);
+        return center;
     }
 
     // Get the 4 world-space corners of a billboard's board face
@@ -794,9 +800,9 @@ export class World {
         const board = portal.board;
         const group = portal.group;
 
-        // Board local dimensions: 11 wide x 7 tall, positioned at (0, 6.2, 0.35)
-        const hw = 11 / 2;  // half width
-        const hh = 7 / 2;   // half height
+        // Board local dimensions: 14 wide x 10 tall, positioned at (0, 7.0, 0.35)
+        const hw = 14 / 2;  // half width
+        const hh = 10 / 2;  // half height
 
         // Local-space corner positions on the FRONT face of the board
         const corners = [
@@ -881,7 +887,7 @@ export class World {
                 const d = portal.group.position.distanceTo(cameraPos);
                 const nearT = THREE.MathUtils.clamp((80 - d) / 55, 0, 1);
                 const targetZ = portal._isActive ? 0.08 : THREE.MathUtils.lerp(0.55, 0.15, nearT);
-                const targetXY = portal._isActive ? 1.05 : THREE.MathUtils.lerp(1.0, 1.04, nearT);
+                const targetXY = portal._isActive ? 1.08 : THREE.MathUtils.lerp(1.0, 1.04, nearT);
 
                 // Smoothly face camera as user approaches (not only when active)
                 const faceBlend = portal._isActive ? 1 : THREE.MathUtils.smoothstep(nearT, 0.12, 0.95);
@@ -895,7 +901,9 @@ export class World {
                 const targetQuat = portal.baseQuaternion
                     ? portal.baseQuaternion.clone().slerp(camFacingRef.quaternion, faceBlend)
                     : camFacingRef.quaternion;
-                portal.group.quaternion.slerp(targetQuat, 0.3);
+                // Faster rotation when active so billboard faces user squarely
+                const slerpRate = portal._isActive ? 0.6 : 0.3;
+                portal.group.quaternion.slerp(targetQuat, slerpRate);
 
                 portal.group.scale.x += (targetXY - portal.group.scale.x) * 0.12;
                 portal.group.scale.y += (targetXY - portal.group.scale.y) * 0.12;
