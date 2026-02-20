@@ -533,9 +533,10 @@ class App {
     }
 
     // ---- Position HTML panel to match billboard screen projection ----
-    // Uses CSS transform: scale() so content renders at its natural design
-    // width (720–1200 px) then shrinks uniformly to fit the billboard rect.
-    // Scrolling inside panel-scrollable still works at the virtual size.
+    // ---- Position HTML panel to match billboard screen projection ----
+    // Fluid fill: panel becomes the billboard rect clipping viewport.
+    // .billboard-active on panel-inner triggers compact CSS without transform tricks.
+    // No transform:scale so layout === visual bounds → no invisible pointer-event tiles.
     _positionPanelOnBillboard(sectionId) {
         const panel = document.querySelector(`.section-panel[data-section="${sectionId}"]`);
         if (!panel) return;
@@ -546,7 +547,6 @@ class App {
         const w = window.innerWidth;
         const h = window.innerHeight;
 
-        // Project each corner to screen coordinates
         const project = (worldPt) => {
             const v = worldPt.clone().project(this.camera);
             return {
@@ -558,86 +558,68 @@ class App {
 
         const pts = [corners.topLeft, corners.topRight, corners.bottomLeft, corners.bottomRight].map(project);
 
-        // Billboard behind camera — don't reposition
+        // Billboard behind camera — bail out
         if (pts.some(p => p.z > 1)) return;
 
-        // Compute screen-space bounding rect of the projected quad
+        // Bounding rect of projected quad
         let left   = Math.min(...pts.map(p => p.x));
         let right  = Math.max(...pts.map(p => p.x));
         let top    = Math.min(...pts.map(p => p.y));
         let bottom = Math.max(...pts.map(p => p.y));
 
-        // Clamp to viewport with margin for navbar
-        const navH = 50;
+        // Clamp to viewport (reserve top for navbar — now .85rem padding so ~56px)
+        const navH = 56;
         left   = Math.max(4, left);
-        top    = Math.max(navH, top);
+        top    = Math.max(navH + 2, top);
         right  = Math.min(w - 4, right);
         bottom = Math.min(h - 4, bottom);
 
         const rectW = right - left;
         const rectH = bottom - top;
 
-        // Only apply billboard positioning when billboard is large enough on screen
-        const minSize = 80;
-        if (rectW < minSize || rectH < minSize) {
+        // Billboard too small on screen — use default centred layout
+        if (rectW < 80 || rectH < 80) {
             panel.style.cssText = '';
+            const pi = panel.querySelector('.panel-inner');
+            if (pi) { pi.style.cssText = ''; pi.classList.remove('billboard-active'); }
             return;
         }
 
-        // Small inset from billboard frame edges
-        const pad = Math.min(rectW, rectH) * 0.03;
-        const bbL = left + pad;
-        const bbT = top + pad;
+        // Small inset so content sits inside the 3D frame edges
+        const pad = Math.min(rectW, rectH) * 0.025;
+        const bbL = left  + pad;
+        const bbT = top   + pad;
         const bbW = rectW - pad * 2;
         const bbH = rectH - pad * 2;
 
-        const inner = panel.querySelector('.panel-inner');
-        if (!inner) return;
-
-        // Deterministic design width — matches the CSS class max-widths.
-        // Using slightly smaller values (buffer for padding) avoids scroll on first frame.
-        // directing / network / clientele → 860 (CSS: 900)
-        // all others → 680 (CSS: 720 for panel-right/left, those are the majority)
-        const wideIds = ['directing', 'network', 'clientele'];
-        const designW = wideIds.includes(sectionId) ? 860 : 680;
-
-        // Scale factor: shrink content to fit billboard width (cap at 1×)
-        const scale = Math.min(bbW / designW, 1.0);
-
-        // Virtual height: how tall the inner must be (in design px) so that
-        // when scaled it exactly fills the billboard height
-        const virtualH = bbH / Math.max(scale, 0.05);
-
-        // Horizontal offset to center content when scale is capped at 1
-        const xOff = (bbW - designW * scale) / 2;
-
-        // Panel = clipping viewport positioned at the billboard rect.
-        // display:block overrides the default flex so the inner sits at top-left,
-        // giving transform-origin:top-left a deterministic anchor.
+        // Panel = clipping viewport locked to billboard rect.
+        // z-index 998: above canvas(0) and below scroll-progress(999) and navbar(1000).
         panel.style.cssText = `
             position: fixed; inset: auto;
             left: ${bbL}px; top: ${bbT}px;
             width: ${bbW}px; height: ${bbH}px;
-            display: block;
+            display: flex; flex-direction: column; align-items: stretch;
             overflow: hidden; padding: 0;
-            z-index: 15; opacity: 1; visibility: visible;
+            z-index: 998; opacity: 1; visibility: visible;
             pointer-events: auto;
         `;
 
-        // Inner renders at design width, then CSS-transform scales it down to fit.
-        // translate(xOff, 0) centres horizontally when content is narrower than panel.
-        // transform-origin:top left so the scale anchor matches the translation.
-        inner.style.width           = designW + 'px';
-        inner.style.height          = virtualH + 'px';
-        inner.style.maxWidth        = 'none';
-        inner.style.maxHeight       = 'none';
-        inner.style.transform       = `translate(${xOff}px, 0) scale(${scale})`;
-        inner.style.transformOrigin = 'top left';
-        inner.style.borderRadius    = '4px';
-        inner.style.boxSizing       = 'border-box';
-        inner.style.overflow        = 'hidden';   // panel-scrollable handles scroll
+        const inner = panel.querySelector('.panel-inner');
+        if (!inner) return;
 
-        // Ensure scrollable area fills remaining flex space & scrolls
+        // Fluid fill — inner matches panel exactly.
+        // .billboard-active in CSS handles compact padding/font sizes.
+        inner.classList.add('billboard-active');
+        inner.style.width      = '100%';
+        inner.style.height     = '100%';
+        inner.style.maxWidth   = 'none';
+        inner.style.maxHeight  = 'none';
+        inner.style.overflow   = 'hidden';
+        inner.style.boxSizing  = 'border-box';
+        inner.style.transform  = 'none';
+        inner.style.borderRadius = '0';
+
+        // panel-scrollable: fill remaining vertical space and scroll
         const scrollable = panel.querySelector('.panel-scrollable');
         if (scrollable) {
             scrollable.style.overflowY = 'auto';
@@ -646,13 +628,13 @@ class App {
         }
     }
 
-    // Reset panel positioning when leaving a section
+    // Reset all inline styles when leaving a section
     _resetPanelPosition(sectionId) {
         const panel = document.querySelector(`.section-panel[data-section="${sectionId}"]`);
         if (!panel) return;
         panel.style.cssText = '';
         const inner = panel.querySelector('.panel-inner');
-        if (inner) inner.style.cssText = '';
+        if (inner) { inner.style.cssText = ''; inner.classList.remove('billboard-active'); }
         const scrollable = panel.querySelector('.panel-scrollable');
         if (scrollable) scrollable.style.cssText = '';
     }

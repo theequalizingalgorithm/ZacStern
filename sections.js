@@ -73,7 +73,7 @@ export class SectionManager {
             // Clear ALL billboard-projection inline styles
             prevPanel.style.cssText = '';
             const prevInner = prevPanel.querySelector('.panel-inner');
-            if (prevInner) prevInner.style.cssText = '';
+            if (prevInner) { prevInner.style.cssText = ''; prevInner.classList.remove('billboard-active'); }
             const prevScroll = prevPanel.querySelector('.panel-scrollable');
             if (prevScroll) prevScroll.style.cssText = '';
             setTimeout(() => {
@@ -102,7 +102,7 @@ export class SectionManager {
             // Clear ALL billboard-projection inline styles
             panel.style.cssText = '';
             const inner = panel.querySelector('.panel-inner');
-            if (inner) inner.style.cssText = '';
+            if (inner) { inner.style.cssText = ''; inner.classList.remove('billboard-active'); }
             const scroll = panel.querySelector('.panel-scrollable');
             if (scroll) scroll.style.cssText = '';
             setTimeout(() => {

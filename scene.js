@@ -915,8 +915,9 @@ export class World {
 
                 // Fade board face when active so HTML panel replaces it
                 if (portal.board && portal.board.material) {
-                    const targetOpacity = portal._isActive ? 0.15 : 1.0;
-                    portal.board.material.opacity += (targetOpacity - portal.board.material.opacity) * 0.1;
+                    // Fade to 0 so the 3D board fully disappears behind the HTML panel
+                    const targetOpacity = portal._isActive ? 0.0 : 1.0;
+                    portal.board.material.opacity += (targetOpacity - portal.board.material.opacity) * 0.12;
                 }
             }
         }
