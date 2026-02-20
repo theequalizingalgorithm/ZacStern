@@ -328,12 +328,25 @@ function initScrollButtons() {
         const rightBtn = wrap.querySelector('.scroll-right');
         if (!row) return;
 
-        // Scroll amount: half the visible width so it advances by one "page"
+        // Arrow button click → scroll by half the visible width
         const getScrollAmt = () => Math.max(200, row.clientWidth * 0.5);
-        if (leftBtn) leftBtn.addEventListener('click', () => row.scrollBy({ left: -getScrollAmt(), behavior: 'smooth' }));
-        if (rightBtn) rightBtn.addEventListener('click', () => row.scrollBy({ left: getScrollAmt(), behavior: 'smooth' }));
 
-        // Desktop wheel: force horizontal scroll while over row
+        if (leftBtn) {
+            leftBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                row.scrollLeft -= getScrollAmt();
+            });
+            leftBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+        }
+        if (rightBtn) {
+            rightBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                row.scrollLeft += getScrollAmt();
+            });
+            rightBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+        }
+
+        // Desktop wheel → horizontal scroll on row
         row.addEventListener('wheel', (e) => {
             if (Math.abs(e.deltaY) >= Math.abs(e.deltaX)) {
                 e.preventDefault();
@@ -342,51 +355,47 @@ function initScrollButtons() {
             }
         }, { passive: false });
 
-        // Drag-to-scroll (pointer) with click-safe threshold
-        let isDragging = false, startX = 0, scrollLeft = 0;
-        let wasDragged = false;
+        // Drag-to-scroll with a simple isClick guard
+        let dragging = false, startX = 0, sl = 0, moved = false;
 
-        function suppressClick(e) {
-            e.stopPropagation();
-            e.preventDefault();
-        }
-
-        row.addEventListener('pointerdown', (e) => {
+        row.addEventListener('mousedown', (e) => {
             if (e.button !== 0) return;
-            if (e.target.closest('.scroll-btn')) return;
-
-            isDragging = true;
-            wasDragged = false;
+            dragging = true;
+            moved = false;
             startX = e.pageX;
-            scrollLeft = row.scrollLeft;
-        });
-        row.addEventListener('pointerleave', () => { isDragging = false; wasDragged = false; });
-        row.addEventListener('pointerup', () => {
-            isDragging = false;
-            if (wasDragged) {
-                // Suppress the next click (fires after pointerup) to prevent
-                // opening a modal when the user was dragging
-                row.addEventListener('click', suppressClick, { capture: true, once: true });
-            }
-            wasDragged = false;
-        });
-        row.addEventListener('pointermove', (e) => {
-            if (!isDragging) return;
-            const dx = e.pageX - startX;
-            if (!wasDragged && Math.abs(dx) < 8) return;
-            wasDragged = true;
-            e.preventDefault();
-            const walk = dx * 1.5;
-            row.scrollLeft = scrollLeft - walk;
+            sl = row.scrollLeft;
+            row.style.scrollBehavior = 'auto';
+            row.style.cursor = 'grabbing';
+            row.style.userSelect = 'none';
         });
 
-        // Avoid native image/link dragging interfering with row dragging
-        row.querySelectorAll('img').forEach(img => {
-            img.setAttribute('draggable', 'false');
+        window.addEventListener('mousemove', (e) => {
+            if (!dragging) return;
+            const dx = e.pageX - startX;
+            if (!moved && Math.abs(dx) < 6) return;
+            moved = true;
+            row.scrollLeft = sl - dx;
         });
-        row.querySelectorAll('a').forEach(a => {
-            a.setAttribute('draggable', 'false');
+
+        window.addEventListener('mouseup', () => {
+            if (!dragging) return;
+            dragging = false;
+            row.style.scrollBehavior = '';
+            row.style.cursor = '';
+            row.style.userSelect = '';
         });
+
+        // After a drag, suppress the click so it doesn't open a modal
+        row.addEventListener('click', (e) => {
+            if (moved) {
+                e.stopImmediatePropagation();
+                moved = false;
+            }
+        }, true);
+
+        // Prevent native image dragging
+        row.querySelectorAll('img').forEach(img => img.setAttribute('draggable', 'false'));
+        row.querySelectorAll('a').forEach(a => a.setAttribute('draggable', 'false'));
     });
 }
 
@@ -675,32 +684,11 @@ function initModal() {
         document.body.style.overflow = '';
     }
 
-    // Bind click directly to every card with data-video-src
-    function bindCardClicks() {
-        document.querySelectorAll('[data-video-src]').forEach(card => {
-            if (card._modalBound) return;
-            card._modalBound = true;
-            card.style.cursor = 'pointer';
-            card.addEventListener('click', (e) => {
-                const src = card.dataset.videoSrc;
-                if (!src) return;
-                const orient = card.dataset.orientation === 'vertical' ? 'vertical' : 'horizontal';
-                e.preventDefault();
-                e.stopPropagation();
-                openModal(src, orient);
-            });
-        });
-    }
-
-    // Bind immediately and also after a short delay (for async renders)
-    bindCardClicks();
-    setTimeout(bindCardClicks, 500);
-    setTimeout(bindCardClicks, 2000);
-
-    // Also keep document-level delegation as fallback
+    // Single document-level delegation – works for all cards regardless of
+    // when they were injected into the DOM.  No per-card binding needed.
     document.addEventListener('click', e => {
         const card = e.target.closest('[data-video-src]');
-        if (!card || card._modalBound) return;
+        if (!card) return;
         const src = card.dataset.videoSrc;
         if (!src) return;
         const orient = card.dataset.orientation === 'vertical' ? 'vertical' : 'horizontal';

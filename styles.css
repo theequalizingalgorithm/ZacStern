@@ -13,7 +13,7 @@ html{scroll-behavior:smooth}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;color:var(--text);line-height:1.6;overflow-x:hidden;min-height:100vh}
 
 /* ===== THREE.JS CANVAS ===== */
-#worldCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;display:block}
+#worldCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;display:block;pointer-events:none}
 
 /* ===== SCROLL SPACER ===== */
 #scrollSpacer{position:relative;z-index:-1;pointer-events:none}
@@ -28,7 +28,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 /* ===== UI OVERLAY CONTAINER ===== */
 #uiOverlay{position:fixed;inset:0;z-index:10;pointer-events:none}
 #uiOverlay > .navbar,
-#uiOverlay > .scroll-progress{pointer-events:auto}
+#uiOverlay > .scroll-progress,
+#uiOverlay > .section-panel.active{pointer-events:auto}
 
 /* ===== ANIMATIONS ===== */
 @keyframes fadeUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
@@ -39,11 +40,11 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 @keyframes borderGlow{0%,100%{border-color:rgba(0,153,230,.3)}50%{border-color:rgba(0,153,230,.8)}}
 @keyframes bubbleShimmer{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-@keyframes panelEnter{from{opacity:0;transform:translateY(30px) scale(0.96)}to{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes panelExit{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-20px) scale(0.97)}}
+@keyframes panelEnter{from{opacity:0}to{opacity:1}}
+@keyframes panelExit{from{opacity:1}to{opacity:0}}
 
 /* ===== SECTION OVERLAY PANELS ===== */
-.section-panel{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s cubic-bezier(.22,1,.36,1);padding:60px 20px 20px}
+.section-panel{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s cubic-bezier(.22,1,.36,1);padding:60px 20px 20px}
 
 /* Billboard-flush: panels centered, matching billboard face */
 .section-panel.panel-right{justify-content:center}
@@ -59,8 +60,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .section-panel.panel-right,.section-panel.panel-left{justify-content:center;padding-left:2px;padding-right:2px}
 .section-panel.panel-right .panel-inner,.section-panel.panel-left .panel-inner{max-width:100%}}
 
-.section-panel.active{opacity:1;pointer-events:auto;animation:panelEnter .5s cubic-bezier(.22,1,.36,1) both}
-.section-panel.exiting{opacity:0;pointer-events:none;animation:panelExit .4s cubic-bezier(.22,1,.36,1) both}
+.section-panel.active{opacity:1;pointer-events:auto;animation:panelEnter .4s ease both}
+.section-panel.exiting{opacity:0;pointer-events:none;animation:panelExit .3s ease both}
 
 .panel-inner{background:rgba(250,244,232,0.95);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);border-radius:6px;border:4px solid #8b7355;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 0 0 1px rgba(139,115,85,.4);max-width:1200px;width:100%;max-height:calc(100vh - 100px);padding:1.2rem 1.4rem;position:relative;pointer-events:auto}
 
