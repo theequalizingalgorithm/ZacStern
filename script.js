@@ -344,24 +344,34 @@ function initScrollButtons() {
 
         // Drag-to-scroll (pointer)
         let isDragging = false, startX = 0, scrollLeft = 0;
+        let dragActivated = false;
         row.addEventListener('pointerdown', (e) => {
             if (e.button !== 0) return;
+
+            // Let cards/buttons/icons receive normal clicks
+            if (e.target.closest('.video-card, .featured-card, .scroll-btn, a, button, .play-overlay')) {
+                return;
+            }
+
             isDragging = true;
+            dragActivated = false;
             row.classList.add('dragging');
             startX = e.pageX;
             scrollLeft = row.scrollLeft;
-            row.setPointerCapture?.(e.pointerId);
         });
         row.addEventListener('pointerleave', () => { isDragging = false; row.classList.remove('dragging'); });
-        row.addEventListener('pointerup', (e) => {
+        row.addEventListener('pointerup', () => {
             isDragging = false;
+            dragActivated = false;
             row.classList.remove('dragging');
-            row.releasePointerCapture?.(e.pointerId);
         });
         row.addEventListener('pointermove', (e) => {
             if (!isDragging) return;
+            const dx = e.pageX - startX;
+            if (!dragActivated && Math.abs(dx) < 6) return;
+            dragActivated = true;
             e.preventDefault();
-            const walk = (e.pageX - startX) * 1.5;
+            const walk = dx * 1.5;
             row.scrollLeft = scrollLeft - walk;
         });
 
