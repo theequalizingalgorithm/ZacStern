@@ -371,10 +371,11 @@ export class World {
 
         for (let idx = 0; idx < this.sectionPositions.length; idx++) {
             const section = this.sectionPositions[idx];
-            // Alternate landmarks left/right of the road
             const side = (idx % 2 === 0) ? 1 : -1;
             const landmark = this.createLandmark(section, side, R);
             this.worldGroup.add(landmark.group);
+            // Store base position after final placement for float animation
+            landmark.group.userData.basePos = landmark.group.position.clone();
             this.portalMeshes.push(landmark);
             if (landmark.spinning) this.landmarkMeshes.push(landmark.spinning);
         }
@@ -383,105 +384,111 @@ export class World {
     createLandmark(section, side, R) {
         const group = new THREE.Group();
 
-        // Billboard sits on the vertical Y-Z ring, offset left/right of road.
-        // Rotation +theta around X brings this billboard to world
-        //   (side * OFFSET, 0, R+DIST) — beside the road, directly facing camera.
-        const theta   = section.theta ?? (section.pathT * Math.PI * 2);
-        const OFFSET  = 14;   // lateral distance from road centre-line
-        const DIST    = 2.5;  // how far above sphere surface
-        const xOff    = side * OFFSET;
+        // Place on the vertical Y-Z ring, offset left/right of road centre.
+        // worldGroup.rotation.x = +theta brings this to (xOff, 0, R+DIST)
+        // directly facing the camera.
+        const theta  = section.theta ?? (section.pathT * Math.PI * 2);
+        const OFFSET = 12;  // lateral offset from road
+        const DIST   = 6;   // radial float height above sphere surface
         group.position.set(
-            xOff,
+            side * OFFSET,
             Math.sin(theta) * (R + DIST),
             Math.cos(theta) * (R + DIST)
         );
 
-        // Orientation so the board appears upright when facing the camera:
-        //   up    = tangent along vertical ring at this theta = (0, cos θ, −sin θ)
-        //           → after worldGroup.rotation.x = +θ this becomes world (0,1,0)
-        //   lookAt origin → local +Z points radially outward
+        // Tangent-up so board appears upright after X-rotation
         group.up.set(0, Math.cos(theta), -Math.sin(theta));
         group.lookAt(0, 0, 0);
 
+        // Store float phase for idle hover animation
+        group.userData.floatPhase = Math.random() * Math.PI * 2;
+
         const color = new THREE.Color(section.color || 0x0099e6);
 
-        // ---- FLAT SECTION-SURFACE BILLBOARD ----
-        // 20×14 world units — large enough for HTML panel to fill most of frame
+        // ── GLASS PANEL (board) ──────────────────────────────────────────────
+        // boardW=20, boardH=14, board at (0,7,0.1) — dimensions MUST stay the
+        // same; getBillboardCorners() reads them for HTML panel projection.
         const boardW = 20;
         const boardH = 14;
 
-        const boardMat = new THREE.MeshStandardMaterial({
-            color: 0xf5f0e8,
-            roughness: 0.55,
-            metalness: 0.03,
+        const boardMat = new THREE.MeshPhysicalMaterial({
+            color: 0xd8f0ff,
+            emissive: new THREE.Color(0x88ccff),
+            emissiveIntensity: 0.06,
+            roughness: 0.04,
+            metalness: 0.0,
+            transmission: 0.55,   // frosted glass transmission
+            thickness: 0.2,
+            ior: 1.4,
             transparent: true,
-            opacity: 1.0
+            opacity: 0.82,
+            side: THREE.FrontSide,
+            depthWrite: false
         });
-        const boardGeo = new THREE.BoxGeometry(boardW, boardH, 0.5);
+        const boardGeo = new THREE.BoxGeometry(boardW, boardH, 0.18);
         const board = new THREE.Mesh(boardGeo, boardMat);
-        // Board center Y=7: bottom at Y=0, top at Y=14
-        // Camera jibs to R+9.5 when active, aligning with board center
         board.position.set(0, 7.0, 0.1);
-        board.receiveShadow = true;
-        board.castShadow = true;
         group.add(board);
 
-        const frameMat = new THREE.MeshStandardMaterial({
-            color: 0x8b7355,
-            roughness: 0.62,
-            metalness: 0.2
+        // ── GLOWING EDGE FRAME ───────────────────────────────────────────────
+        const edgeMat = new THREE.MeshStandardMaterial({
+            color,
+            emissive: color,
+            emissiveIntensity: 1.2,
+            roughness: 0.1,
+            metalness: 0.6,
+            transparent: true,
+            opacity: 0.9
         });
-        // Frame edges: board center Y=7, half-height=7 → top=14, bottom=0
-        const frameTop = new THREE.Mesh(new THREE.BoxGeometry(boardW + 0.5, 0.4, 0.4), frameMat);
-        frameTop.position.set(0, 14.2, 0.1);
-        group.add(frameTop);
+        const edgeT = 0.22;   // edge bar thickness
+        const edgeD = 0.28;   // edge bar depth
+        // top / bottom / left / right bars
+        [
+            { s: [boardW + edgeT, edgeT, edgeD], p: [0, 14.0 + edgeT * 0.5, 0.14] },
+            { s: [boardW + edgeT, edgeT, edgeD], p: [0, 0    - edgeT * 0.5, 0.14] },
+            { s: [edgeT, boardH,              edgeD], p: [-(boardW / 2 + edgeT * 0.5), 7.0, 0.14] },
+            { s: [edgeT, boardH,              edgeD], p: [ (boardW / 2 + edgeT * 0.5), 7.0, 0.14] }
+        ].forEach(({ s, p }) => {
+            const bar = new THREE.Mesh(new THREE.BoxGeometry(...s), edgeMat);
+            bar.position.set(...p);
+            group.add(bar);
+        });
 
-        const frameBottom = new THREE.Mesh(new THREE.BoxGeometry(boardW + 0.5, 0.4, 0.4), frameMat);
-        frameBottom.position.set(0, -0.2, 0.1);
-        group.add(frameBottom);
+        // ── CORNER ACCENT SQUARES ─────────────────────────────────────────
+        const cornerMat = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            emissive: color,
+            emissiveIntensity: 2.0,
+            roughness: 0.0,
+            metalness: 1.0
+        });
+        const cornerSize = 0.55;
+        [[-1, 1], [1, 1], [-1, -1], [1, -1]].forEach(([sx, sy]) => {
+            const c = new THREE.Mesh(
+                new THREE.BoxGeometry(cornerSize, cornerSize, 0.4),
+                cornerMat
+            );
+            c.position.set(sx * (boardW / 2 + 0.1), sy > 0 ? 14.0 : 0.0, 0.2);
+            group.add(c);
+        });
 
-        const frameLeft = new THREE.Mesh(new THREE.BoxGeometry(0.4, boardH + 0.4, 0.4), frameMat);
-        frameLeft.position.set(-(boardW / 2 + 0.15), 7.0, 0.1);
-        group.add(frameLeft);
+        // ── INNER SCANLINE TINT STRIP ────────────────────────────────────────
+        const stripMat = new THREE.MeshStandardMaterial({
+            color,
+            emissive: color,
+            emissiveIntensity: 0.3,
+            transparent: true,
+            opacity: 0.18,
+            depthWrite: false
+        });
+        const strip = new THREE.Mesh(new THREE.BoxGeometry(boardW - 0.6, 0.9, 0.05), stripMat);
+        strip.position.set(0, 13.4, 0.22);
+        group.add(strip);
 
-        const frameRight = new THREE.Mesh(new THREE.BoxGeometry(0.4, boardH + 0.4, 0.4), frameMat);
-        frameRight.position.set(boardW / 2 + 0.15, 7.0, 0.1);
-        group.add(frameRight);
-
-        const accent = new THREE.Mesh(
-            new THREE.BoxGeometry(boardW - 0.5, 1.1, 0.28),
-            new THREE.MeshStandardMaterial({
-                color,
-                emissive: color,
-                emissiveIntensity: 0.18,
-                roughness: 0.28,
-                metalness: 0.5
-            })
-        );
-        // Accent bar just under the top frame
-        accent.position.set(0, 13.3, 0.14);
-        group.add(accent);
-
-        const glow = new THREE.PointLight(color, 0.8, 28);
-        glow.position.set(0, 7.0, 4.0);
+        // ── GLOW LIGHT ───────────────────────────────────────────────────────
+        const glow = new THREE.PointLight(color, 1.2, 32);
+        glow.position.set(0, 7.0, 5.0);
         group.add(glow);
-
-        // Single centre post — one leg planted in the ground below the board.
-        const postMat = new THREE.MeshStandardMaterial({
-            color: 0x6b5b45,
-            roughness: 0.75,
-            metalness: 0.15
-        });
-        // Post reaches from below board-bottom (Y=0) down to sphere surface.
-        // Height 10 covers typical gap; sphere surface is ~DIST units below.
-        const postGeo = new THREE.CylinderGeometry(0.32, 0.42, 10, 10);
-        const post = new THREE.Mesh(postGeo, postMat);
-        post.position.set(0, -5, 0);  // centre of post at Y=-5 (bottom of board is Y=0)
-        post.castShadow = true;
-        group.add(post);
-
-        // Default scale (Z slightly compressed for depth perception at idle)
-        group.scale.set(1, 1, 0.55);
 
         return {
             group,
@@ -491,9 +498,7 @@ export class World {
             board,
             baseQuaternion: group.quaternion.clone()
         };
-    }
-
-    _createThemedObject(sectionId, color) {
+    }(sectionId, color) {
         const mat = new THREE.MeshPhysicalMaterial({
             color: color,
             roughness: 0.12,
@@ -891,6 +896,24 @@ export class World {
         // Animate landmarks — gentle rotation
         for (const lm of this.landmarkMeshes) {
             if (lm) lm.rotation.y += deltaTime * 0.3;
+        }
+
+        // Float-hover animation for billboard windows
+        for (const portal of this.portalMeshes) {
+            if (!portal?.group) continue;
+            const phase = portal.group.userData.floatPhase ?? 0;
+            const base  = portal.group.userData.basePos;
+            if (base) {
+                // Gently nudge along local up direction (small sin wave)
+                const t   = this.time * 0.55 + phase;
+                const bob = Math.sin(t) * 0.55;
+                const up  = new THREE.Vector3(0, 1, 0).applyQuaternion(portal.group.quaternion);
+                portal.group.position.set(
+                    base.x + up.x * bob,
+                    base.y + up.y * bob,
+                    base.z + up.z * bob
+                );
+            }
         }
 
         // Animate floating bubbles
