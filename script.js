@@ -348,9 +348,7 @@ function initScrollButtons() {
         let suppressClick = false;
         row.addEventListener('pointerdown', (e) => {
             if (e.button !== 0) return;
-            if (e.target.closest('.scroll-btn, button')) {
-                return;
-            }
+            if (e.target.closest('.video-card, .featured-card, a, .play-overlay, .thumb-wrap, img, .scroll-btn, button')) return;
 
             isDragging = true;
             dragActivated = false;
@@ -436,8 +434,9 @@ function buildFeaturedCard(item) {
 
     // YouTube videos open in modal; others open externally
     if (ytId) {
+        const videoSrc = `https://www.youtube.com/embed/${ytId}?autoplay=1&playsinline=1&rel=0`;
         return `
-        <div class="featured-card" data-yt-id="${ytId}" style="cursor:pointer">
+        <div class="featured-card" data-yt-id="${ytId}" data-video-src="${videoSrc}" data-orientation="horizontal" style="cursor:pointer">
             <div class="thumb-wrap">
                 ${thumbHtml}
                 <div class="play-overlay"><i class="fas fa-play-circle"></i></div>
@@ -488,8 +487,11 @@ function createHorizontalCard(item) {
         : `https://lh3.googleusercontent.com/d/${thumbId}=w640`;
     const thumbClass = (typeof item === 'object' && item.thumbContain) ? 'thumb logo-thumb' : 'thumb';
     const dataAttr = isYT ? `data-yt-id="${id}"` : `data-id="${id}"`;
+    const videoSrc = isYT
+        ? `https://www.youtube.com/embed/${id}?autoplay=1&playsinline=1&rel=0`
+        : `https://drive.google.com/file/d/${id}/preview?autoplay=1`;
     return `
-        <div class="video-card horizontal h-scroll-card" ${dataAttr} data-orientation="horizontal">
+        <div class="video-card horizontal h-scroll-card" ${dataAttr} data-video-src="${videoSrc}" data-orientation="horizontal">
             <div class="thumb-wrap">
                 <img class="${thumbClass}" src="${thumbUrl}" alt="${title}" loading="lazy"
                      onerror="if(!this.dataset.retry){this.dataset.retry='1';this.src='${fallbackUrl}'}else{this.outerHTML='<div class=\\'thumb-placeholder\\'><i class=\\'fas fa-video\\'></i><span>${title}</span></div>'}">
@@ -548,8 +550,9 @@ function createVideoCard(item, orientation) {
     const title = typeof item === 'string' ? '' : (item.title || '');
     const thumbUrl = `https://drive.google.com/thumbnail?id=${id}&sz=w800`;
     const fallbackUrl = `https://lh3.googleusercontent.com/d/${id}=w800`;
+    const videoSrc = `https://drive.google.com/file/d/${id}/preview?autoplay=1`;
     return `
-        <div class="video-card ${orientation}" data-id="${id}" data-orientation="${orientation}">
+        <div class="video-card ${orientation}" data-id="${id}" data-video-src="${videoSrc}" data-orientation="${orientation}">
             <div class="thumb-wrap">
                 <img class="thumb" src="${thumbUrl}" alt="${title}" loading="lazy"
                      onerror="if(!this.dataset.retry){this.dataset.retry='1';this.src='${fallbackUrl}'}else{this.outerHTML='<div class=\\'thumb-placeholder\\'><i class=\\'fas fa-video\\'></i><span>${title}</span></div>'}">
@@ -675,59 +678,17 @@ function initModal() {
         document.body.style.overflow = 'hidden';
     }
 
-    function openFromCard(card) {
-        if (!card) return false;
-
-        const ytId = card.dataset.ytId;
-        if (ytId) {
-            openModal(`https://www.youtube.com/embed/${ytId}?autoplay=1&playsinline=1&rel=0`, 'horizontal');
-            return true;
-        }
-
-        const fileId = card.dataset.id;
-        if (fileId) {
-            const orient = card.dataset.orientation === 'vertical' ? 'vertical' : 'horizontal';
-            openModal(`https://drive.google.com/file/d/${fileId}/preview?autoplay=1`, orient);
-            return true;
-        }
-
-        return false;
-    }
-
-    function bindVideoModalTargets() {
-        document.querySelectorAll('.video-card, .featured-card[data-yt-id]').forEach(card => {
-            if (card.dataset.modalBound === '1') return;
-            card.dataset.modalBound = '1';
-            card.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                openFromCard(card);
-            });
-        });
-    }
-
-    bindVideoModalTargets();
-
-    // Re-bind if cards are re-rendered
-    const observer = new MutationObserver(() => bindVideoModalTargets());
-    observer.observe(document.body, { childList: true, subtree: true });
-
     document.addEventListener('click', e => {
-        // YouTube featured cards — open in modal
-        const featuredCard = e.target.closest('.featured-card[data-yt-id]');
-        if (featuredCard) {
-            e.preventDefault();
-            e.stopPropagation();
-            openFromCard(featuredCard);
-            return;
-        }
-
-        // Drive video cards — open in modal (support both Drive and YouTube)
-        const card = e.target.closest('.video-card');
+        const card = e.target.closest('[data-video-src]');
         if (!card) return;
+
+        const src = card.dataset.videoSrc;
+        if (!src) return;
+
+        const orient = card.dataset.orientation === 'vertical' ? 'vertical' : 'horizontal';
         e.preventDefault();
         e.stopPropagation();
-        openFromCard(card);
+        openModal(src, orient);
     });
 
     function closeModal() {
