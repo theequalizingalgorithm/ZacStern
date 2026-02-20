@@ -799,12 +799,12 @@ export class World {
             for (const portal of this.portalMeshes) {
                 if (!portal?.group) continue;
                 const d = portal.group.position.distanceTo(cameraPos);
-                const nearT = THREE.MathUtils.clamp((28 - d) / 18, 0, 1);
+                const nearT = THREE.MathUtils.clamp((80 - d) / 55, 0, 1);
                 const targetZ = portal._isActive ? 0.05 : THREE.MathUtils.lerp(0.26, 0.09, nearT);
                 const targetXY = portal._isActive ? 1.05 : THREE.MathUtils.lerp(1.0, 1.03, nearT);
 
                 // Smoothly face camera as user approaches (not only when active)
-                const faceBlend = portal._isActive ? 1 : nearT;
+                const faceBlend = portal._isActive ? 1 : THREE.MathUtils.smoothstep(nearT, 0.12, 0.95);
                 const radialUp = portal.group.position.clone().normalize();
 
                 const camFacingRef = new THREE.Object3D();
@@ -815,7 +815,7 @@ export class World {
                 const targetQuat = portal.baseQuaternion
                     ? portal.baseQuaternion.clone().slerp(camFacingRef.quaternion, faceBlend)
                     : camFacingRef.quaternion;
-                portal.group.quaternion.slerp(targetQuat, 0.16);
+                portal.group.quaternion.slerp(targetQuat, 0.3);
 
                 portal.group.scale.x += (targetXY - portal.group.scale.x) * 0.12;
                 portal.group.scale.y += (targetXY - portal.group.scale.y) * 0.12;
