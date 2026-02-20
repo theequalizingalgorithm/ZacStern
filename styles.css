@@ -26,10 +26,11 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .loading-text{font-family:'Aerobics Regular','Segoe UI',sans-serif;font-size:1.2rem;color:#0077b6;letter-spacing:3px;text-transform:uppercase}
 
 /* ===== UI OVERLAY CONTAINER ===== */
-#uiOverlay{position:fixed;inset:0;z-index:10;pointer-events:none}
-#uiOverlay > .navbar,
-#uiOverlay > .scroll-progress,
-#uiOverlay > .section-panel.active{pointer-events:auto}
+/* Unstyled in 3D mode: children (navbar, panels, scroll-progress) each use
+   their own position:fixed + z-index in the ROOT stacking context.
+   This eliminates the pointer-events:none inheritance chain that broke
+   click-through on Safari/WebKit. Flat mode overrides to position:relative. */
+#uiOverlay{display:contents}
 
 /* ===== ANIMATIONS ===== */
 @keyframes fadeUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
@@ -44,7 +45,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 @keyframes panelExit{from{opacity:1}to{opacity:0}}
 
 /* ===== SECTION OVERLAY PANELS ===== */
-.section-panel{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s cubic-bezier(.22,1,.36,1);padding:60px 20px 20px}
+.section-panel{position:fixed;inset:0;z-index:15;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;pointer-events:none;padding:60px 20px 20px}
 
 /* Billboard-flush: panels centered, matching billboard face */
 .section-panel.panel-right{justify-content:center}
@@ -60,10 +61,10 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .section-panel.panel-right,.section-panel.panel-left{justify-content:center;padding-left:2px;padding-right:2px}
 .section-panel.panel-right .panel-inner,.section-panel.panel-left .panel-inner{max-width:100%}}
 
-.section-panel.active{opacity:1;pointer-events:auto;animation:panelEnter .4s ease both}
-.section-panel.exiting{opacity:0;pointer-events:none;animation:panelExit .3s ease both}
+.section-panel.active{opacity:1;visibility:visible;pointer-events:auto;animation:panelEnter .4s ease both}
+.section-panel.exiting{opacity:0;visibility:visible;pointer-events:none;animation:panelExit .3s ease both}
 
-.panel-inner{background:rgba(250,244,232,0.95);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);border-radius:6px;border:4px solid #8b7355;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 0 0 1px rgba(139,115,85,.4);max-width:1200px;width:100%;max-height:calc(100vh - 100px);padding:1.2rem 1.4rem;position:relative;pointer-events:auto}
+.panel-inner{background:rgba(250,244,232,0.88);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:6px;border:4px solid #8b7355;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 0 0 1px rgba(139,115,85,.4);max-width:1200px;width:100%;max-height:calc(100vh - 100px);padding:1.2rem 1.4rem;position:relative;pointer-events:auto}
 
 .panel-scrollable{overflow-y:auto;overflow-x:hidden;-ms-overflow-style:none;scrollbar-width:thin;scrollbar-color:rgba(0,153,230,.3) transparent}
 .panel-scrollable::-webkit-scrollbar{width:6px}
@@ -326,8 +327,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .flat-mode{background:linear-gradient(180deg,#87CEEB 0%,#b3e5fc 30%,#e1f5fe 60%,#c8e6c9 85%,#a5d6a7 100%);background-attachment:fixed}
 .flat-mode #worldCanvas{display:none!important}
 .flat-mode #scrollSpacer{display:none!important}
-.flat-mode #uiOverlay{position:relative;pointer-events:auto}
-.flat-mode .section-panel{position:relative;opacity:1;pointer-events:auto;padding:0;animation:none}
+.flat-mode #uiOverlay{display:block;position:relative;pointer-events:auto}
+.flat-mode .section-panel{position:relative;opacity:1;visibility:visible;pointer-events:auto;padding:0;animation:none;z-index:auto}
 .flat-mode .section-panel.flat-visible{display:block}
 .flat-mode .panel-inner{max-height:none;border-radius:0;border:none;box-shadow:none;background:transparent;backdrop-filter:none;padding:2.5rem 2rem}
 .flat-mode .section-panel[data-section="hero"] .panel-inner{background:linear-gradient(180deg,rgba(126,200,227,.4) 0%,rgba(168,216,234,.2) 100%)}

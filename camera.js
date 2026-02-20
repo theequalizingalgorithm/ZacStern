@@ -195,7 +195,7 @@ export class CameraController {
             const dist = Math.abs(this.currentT - this.activeSection.pathT);
             const blendT = THREE.MathUtils.smoothstep(1 - dist / 0.06, 0, 1);
             if (blendT > 0.01) {
-                lookTarget.lerp(billboardTarget, blendT * 0.4);
+                lookTarget.lerp(billboardTarget, blendT * 0.65);
             }
         }
 

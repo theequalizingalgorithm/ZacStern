@@ -692,10 +692,18 @@ function initModal() {
         const src = card.dataset.videoSrc;
         if (!src) return;
         const orient = card.dataset.orientation === 'vertical' ? 'vertical' : 'horizontal';
+        console.log('[Modal] Opening:', orient, src.substring(0, 60));
         e.preventDefault();
         e.stopPropagation();
         openModal(src, orient);
     });
+
+    // Global click diagnostic — helps trace click-delivery issues
+    document.addEventListener('click', e => {
+        const tag = e.target.tagName;
+        const cls = (e.target.className || '').toString().substring(0, 50);
+        console.log('[ClickAudit]', tag, cls, 'pointer-events:', getComputedStyle(e.target).pointerEvents);
+    }, true);
 
     closeBtn.addEventListener('click', closeModal);
     modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
