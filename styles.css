@@ -94,16 +94,22 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .nav-arrow:hover{background:linear-gradient(135deg,#0088cc,#00b4d8);color:#fff;border-color:transparent;box-shadow:0 4px 15px rgba(0,153,230,.4);transform:scale(1.1)}
 .nav-arrow:active{transform:scale(0.95)}
 
-/* Single forward arrow above dodecahedron */
-.nav-prev{display:none!important}
+/* Dual 3D arrows around dodecahedron */
+.nav-prev{order:-1;width:44px;height:44px;border:none;background:transparent;box-shadow:none;backdrop-filter:none;padding:0;margin-bottom:2px;position:relative;isolation:isolate;--arrow-size:28px;--arrow-depth:8px;transform-style:preserve-3d}
 .nav-next{order:-1;width:44px;height:44px;border:none;background:transparent;box-shadow:none;backdrop-filter:none;padding:0;margin-bottom:2px;position:relative;isolation:isolate;--arrow-size:28px;--arrow-depth:8px;transform-style:preserve-3d}
-.nav-next i{display:none}
+.nav-next i,.nav-prev i{display:none}
 .nav-next::before{content:'';position:absolute;left:50%;top:50%;width:var(--arrow-size);height:var(--arrow-size);clip-path:polygon(50% 0,100% 64%,72% 64%,72% 100%,28% 100%,28% 64%,0 64%);background:linear-gradient(180deg,#b9f3ff 0%,#54cfff 48%,#138bd4 100%);border:1px solid rgba(255,255,255,.78);box-shadow:0 0 16px rgba(0,180,216,.42),0 8px 14px rgba(0,0,0,.28);transform:translate(-50%,-58%) perspective(160px) rotateX(62deg) translateZ(2px)}
 .nav-next::after{content:'';position:absolute;left:50%;top:50%;width:calc(var(--arrow-size) * .72);height:var(--arrow-depth);clip-path:polygon(0 0,100% 0,88% 100%,12% 100%);background:linear-gradient(180deg,#0c6ca7 0%,#083a5e 100%);box-shadow:0 5px 12px rgba(0,0,0,.35);transform:translate(-50%,20%) perspective(140px) rotateX(62deg)}
+.nav-prev::before{content:'';position:absolute;left:50%;top:50%;width:var(--arrow-size);height:var(--arrow-size);clip-path:polygon(50% 0,100% 64%,72% 64%,72% 100%,28% 100%,28% 64%,0 64%);background:linear-gradient(180deg,#b9f3ff 0%,#54cfff 48%,#138bd4 100%);border:1px solid rgba(255,255,255,.78);box-shadow:0 0 16px rgba(0,180,216,.42),0 8px 14px rgba(0,0,0,.28);transform:translate(-50%,-58%) perspective(160px) rotateX(62deg) rotateZ(180deg) translateZ(2px)}
+.nav-prev::after{content:'';position:absolute;left:50%;top:50%;width:calc(var(--arrow-size) * .72);height:var(--arrow-depth);clip-path:polygon(0 0,100% 0,88% 100%,12% 100%);background:linear-gradient(180deg,#0c6ca7 0%,#083a5e 100%);box-shadow:0 5px 12px rgba(0,0,0,.35);transform:translate(-50%,20%) perspective(140px) rotateX(62deg) rotateZ(180deg)}
 .nav-next:hover{transform:translateY(-1px) scale(1.03);background:transparent;box-shadow:none}
 .nav-next:active{transform:translateY(1px)}
 .nav-next:hover::before{box-shadow:0 0 22px rgba(0,180,216,.58),0 10px 16px rgba(0,0,0,.32)}
 .nav-next:hover::after{box-shadow:0 7px 14px rgba(0,0,0,.42)}
+.nav-prev:hover{transform:translateY(-1px) scale(1.03);background:transparent;box-shadow:none}
+.nav-prev:active{transform:translateY(1px)}
+.nav-prev:hover::before{box-shadow:0 0 22px rgba(0,180,216,.58),0 10px 16px rgba(0,0,0,.32)}
+.nav-prev:hover::after{box-shadow:0 7px 14px rgba(0,0,0,.42)}
 
 /* Section Name Label */
 .section-name-label{font-family:'Aerobics Regular','Segoe UI',sans-serif;font-size:.6rem;color:#0077b6;text-transform:uppercase;letter-spacing:2px;white-space:nowrap;opacity:0;transition:opacity .3s ease;pointer-events:none;text-align:center;max-width:80px;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
@@ -165,7 +171,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .featured-section{padding:1rem 0;max-width:1400px;margin:0 auto}
 
 .scroll-row-wrap{position:relative;padding:0 1.4rem}
-.scroll-row{display:flex;gap:1rem;overflow-x:auto;scroll-behavior:smooth;padding:.6rem 0 1rem;-ms-overflow-style:none;scrollbar-width:none;touch-action:pan-x;cursor:grab}
+.scroll-row{display:flex;gap:1rem;overflow-x:auto;scroll-behavior:smooth;padding:.6rem 0 1rem;-ms-overflow-style:none;scrollbar-width:none;touch-action:pan-x;cursor:grab;pointer-events:auto;overscroll-behavior-x:contain}
 .scroll-row.dragging{cursor:grabbing;scroll-behavior:auto;user-select:none}
 
 /* Content Samples: 2-up large 16:9 cards */
@@ -371,7 +377,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .scroll-progress{top:50%;right:10px;left:auto;bottom:auto;transform:translateY(-50%)}
 #dodecaCanvas{width:48px;height:48px}
 .scroll-progress-label{font-size:.6rem}
-.nav-next{width:38px;height:38px;--arrow-size:24px;--arrow-depth:7px}
+.nav-next,.nav-prev{width:38px;height:38px;--arrow-size:24px;--arrow-depth:7px}
 .panel-inner{padding:.2rem .1rem;max-height:calc(100vh - 36px)}
 }
 @media(max-width:480px){
@@ -397,6 +403,6 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .scroll-progress{top:50%;right:8px;left:auto;bottom:auto;transform:translateY(-50%)}
 #dodecaCanvas{width:40px;height:40px}
 .scroll-progress-label{font-size:.5rem}
-.nav-next{width:34px;height:34px;--arrow-size:20px;--arrow-depth:6px}
+.nav-next,.nav-prev{width:34px;height:34px;--arrow-size:20px;--arrow-depth:6px}
 .panel-inner{padding:.08rem .03rem;max-height:calc(100vh - 30px)}
 }

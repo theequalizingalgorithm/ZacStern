@@ -348,7 +348,8 @@ function initScrollButtons() {
         let suppressClick = false;
         row.addEventListener('pointerdown', (e) => {
             if (e.button !== 0) return;
-            if (e.target.closest('.video-card, .featured-card, a, .play-overlay, .thumb-wrap, img, .scroll-btn, button')) return;
+            // Keep arrow/button clicks intact, allow dragging from cards/thumbnails
+            if (e.target.closest('.scroll-btn, button')) return;
 
             isDragging = true;
             dragActivated = false;

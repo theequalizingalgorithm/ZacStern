@@ -393,25 +393,9 @@ export class World {
 
         group.position.copy(surfacePos);
 
-        // Orient the group: up = radial outward, face toward road
-        const localUp = offsetDir.clone();
-
-        // Forward direction: toward the road point, projected onto sphere tangent plane
-        const toRoad = new THREE.Vector3().subVectors(pathPt, surfacePos);
-        const localForward = toRoad.clone();
-        localForward.addScaledVector(localUp, -localForward.dot(localUp)).normalize();
-
-        const localRight = new THREE.Vector3().crossVectors(localUp, localForward).normalize();
-
-        // Build orientation matrix (columns: right, up, -forward for lookAt convention)
-        const m = new THREE.Matrix4();
-        m.set(
-            localRight.x,  localUp.x,  -localForward.x, 0,
-            localRight.y,  localUp.y,  -localForward.y, 0,
-            localRight.z,  localUp.z,  -localForward.z, 0,
-            0,              0,           0,               1
-        );
-        group.quaternion.setFromRotationMatrix(m);
+        // Stable orientation: radial up + face toward road center
+        group.up.copy(offsetDir);
+        group.lookAt(pathPt);
 
         const color = new THREE.Color(section.color || 0x0099e6);
 
@@ -426,7 +410,7 @@ export class World {
         });
         const boardGeo = new THREE.BoxGeometry(boardW, boardH, 0.22);
         const board = new THREE.Mesh(boardGeo, boardMat);
-        board.position.set(0, 7.1, 0.1);
+        board.position.set(0, 6.2, 0.1);
         board.receiveShadow = true;
         board.castShadow = true;
         group.add(board);
@@ -437,19 +421,19 @@ export class World {
             metalness: 0.2
         });
         const frameTop = new THREE.Mesh(new THREE.BoxGeometry(boardW + 0.5, 0.3, 0.3), frameMat);
-        frameTop.position.set(0, 10.75, 0.1);
+        frameTop.position.set(0, 9.85, 0.1);
         group.add(frameTop);
 
         const frameBottom = new THREE.Mesh(new THREE.BoxGeometry(boardW + 0.5, 0.3, 0.3), frameMat);
-        frameBottom.position.set(0, 3.45, 0.1);
+        frameBottom.position.set(0, 2.55, 0.1);
         group.add(frameBottom);
 
         const frameLeft = new THREE.Mesh(new THREE.BoxGeometry(0.3, boardH + 0.3, 0.3), frameMat);
-        frameLeft.position.set(-(boardW / 2 + 0.1), 7.1, 0.1);
+        frameLeft.position.set(-(boardW / 2 + 0.1), 6.2, 0.1);
         group.add(frameLeft);
 
         const frameRight = new THREE.Mesh(new THREE.BoxGeometry(0.3, boardH + 0.3, 0.3), frameMat);
-        frameRight.position.set(boardW / 2 + 0.1, 7.1, 0.1);
+        frameRight.position.set(boardW / 2 + 0.1, 6.2, 0.1);
         group.add(frameRight);
 
         const accent = new THREE.Mesh(
@@ -462,11 +446,11 @@ export class World {
                 metalness: 0.45
             })
         );
-        accent.position.set(0, 9.6, 0.13);
+        accent.position.set(0, 8.7, 0.13);
         group.add(accent);
 
         const glow = new THREE.PointLight(color, 0.65, 18);
-        glow.position.set(0, 7.6, 2.7);
+        glow.position.set(0, 6.6, 2.7);
         group.add(glow);
 
         // Default slightly extruded; flattens when camera approaches
