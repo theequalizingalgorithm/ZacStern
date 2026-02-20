@@ -29,59 +29,33 @@ const SECTION_DATA = [
 const SPHERE_RADIUS = 42;
 const PATH_ALTITUDE = 9;  // Raised from 6 → camera at R+9≈51, billboard center at R+9.5≈51.5 — eye-level framing
 
-// Generate winding S-curve path around the sphere
-// Wobble aligns with billboard positions so each billboard hits center frame
-function generateSpiralPath(numPoints) {
+// Road path — closed equatorial ring with gentle Y sinusoidal wobble.
+// Used only for the road geometry; sections navigate by theta rotation.
+function generateEquatorialPath(numPoints) {
     const points = [];
-    const r = SPHERE_RADIUS + PATH_ALTITUDE;
-    const wobbleAmp = 4; // world-unit lateral S-curve amplitude
-
-    // First pass: generate base spiral control points
-    const basePoints = [];
+    const r = SPHERE_RADIUS + 0.4;  // road sits just above terrain
     for (let i = 0; i < numPoints; i++) {
-        const t = i / (numPoints - 1);
-        const theta = t * Math.PI * 2.8;
-        const phi = Math.PI * 0.34 + t * Math.PI * 0.30;
-        basePoints.push(new THREE.Vector3(
-            r * Math.sin(phi) * Math.cos(theta),
-            r * Math.cos(phi),
-            r * Math.sin(phi) * Math.sin(theta)
+        const t     = i / numPoints;  // 0..1, NOT including endpoint (closed loop)
+        const theta = t * Math.PI * 2;
+        const y     = Math.sin(theta * 3) * 4;  // gentle figure-8 wobble
+        const rFlat = Math.sqrt(r * r - y * y);
+        points.push(new THREE.Vector3(
+            rFlat * Math.sin(theta),
+            y,
+            rFlat * Math.cos(theta)
         ));
     }
-
-    // Second pass: apply lateral S-curve wobble
-    for (let i = 0; i < numPoints; i++) {
-        const t = i / (numPoints - 1);
-        const p = basePoints[i];
-
-        // Compute tangent (forward direction)
-        const prev = basePoints[Math.max(0, i - 1)];
-        const next = basePoints[Math.min(numPoints - 1, i + 1)];
-        const tangent = new THREE.Vector3().subVectors(next, prev).normalize();
-
-        // Radial up direction
-        const radialUp = p.clone().normalize();
-
-        // Right vector (lateral direction on sphere surface)
-        const right = new THREE.Vector3().crossVectors(tangent, radialUp).normalize();
-
-        // cos(t * PI / 0.12) peaks at even-indexed sections (right side)
-        // and troughs at odd-indexed sections (left side)
-        const wobble = Math.cos(t * Math.PI / 0.12) * wobbleAmp;
-
-        // Apply lateral offset
-        const offsetPt = p.clone().addScaledVector(right, wobble);
-
-        // Project back onto sphere shell at correct altitude
-        const dir = offsetPt.clone().normalize();
-        points.push(dir.multiplyScalar(r));
-    }
-
     return points;
 }
 
-// Path control points — spiral around the spherical world
-const PATH_POINTS = generateSpiralPath(80);
+// Road control points — equatorial closed loop
+const PATH_POINTS = generateEquatorialPath(80);
+
+// Assign theta (Y-rotation angle) to each section so the globe spins
+// quarter-by-quarter to bring each billboard to the +Z camera axis.
+SECTION_DATA.forEach((s, i) => {
+    s.theta = (2 * Math.PI * i) / SECTION_DATA.length;
+});
 
 // ===================== PERFORMANCE DETECTION =====================
 function detectPerformanceTier() {
@@ -170,13 +144,18 @@ class App {
 
     // ---- 3D World ----
     initWorld() {
-        // Create the camera path curve
-        this.cameraPath = new THREE.CatmullRomCurve3(PATH_POINTS, false, 'catmullrom', 0.5);
+        // Closed equatorial path for the road geometry
+        this.cameraPath = new THREE.CatmullRomCurve3(PATH_POINTS, true, 'catmullrom', 0.5);
 
-        // Compute section 3D positions from path
+        // Section positions: each billboard anchored on equatorial ring by theta
+        const R = SPHERE_RADIUS;
         const sectionPositions = SECTION_DATA.map(s => ({
             ...s,
-            pos: this.cameraPath.getPoint(s.pathT)
+            pos: new THREE.Vector3(
+                Math.sin(s.theta) * R,
+                0,
+                Math.cos(s.theta) * R
+            )
         }));
 
         this.world = new World(this.scene, this.cameraPath, sectionPositions, SPHERE_RADIUS);
@@ -186,8 +165,9 @@ class App {
     initCamera() {
         this.cameraController = new CameraController(
             this.camera,
-            this.cameraPath,
-            SECTION_DATA
+            this.world.worldGroup,
+            SECTION_DATA,
+            SPHERE_RADIUS
         );
     }
 

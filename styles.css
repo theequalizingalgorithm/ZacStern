@@ -70,17 +70,17 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
    Applied via JS when panel is mounted onto the 3D billboard face.
    Tighter padding + smaller type so content fills the billboard rect cleanly.
    All interactive children (scroll-btn, video-card, etc.) keep pointer-events:auto. */
-.panel-inner.billboard-active{padding:.4rem .7rem;border-width:2px;border-radius:0;background:rgba(250,244,232,.95)}
-.panel-inner.billboard-active .section-header{margin-bottom:.5rem;padding-top:.1rem}
-.panel-inner.billboard-active .section-header h2{font-size:1.25rem;margin-bottom:.15rem}
-.panel-inner.billboard-active .section-subtitle{font-size:.78rem;letter-spacing:.5px}
-.panel-inner.billboard-active .retainer-list{font-size:.7rem;margin-top:.1rem}
-.panel-inner.billboard-active .scroll-row-wrap{gap:4px;padding:0 2px}
-.panel-inner.billboard-active .featured-card{min-width:160px;max-width:160px}
-.panel-inner.billboard-active .hero-title{font-size:clamp(1.1rem,2.2vw,1.6rem)}
-.panel-inner.billboard-active .hero-subtitle{font-size:.7rem}
-.panel-inner.billboard-active .hero-inner{gap:1.2rem}
-.panel-inner.billboard-active .hero-avatar{width:140px}
+.panel-inner.billboard-active{padding:.3rem .5rem;border-width:2px;border-radius:0;background:rgba(250,244,232,.95);font-size:.7rem}
+.panel-inner.billboard-active .section-header{margin-bottom:.35rem;padding-top:.05rem}
+.panel-inner.billboard-active .section-header h2{font-size:1rem;margin-bottom:.1rem}
+.panel-inner.billboard-active .section-subtitle{font-size:.68rem;letter-spacing:.4px}
+.panel-inner.billboard-active .retainer-list{font-size:.62rem;margin-top:.05rem}
+.panel-inner.billboard-active .scroll-row-wrap{gap:3px;padding:0 1px}
+.panel-inner.billboard-active .featured-card{min-width:120px;max-width:120px}
+.panel-inner.billboard-active .hero-title{font-size:clamp(.9rem,1.6vw,1.2rem)}
+.panel-inner.billboard-active .hero-subtitle{font-size:.62rem}
+.panel-inner.billboard-active .hero-inner{gap:.8rem}
+.panel-inner.billboard-active .hero-avatar{width:100px}
 
 .panel-scrollable{overflow-y:auto;overflow-x:hidden;-ms-overflow-style:none;scrollbar-width:thin;scrollbar-color:rgba(0,153,230,.3) transparent;flex:1;min-height:0}
 .panel-scrollable::-webkit-scrollbar{width:6px}

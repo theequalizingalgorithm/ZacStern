@@ -380,30 +380,23 @@ export class World {
         }
     }
 
-    createLandmark(section, side, R) {
+    createLandmark(section, _side, R) {
         const group = new THREE.Group();
 
-        // Get path position and tangent
-        const pathPt = this.cameraPath.getPoint(section.pathT);
-        const tangent = this.cameraPath.getTangent(section.pathT);
-        const radialUp = pathPt.clone().normalize();
+        // Place billboard on equatorial ring at its theta angle.
+        // worldGroup.rotation.y = -theta brings this billboard to (0, 0, R+2.5)
+        // directly in front of the static camera on the +Z axis.
+        const theta = section.theta ?? (section.pathT * Math.PI * 2);
+        group.position.set(
+            Math.sin(theta) * (R + 2.5),
+            0,
+            Math.cos(theta) * (R + 2.5)
+        );
 
-        // Compute right vector (perpendicular to tangent, on sphere surface)
-        const right = new THREE.Vector3().crossVectors(tangent, radialUp).normalize();
-
-        // Offset position: billboard placed beside road, close enough to fill frame
-        const offsetDist = 6;
-        const offsetPt = pathPt.clone().addScaledVector(right, side * offsetDist);
-
-        // Project back onto sphere surface
-        const offsetDir = offsetPt.clone().normalize();
-        const surfacePos = offsetDir.clone().multiplyScalar(R + 2.5);
-
-        group.position.copy(surfacePos);
-
-        // Stable orientation: radial up + face toward road center
-        group.up.copy(offsetDir);
-        group.lookAt(pathPt);
+        // Face outward from the Y-axis (local -Z toward origin → local +Z = outward).
+        // camera.up=(0,1,0) aligns with group local Y=worldY → zero roll guaranteed.
+        group.up.set(0, 1, 0);
+        group.lookAt(0, 0, 0);
 
         const color = new THREE.Color(section.color || 0x0099e6);
 

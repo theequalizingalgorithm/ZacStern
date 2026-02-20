@@ -1,56 +1,59 @@
 // ============================================================
-// CAMERA.JS — Path Travel + Face-Normal Dock
+// CAMERA.JS — Globe Rotation (Y-Axis) Paradigm
 //
-// Travel mode: camera follows CatmullRom spline around globe.
-// Dock mode (section active): camera moves to a position
-//   directly in front of the billboard's own face normal.
-//   Guaranteed zero pitch: camera.y = billboard_center.y → lookAt
-//   forward vector has no Y component → perfectly flat gaze.
-//   Guaranteed zero skew: positioned along face normal → billboard
-//   is exactly perpendicular to the view ray.
-//   Guaranteed zero roll: camera.up = billboard's own world-Y axis.
+// The globe (worldGroup) rotates around the world Y-axis to bring
+// each billboard to face the camera.  The camera is nearly static:
+//   • Idle:   (0, 0, SPHERE_RADIUS + IDLE_DIST)  looking at origin
+//   • Active: dollies in, Y-slides to board centre height,
+//             looks at billboard face — perfectly head-on, zero pitch
+//   • camera.up = (0,1,0) always — no roll, no tilt, ever
 // ============================================================
 
 import * as THREE from 'three';
 
-// How far in front of the billboard face the camera docks (world units).
-const DOCK_DIST = 22;
+const IDLE_DIST   = 62;   // camera z offset from sphere centre when browsing
+const ACTIVE_DIST = 36;   // camera z offset when docked at billboard (further = smaller billboard on screen)
+const BOARD_Y     = 7;    // board centre local-Y inside billboard group
 
 export class CameraController {
-    constructor(camera, path, sections) {
-        this.camera   = camera;
-        this.path     = path;
-        this.sections = sections;
+    constructor(camera, worldGroup, sections, sphereRadius) {
+        this.camera      = camera;
+        this.worldGroup  = worldGroup;
+        this.sections    = sections;
+        this.sphereRadius = sphereRadius;
 
-        // Path progress
-        this.currentT = 0;
-        this.targetT  = 0;
-        this.lerpSpeed = 1.8;
-
-        // Active section
+        // Navigation state
         this.activeSectionIndex = 0;
         this.activeSection      = null;
         this.isSnapping  = false;
         this.snapTimeout = null;
-        this.velocity    = 0;
 
-        // Dock-mode state — smooth lerp of camera position & up
-        this._dockPos     = new THREE.Vector3();  // target camera position in dock mode
-        this._dockCenter  = new THREE.Vector3();  // billboard face centre (lookAt target)
-        this._dockUp      = new THREE.Vector3(0, 1, 0);
-        this._currentPos  = null;  // initialised on first update
-        this._currentUp   = new THREE.Vector3(0, 0, 1);
+        // Smooth rotation: target Y angle (radians), current Y angle
+        this._targetTheta  = 0;
+        this._currentTheta = 0;
 
-        // Mouse parallax (travel only)
+        // Camera position lerp
+        this._currentZ = sphereRadius + IDLE_DIST;
+        this._currentY = 0;
+
+        // Mouse parallax (idle only)
         this.mouseX = 0;
         this.mouseY = 0;
         this._px = 0;
         this._py = 0;
 
-        // worldGroup shim — kept for backward compat but not used for rotation
-        this.worldGroup = null;
+        // Compat properties used by main.js scroll-sync
+        this.currentT   = 0;
+        this.targetT    = 0;
+        this.velocity   = 0;
+        this.lerpSpeed  = 3;
 
         this._initEvents();
+
+        // Start at hero (theta=0)
+        this.goToSection(sections[0].id);
+        this._currentTheta = this._targetTheta;
+        if (this.worldGroup) this.worldGroup.rotation.y = 0;
     }
 
     _initEvents() {
@@ -59,29 +62,35 @@ export class CameraController {
             this.mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
         });
         window.addEventListener('touchmove', (e) => {
-            if (e.touches.length === 1) {
+            if (e.touches.length > 0) {
                 this.mouseX = (e.touches[0].clientX / window.innerWidth  - 0.5) * 2;
                 this.mouseY = (e.touches[0].clientY / window.innerHeight - 0.5) * 2;
             }
         }, { passive: true });
     }
 
-    // ── backward-compat stubs (main.js calls these) ─────────────────────────
+    // ── Backward-compat stubs ────────────────────────────────────────────────
     setWorldGroup(wg) { this.worldGroup = wg; }
-    registerBillboard() {}  // no-op in path+dock paradigm
+    registerBillboard() {}
 
     // ── Navigation ───────────────────────────────────────────────────────────
 
     setTargetProgress(t) {
         this.targetT = Math.max(0, Math.min(1, t));
+        const idx = Math.round(this.targetT * (this.sections.length - 1));
+        const clamped = Math.max(0, Math.min(this.sections.length - 1, idx));
+        if (clamped !== this.activeSectionIndex) {
+            this.goToSection(this.sections[clamped].id);
+        }
     }
 
     goToSection(sectionId) {
         const idx = this.sections.findIndex(s => s.id === sectionId);
-        if (idx >= 0) {
-            this.activeSectionIndex = idx;
-            this.targetT = this.sections[idx].pathT;
-        }
+        if (idx < 0) return;
+        this.activeSectionIndex = idx;
+        this._targetTheta       = this.sections[idx].theta ?? 0;
+        this.currentT           = this.sections[idx].pathT ?? (idx / (this.sections.length - 1));
+        this.targetT            = this.currentT;
         this.isSnapping = true;
         clearTimeout(this.snapTimeout);
         this.snapTimeout = setTimeout(() => { this.isSnapping = false; }, 1500);
@@ -110,112 +119,71 @@ export class CameraController {
     // ── Active section detection ─────────────────────────────────────────────
 
     getActiveSection() {
-        let closest = null, closestDist = Infinity, closestIdx = 0;
-        for (let i = 0; i < this.sections.length; i++) {
-            const d = Math.abs(this.currentT - this.sections[i].pathT);
-            if (d < closestDist) { closestDist = d; closest = this.sections[i]; closestIdx = i; }
+        let diff = this._targetTheta - this._currentTheta;
+        while (diff >  Math.PI) diff -= Math.PI * 2;
+        while (diff < -Math.PI) diff += Math.PI * 2;
+        if (Math.abs(diff) < 0.12) {
+            this.activeSection = this.sections[this.activeSectionIndex];
+            return this.activeSection;
         }
-        this.activeSectionIndex = closestIdx;
-        if (closestDist < 0.06) { this.activeSection = closest; return closest; }
         this.activeSection = null;
         return null;
     }
 
     // ── UPDATE ───────────────────────────────────────────────────────────────
-    // billboardFaceInfo = { center, normal, up } from World.getBillboardFaceInfo()
-    // or null when no active section.
 
-    update(deltaTime, billboardFaceInfo = null) {
-        // ── 1. Advance path progress ─────────────────────────────────────────
-        this.currentT += (this.targetT - this.currentT) * (1 - Math.exp(-this.lerpSpeed * deltaTime));
-        this.currentT  = Math.max(0, Math.min(0.999, this.currentT));
+    update(deltaTime /*, billboardFaceInfo – unused */) {
+        const R = this.sphereRadius;
 
-        const pathPos    = this.path.getPoint(this.currentT);
-        const tangent    = this.path.getTangent(this.currentT).normalize();
-        const radialUp   = pathPos.clone().normalize();
-        const right      = new THREE.Vector3().crossVectors(tangent, radialUp).normalize();
+        // 1. Rotate globe around Y-axis toward target section
+        let dTheta = this._targetTheta - this._currentTheta;
+        while (dTheta >  Math.PI) dTheta -= Math.PI * 2;
+        while (dTheta < -Math.PI) dTheta += Math.PI * 2;
+        this._currentTheta += dTheta * (1 - Math.exp(-2.8 * deltaTime));
+        if (this.worldGroup) this.worldGroup.rotation.y = -this._currentTheta;
 
-        // ── 2. Lock factor: how settled is the camera at the active section? ─
-        let lockT = 0;
-        if (billboardFaceInfo && this.activeSection) {
-            const d = Math.abs(this.currentT - this.activeSection.pathT);
-            lockT = THREE.MathUtils.smoothstep(1 - d / 0.055, 0, 1);
-        }
+        // 2. Lock factor: 0 = rotating, 1 = billboard centered on camera
+        const lockT = THREE.MathUtils.smoothstep(1 - Math.abs(dTheta) / 0.25, 0, 1);
 
-        // ── 3. Idle parallax (fades to zero when docked) ─────────────────────
-        const pLerp = 1 - Math.exp(-4 * deltaTime);
-        const pAmt  = 0.8 * (1 - lockT);
-        this._px += (this.mouseX * pAmt       - this._px) * pLerp;
-        this._py += (this.mouseY * pAmt * 0.5 - this._py) * pLerp;
+        // 3. Dolly camera in/out
+        const targetZ = R + (lockT > 0.15 ? ACTIVE_DIST : IDLE_DIST);
+        this._currentZ += (targetZ - this._currentZ) * (1 - Math.exp(-3 * deltaTime));
 
-        // ── 4. Travel position (path + parallax) ─────────────────────────────
-        const travelPos = pathPos.clone()
-            .addScaledVector(right, this._px)
-            .addScaledVector(radialUp, this._py * 0.3);
+        // 4. Camera Y slides to board-centre height when active
+        //    After globe rotation, board world centre = (0, BOARD_Y, R+2.75)
+        //    camera.y = BOARD_Y → lookAt delta-Y = 0 → zero pitch guaranteed
+        const targetY = BOARD_Y * lockT;
+        this._currentY += (targetY - this._currentY) * (1 - Math.exp(-3 * deltaTime));
 
-        // ── 5. Dock position (face-normal, Y-snapped) ────────────────────────
-        //   • DOCK_DIST world units along billboard face normal → camera is
-        //     directly in front of the billboard, perfectly perpendicular.
-        //   • Then snap camera.y = center.y so the lookAt vector has ZERO
-        //     vertical component → guaranteed zero pitch, zero tilt.
-        let dockPos   = travelPos.clone(); // fallback = travel
-        let dockLookAt = pathPos.clone();  // fallback = same as travel
-        let dockUp     = radialUp.clone();
+        // 5. Idle parallax (suppressed when billboard active)
+        const idleAmt = 1 - lockT;
+        this._px += (this.mouseX * 3 * idleAmt - this._px) * (1 - Math.exp(-4 * deltaTime));
+        this._py += (this.mouseY * 1.5 * idleAmt - this._py) * (1 - Math.exp(-4 * deltaTime));
 
-        if (billboardFaceInfo) {
-            const { center, normal, up } = billboardFaceInfo;
+        // 6. Set camera position
+        this.camera.position.set(
+            this._px * idleAmt,
+            this._currentY + this._py * idleAmt,
+            this._currentZ
+        );
+        this.camera.up.set(0, 1, 0);
 
-            // Ensure normal points toward camera (not away)
-            const toCamera = this.camera.position.clone().sub(center);
-            const sign     = toCamera.dot(normal) >= 0 ? 1 : -1;
-            const faceNorm = normal.clone().multiplyScalar(sign);
-
-            // Camera dock = along face normal, then Y snapped to billboard centre
-            const rawDock = center.clone().addScaledVector(faceNorm, DOCK_DIST);
-            dockPos   = new THREE.Vector3(rawDock.x, center.y, rawDock.z);
-            dockLookAt = center.clone();
-            dockUp     = up.clone();
-        }
-
-        // ── 6. Blend travel ↔ dock ───────────────────────────────────────────
-        if (!this._currentPos) this._currentPos = travelPos.clone();
-
-        const posAlpha = 1 - Math.exp(-3.5 * deltaTime);
-        const targetPos = (lockT > 0.001)
-            ? dockPos.lerp(travelPos, 1 - lockT)
-            : travelPos;
-        this._currentPos.lerp(targetPos, posAlpha);
-
-        // camera.up: travel = radialUp, dock = billboard world-up
-        this._currentUp.lerp(
-            lockT > 0.001 ? dockUp : radialUp,
-            1 - Math.exp(-4 * deltaTime)
-        ).normalize();
-
-        // ── 7. Set camera ────────────────────────────────────────────────────
-        this.camera.position.copy(this._currentPos);
-        this.camera.up.copy(this._currentUp);
-
-        // LookAt: travel = path look-ahead, dock = billboard centre
-        if (lockT > 0.001 && billboardFaceInfo) {
-            // Blend lookAt: travel look-ahead → billboard centre
-            const lookAheadPt = this.path.getPoint(Math.min(this.currentT + 0.012, 0.999));
-            const blendedLook = lookAheadPt.clone().lerp(billboardFaceInfo.center, lockT);
-            this.camera.lookAt(blendedLook);
+        // 7. LookAt — active: head-on at board face centre; idle: origin
+        if (lockT > 0.01) {
+            this.camera.lookAt(0, BOARD_Y, R + 2.75);
         } else {
-            const lookAheadPt = this.path.getPoint(Math.min(this.currentT + 0.012, 0.999));
-            const lookTarget  = lookAheadPt
-                .addScaledVector(right, this._px * 0.3)
-                .addScaledVector(radialUp, this._py * 0.15);
-            this.camera.lookAt(lookTarget);
+            this.camera.lookAt(this._px * 0.15, 0, 0);
         }
 
         return this.getActiveSection();
     }
 
-    // ── Utilities ────────────────────────────────────────────────────────────
+    // ── Utilities ─────────────────────────────────────────────────────────────
 
-    getScrollPercent() { return Math.round(this.currentT * 100); }
-    getCurrentT()      { return this.currentT; }
-    getTargetT()       { return this.targetT; }
+    getScrollPercent() {
+        if (this.sections.length <= 1) return 0;
+        return Math.round(this.activeSectionIndex / (this.sections.length - 1) * 100);
+    }
+    getCurrentT() { return this.currentT; }
+    getTargetT()  { return this.targetT; }
 }
