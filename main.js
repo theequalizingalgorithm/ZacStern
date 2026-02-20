@@ -27,7 +27,7 @@ const SECTION_DATA = [
 
 // Spherical world parameters
 const SPHERE_RADIUS = 42;
-const PATH_ALTITUDE = 6;
+const PATH_ALTITUDE = 9;  // Raised from 6 → camera at R+9≈51, billboard center at R+9.5≈51.5 — eye-level framing
 
 // Generate winding S-curve path around the sphere
 // Wobble aligns with billboard positions so each billboard hits center frame
@@ -567,12 +567,12 @@ class App {
         let top    = Math.min(...pts.map(p => p.y));
         let bottom = Math.max(...pts.map(p => p.y));
 
-        // Clamp to viewport (reserve top for navbar — now .85rem padding so ~56px)
+        // Clamp to viewport (reserve top for navbar ~56px)
         const navH = 56;
-        left   = Math.max(4, left);
+        left   = Math.max(2, left);
         top    = Math.max(navH + 2, top);
-        right  = Math.min(w - 4, right);
-        bottom = Math.min(h - 4, bottom);
+        right  = Math.min(w - 2, right);
+        bottom = Math.min(h - 2, bottom);
 
         const rectW = right - left;
         const rectH = bottom - top;
@@ -585,21 +585,31 @@ class App {
             return;
         }
 
-        // Small inset so content sits inside the 3D frame edges
-        const pad = Math.min(rectW, rectH) * 0.025;
-        const bbL = left  + pad;
-        const bbT = top   + pad;
-        const bbW = rectW - pad * 2;
-        const bbH = rectH - pad * 2;
+        // Panel fills the full bounding rect (no percentage inset).
+        // clip-path traces the actual projected quad so content appears
+        // physically mounted/flush on the billboard face.
+        const bbL = left;
+        const bbT = top;
+        const bbW = rectW;
+        const bbH = rectH;
+
+        // Build clip-path polygon from the 4 projected corners relative to panel origin.
+        // pts order: [topLeft, topRight, bottomLeft, bottomRight]
+        const cpTLx = (pts[0].x - bbL).toFixed(1), cpTLy = (pts[0].y - bbT).toFixed(1);
+        const cpTRx = (pts[1].x - bbL).toFixed(1), cpTRy = (pts[1].y - bbT).toFixed(1);
+        const cpBRx = (pts[3].x - bbL).toFixed(1), cpBRy = (pts[3].y - bbT).toFixed(1);
+        const cpBLx = (pts[2].x - bbL).toFixed(1), cpBLy = (pts[2].y - bbT).toFixed(1);
+        const clipPath = `polygon(${cpTLx}px ${cpTLy}px, ${cpTRx}px ${cpTRy}px, ${cpBRx}px ${cpBRy}px, ${cpBLx}px ${cpBLy}px)`;
 
         // Panel = clipping viewport locked to billboard rect.
-        // z-index 998: above canvas(0) and below scroll-progress(999) and navbar(1000).
+        // z-index 998: above canvas(0), below scroll-progress(999) and navbar(1000).
         panel.style.cssText = `
             position: fixed; inset: auto;
             left: ${bbL}px; top: ${bbT}px;
             width: ${bbW}px; height: ${bbH}px;
             display: flex; flex-direction: column; align-items: stretch;
             overflow: hidden; padding: 0;
+            clip-path: ${clipPath};
             z-index: 998; opacity: 1; visibility: visible;
             pointer-events: auto;
         `;
@@ -717,6 +727,8 @@ class App {
 
             this.world.setActiveSection(activeSection.id);
             this.sectionManager.updateActiveSection(activeSection.id, this.cameraController);
+            // Hide decorative HUD so billboard content is dominant focal layer
+            document.body.classList.add('section-active');
         } else {
             this.world.setActiveSection(null);
             this.sectionManager.showTransition();
@@ -725,6 +737,7 @@ class App {
                 this._resetPanelPosition(this._lastLockedSectionId);
             }
             this._lastLockedSectionId = null;
+            document.body.classList.remove('section-active');
         }
 
         // Render

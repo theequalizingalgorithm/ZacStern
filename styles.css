@@ -100,7 +100,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .ugc-row{display:grid;grid-template-columns:repeat(6,1fr);gap:1.2rem;justify-items:center}
 
 /* ===== 3D DODECAHEDRON + NAV ARROWS ===== */
-.scroll-progress{position:fixed;bottom:16px;left:50%;z-index:999;display:flex;flex-direction:column;align-items:center;gap:6px;transform:translateX(-50%)}
+/* Fade HUD when billboard is active — billboard is the dominant focal layer */
+.scroll-progress{position:fixed;bottom:16px;left:50%;z-index:999;display:flex;flex-direction:column;align-items:center;gap:6px;transform:translateX(-50%);transition:opacity .35s ease}
+body.section-active .scroll-progress{opacity:0;pointer-events:none}
 #dodecaCanvas{width:64px;height:64px;display:block}
 .scroll-progress-label{font-size:.7rem;font-weight:800;color:#0077b6;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 6px rgba(0,119,182,.6);-webkit-text-stroke:.5px #fff;pointer-events:none}
 
@@ -194,7 +196,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 #networkRow .featured-card .thumb-wrap{aspect-ratio:16/9}
 #clienteleRow .featured-card .thumb-wrap{aspect-ratio:9/16}
 .scroll-row::-webkit-scrollbar{display:none}
-.scroll-btn{position:relative;flex-shrink:0;z-index:20;width:40px;height:40px;border-radius:50%;border:2px solid var(--accent);background:rgba(255,255,255,.92);color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease;font-size:1rem;box-shadow:0 2px 8px rgba(0,0,0,.12);pointer-events:auto}
+.scroll-btn{position:relative;flex-shrink:0;align-self:center;z-index:20;width:40px;height:40px;border-radius:50%;border:2px solid var(--accent);background:rgba(255,255,255,.92);color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease;font-size:1rem;box-shadow:0 2px 8px rgba(0,0,0,.12);pointer-events:auto}
 .scroll-btn:hover{background:linear-gradient(135deg,#0088cc,#00b4d8);color:#fff;border-color:transparent;box-shadow:0 6px 20px rgba(0,153,230,.4)}
 
 /* Featured video card — 9:16 thumbnail in scroll row */
