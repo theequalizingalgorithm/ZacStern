@@ -190,25 +190,16 @@ export class CameraController {
         }
 
         // ── PHYSICAL HEIGHT LIFT ────────────────────────────────────────────────
-        // The user wants the camera physically raised to the SAME altitude as the
-        // billboard (not a rotation/tilt). We do this by lerping the camera's
-        // radial distance toward billboardTarget.length().
-        //
-        // billboardTarget.length()  = actual radial distance of billboard from centre
-        // offsetPos.length()        = camera's current radial distance
-        // Scaling offsetPos along its own outward direction changes ONLY altitude,
-        // producing a pure Y-axis translation — exactly what was asked for.
+        // Move camera's WORLD Y to match the billboard's WORLD Y.
+        // That way lookAt(billboard) is perfectly horizontal — zero pitch, no tilt.
+        // All previous approaches (dot product, radial scaling) were geometrically
+        // wrong. This is the direct solution: same Y → flat forward vector.
         if (lockT > 0.001 && billboardTarget) {
-            const targetAltitude  = billboardTarget.length();   // billboard radial distance
-            const currentAltitude = offsetPos.length();         // camera radial distance
-            // Lerp altitude quickly so camera snaps level before looking at board
-            this._jibOffset += ((targetAltitude - currentAltitude) - this._jibOffset)
-                              * (1 - Math.exp(-12 * deltaTime));
-            // Apply scale along outward direction — pure translation, no rotation
-            const correctedAltitude = currentAltitude + this._jibOffset * lockT;
-            offsetPos.normalize().multiplyScalar(correctedAltitude);
+            const yDelta = billboardTarget.y - offsetPos.y;
+            this._jibOffset += (yDelta - this._jibOffset) * (1 - Math.exp(-12 * deltaTime));
+            offsetPos.y += this._jibOffset * lockT;
         } else {
-            this._jibOffset *= Math.exp(-6 * deltaTime); // decay when not at section
+            this._jibOffset *= Math.exp(-6 * deltaTime);
         }
 
         this.camera.position.copy(offsetPos);
