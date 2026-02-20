@@ -144,7 +144,7 @@ export class CameraController {
     }
 
     // ===================== UPDATE (called per frame) =====================
-    update(deltaTime) {
+    update(deltaTime, billboardTarget = null) {
         // Smooth lerp current towards target
         const lerpFactor = 1 - Math.exp(-this.lerpSpeed * deltaTime);
         this.currentT += (this.targetT - this.currentT) * lerpFactor;
@@ -189,6 +189,15 @@ export class CameraController {
             .copy(lookAt)
             .addScaledVector(right, this.currentParallaxX * 0.3)
             .addScaledVector(radialUp, this.currentParallaxY * 0.15);
+
+        // Blend look-at toward billboard when near a section
+        if (billboardTarget && this.activeSection) {
+            const dist = Math.abs(this.currentT - this.activeSection.pathT);
+            const blendT = THREE.MathUtils.smoothstep(1 - dist / 0.06, 0, 1);
+            if (blendT > 0.01) {
+                lookTarget.lerp(billboardTarget, blendT * 0.4);
+            }
+        }
 
         // Set camera up to radial direction so it stays oriented on the globe
         this.camera.up.copy(radialUp);

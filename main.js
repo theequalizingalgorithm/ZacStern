@@ -29,27 +29,59 @@ const SECTION_DATA = [
 const SPHERE_RADIUS = 42;
 const PATH_ALTITUDE = 6;
 
-// Generate spiral path around the sphere
+// Generate winding S-curve path around the sphere
+// Wobble aligns with billboard positions so each billboard hits center frame
 function generateSpiralPath(numPoints) {
     const points = [];
     const r = SPHERE_RADIUS + PATH_ALTITUDE;
+    const wobbleAmp = 4; // world-unit lateral S-curve amplitude
+
+    // First pass: generate base spiral control points
+    const basePoints = [];
     for (let i = 0; i < numPoints; i++) {
         const t = i / (numPoints - 1);
-        // Winding curved path around the globe
         const theta = t * Math.PI * 2.8;
-        // Keep path in a compact latitude band for spherical feel
         const phi = Math.PI * 0.34 + t * Math.PI * 0.30;
-        points.push(new THREE.Vector3(
+        basePoints.push(new THREE.Vector3(
             r * Math.sin(phi) * Math.cos(theta),
             r * Math.cos(phi),
             r * Math.sin(phi) * Math.sin(theta)
         ));
     }
+
+    // Second pass: apply lateral S-curve wobble
+    for (let i = 0; i < numPoints; i++) {
+        const t = i / (numPoints - 1);
+        const p = basePoints[i];
+
+        // Compute tangent (forward direction)
+        const prev = basePoints[Math.max(0, i - 1)];
+        const next = basePoints[Math.min(numPoints - 1, i + 1)];
+        const tangent = new THREE.Vector3().subVectors(next, prev).normalize();
+
+        // Radial up direction
+        const radialUp = p.clone().normalize();
+
+        // Right vector (lateral direction on sphere surface)
+        const right = new THREE.Vector3().crossVectors(tangent, radialUp).normalize();
+
+        // cos(t * PI / 0.12) peaks at even-indexed sections (right side)
+        // and troughs at odd-indexed sections (left side)
+        const wobble = Math.cos(t * Math.PI / 0.12) * wobbleAmp;
+
+        // Apply lateral offset
+        const offsetPt = p.clone().addScaledVector(right, wobble);
+
+        // Project back onto sphere shell at correct altitude
+        const dir = offsetPt.clone().normalize();
+        points.push(dir.multiplyScalar(r));
+    }
+
     return points;
 }
 
 // Path control points — spiral around the spherical world
-const PATH_POINTS = generateSpiralPath(40);
+const PATH_POINTS = generateSpiralPath(80);
 
 // ===================== PERFORMANCE DETECTION =====================
 function detectPerformanceTier() {
@@ -176,13 +208,13 @@ class App {
         this.composer = new EffectComposer(this.renderer);
         this.composer.addPass(new RenderPass(this.scene, this.camera));
 
-        // Bloom for glow effects
-        const bloomStrength = this.performanceTier === 'high' ? 0.3 : 0.15;
+        // Bloom for soft dreamy glow (Frutiger Aero)
+        const bloomStrength = this.performanceTier === 'high' ? 0.45 : 0.2;
         const bloomPass = new UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight),
             bloomStrength, // strength
-            0.6,           // radius
-            0.8            // threshold
+            0.8,           // radius
+            0.75           // threshold
         );
         this.composer.addPass(bloomPass);
         this.bloomPass = bloomPass;
@@ -535,8 +567,13 @@ class App {
             }
         }
 
-        // Update camera
-        const activeSection = this.cameraController.update(delta);
+        // Update camera — pass billboard target for look-at blending
+        let billboardTarget = null;
+        const nearestSection = this.cameraController.getActiveSection();
+        if (nearestSection) {
+            billboardTarget = this.world.getBillboardPosition(nearestSection.id);
+        }
+        const activeSection = this.cameraController.update(delta, billboardTarget);
 
         // Update scroll progress UI
         const pct = this.cameraController.getScrollPercent();

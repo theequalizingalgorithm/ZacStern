@@ -203,3 +203,48 @@ void main() {
     gl_FragColor = vec4(color, alpha);
 }
 `;
+
+/* ---- IRIDESCENT BUBBLE ---- */
+export const bubbleVertexShader = /* glsl */ `
+varying vec3 vNormal;
+varying vec3 vViewDir;
+varying vec3 vWorldPos;
+
+void main() {
+    vec4 worldPos = modelMatrix * vec4(position, 1.0);
+    vWorldPos = worldPos.xyz;
+    vNormal = normalize(normalMatrix * normal);
+    vViewDir = normalize(cameraPosition - worldPos.xyz);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+`;
+
+export const bubbleFragmentShader = /* glsl */ `
+uniform float time;
+uniform float opacity;
+varying vec3 vNormal;
+varying vec3 vViewDir;
+varying vec3 vWorldPos;
+
+void main() {
+    float cosAngle = max(dot(vNormal, vViewDir), 0.0);
+
+    // Thin-film iridescence — rainbow sheen
+    float d = cosAngle * 2.5 + time * 0.08 + vWorldPos.y * 0.02;
+    vec3 iriColor;
+    iriColor.r = cos(d * 10.0) * 0.25 + 0.75;
+    iriColor.g = cos(d * 10.0 + 2.094) * 0.2 + 0.8;
+    iriColor.b = cos(d * 10.0 + 4.189) * 0.25 + 0.85;
+
+    // Fresnel — bright edges, transparent center
+    float fresnel = pow(1.0 - cosAngle, 3.5);
+
+    // Specular highlight
+    float specular = pow(max(cosAngle, 0.0), 64.0) * 0.6;
+
+    vec3 color = iriColor * (0.5 + 0.5 * fresnel) + vec3(1.0) * specular;
+    float alpha = opacity * (0.08 + fresnel * 0.7);
+
+    gl_FragColor = vec4(color, alpha);
+}
+`;

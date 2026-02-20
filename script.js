@@ -344,28 +344,37 @@ function initScrollButtons() {
 
         // Drag-to-scroll (pointer) with click-safe threshold
         let isDragging = false, startX = 0, scrollLeft = 0;
-        let dragActivated = false;
+        let wasDragged = false;
+
+        function suppressClick(e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+
         row.addEventListener('pointerdown', (e) => {
             if (e.button !== 0) return;
             if (e.target.closest('.scroll-btn')) return;
 
             isDragging = true;
-            dragActivated = false;
+            wasDragged = false;
             startX = e.pageX;
             scrollLeft = row.scrollLeft;
         });
-        row.addEventListener('pointerleave', () => { isDragging = false; dragActivated = false; row.classList.remove('dragging'); });
+        row.addEventListener('pointerleave', () => { isDragging = false; wasDragged = false; });
         row.addEventListener('pointerup', () => {
             isDragging = false;
-            dragActivated = false;
-            row.classList.remove('dragging');
+            if (wasDragged) {
+                // Suppress the next click (fires after pointerup) to prevent
+                // opening a modal when the user was dragging
+                row.addEventListener('click', suppressClick, { capture: true, once: true });
+            }
+            wasDragged = false;
         });
         row.addEventListener('pointermove', (e) => {
             if (!isDragging) return;
             const dx = e.pageX - startX;
-            if (!dragActivated && Math.abs(dx) < 8) return;
-            dragActivated = true;
-            row.classList.add('dragging');
+            if (!wasDragged && Math.abs(dx) < 8) return;
+            wasDragged = true;
             e.preventDefault();
             const walk = dx * 1.5;
             row.scrollLeft = scrollLeft - walk;
@@ -673,10 +682,6 @@ function initModal() {
             card._modalBound = true;
             card.style.cursor = 'pointer';
             card.addEventListener('click', (e) => {
-                // If the card's parent scroll-row is in drag mode, skip
-                const row = card.closest('.scroll-row');
-                if (row && row.classList.contains('dragging')) return;
-
                 const src = card.dataset.videoSrc;
                 if (!src) return;
                 const orient = card.dataset.orientation === 'vertical' ? 'vertical' : 'horizontal';

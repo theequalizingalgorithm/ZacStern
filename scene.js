@@ -7,7 +7,8 @@ import * as THREE from 'three';
 import {
     skyVertexShader, skyFragmentShader,
     roadVertexShader, roadFragmentShader,
-    cloudVertexShader, cloudFragmentShader
+    cloudVertexShader, cloudFragmentShader,
+    bubbleVertexShader, bubbleFragmentShader
 } from './shaders/environment.js';
 
 // ---- Noise utilities for terrain ----
@@ -78,14 +79,15 @@ export class World {
         this.createPortals();
         this.createAtmosphere();
         this.createDecorations();
+        this.createBubbles();
     }
 
     // ===================== LIGHTING =====================
     createLighting() {
-        const hemi = new THREE.HemisphereLight(0x87CEEB, 0x56c596, 0.6);
+        const hemi = new THREE.HemisphereLight(0xB8E4F9, 0x7ecda0, 0.75);
         this.scene.add(hemi);
 
-        const sun = new THREE.DirectionalLight(0xfff5e6, 1.2);
+        const sun = new THREE.DirectionalLight(0xfff8f0, 1.4);
         sun.position.set(200, 300, 150);
         sun.castShadow = true;
         sun.shadow.mapSize.set(1024, 1024);
@@ -114,11 +116,11 @@ export class World {
             vertexShader: skyVertexShader,
             fragmentShader: skyFragmentShader,
             uniforms: {
-                topColor:    { value: new THREE.Color(0x3a7bd5) },
-                midColor:    { value: new THREE.Color(0x7ec8e3) },
-                bottomColor: { value: new THREE.Color(0xd4f1f9) },
+                topColor:    { value: new THREE.Color(0x87CEEB) },
+                midColor:    { value: new THREE.Color(0xB8E4F9) },
+                bottomColor: { value: new THREE.Color(0xE8F6FF) },
                 offset:      { value: 20 },
-                exponent:    { value: 0.5 }
+                exponent:    { value: 0.45 }
             },
             side: THREE.BackSide,
             depthWrite: false
@@ -383,8 +385,8 @@ export class World {
         // Compute right vector (perpendicular to tangent, on sphere surface)
         const right = new THREE.Vector3().crossVectors(tangent, radialUp).normalize();
 
-        // Offset position: keep billboards clearly left/right of road
-        const offsetDist = 10;
+        // Offset position: billboard placed beside road, close enough to fill frame
+        const offsetDist = 7;
         const offsetPt = pathPt.clone().addScaledVector(right, side * offsetDist);
 
         // Project back onto sphere surface
@@ -668,67 +670,14 @@ export class World {
         return mesh;
     }
 
-    // ===================== ATMOSPHERE =====================
+    // ===================== ATMOSPHERE (Frutiger Aero dreamy haze) =====================
     createAtmosphere() {
-        this.scene.fog = new THREE.FogExp2(0xc5e5f5, 0.0003);
+        this.scene.fog = new THREE.FogExp2(0xdaedfa, 0.0006);
     }
 
-    // ===================== DECORATIONS (trees & flowers on sphere) =====================
+    // ===================== DECORATIONS (flowers on sphere — trees removed for Frutiger Aero) =====================
     createDecorations() {
         const R = this.sphereRadius;
-        const treeGeo = new THREE.ConeGeometry(1.5, 5, 6);
-        const treeTrunkGeo = new THREE.CylinderGeometry(0.2, 0.3, 2, 6);
-        const treeMat = new THREE.MeshStandardMaterial({ color: 0x2d8f4e, roughness: 0.85 });
-        const trunkMat = new THREE.MeshStandardMaterial({ color: 0x8d6e4c, roughness: 0.9 });
-
-        for (let i = 0; i < 100; i++) {
-            // Random point on sphere (mid-latitudes matching path band)
-            const theta = Math.random() * Math.PI * 2;
-            const phi = Math.PI * 0.2 + Math.random() * Math.PI * 0.6;
-            const dir = new THREE.Vector3(
-                Math.sin(phi) * Math.cos(theta),
-                Math.cos(phi),
-                Math.sin(phi) * Math.sin(theta)
-            );
-
-            // Avoid road area
-            let tooClose = false;
-            for (const pp of this._pathSurfaceSamples) {
-                const dot = dir.dot(pp.dir);
-                const angle = Math.acos(Math.max(-1, Math.min(1, dot)));
-                if (angle * R < 10) { tooClose = true; break; }
-            }
-            if (tooClose) continue;
-
-            const treeGroup = new THREE.Group();
-
-            const trunk = new THREE.Mesh(treeTrunkGeo, trunkMat);
-            trunk.position.y = 1;
-            treeGroup.add(trunk);
-
-            const layers = 2 + Math.floor(Math.random() * 2);
-            for (let j = 0; j < layers; j++) {
-                const cone = new THREE.Mesh(treeGeo, treeMat);
-                cone.position.y = 3 + j * 2.5;
-                cone.scale.setScalar(1 - j * 0.2);
-                treeGroup.add(cone);
-            }
-
-            const h = this._getSurfaceDisplacement(theta, phi);
-            const surfPos = dir.clone().multiplyScalar(R + h);
-            treeGroup.position.copy(surfPos);
-
-            // Orient tree to stand upright on sphere (local +Y → radial outward)
-            const radialDir = surfPos.clone().normalize();
-            treeGroup.quaternion.setFromUnitVectors(
-                new THREE.Vector3(0, 1, 0), radialDir
-            );
-
-            const sc = 0.5 + Math.random() * 0.7;
-            treeGroup.scale.setScalar(sc);
-            treeGroup.castShadow = true;
-            this.scene.add(treeGroup);
-        }
 
         // Flowers on sphere surface
         const flowerColors = [0xff6b9d, 0xffd93d, 0x6bcb77, 0xc084fc, 0xffa07a];
@@ -770,11 +719,68 @@ export class World {
         return h;
     }
 
+    // ===================== FLOATING IRIDESCENT BUBBLES (Frutiger Aero) =====================
+    createBubbles() {
+        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth < 768;
+        const bubbleCount = isMobile ? 12 : 35;
+        const bubbleGeo = new THREE.SphereGeometry(1, 24, 24);
+        const R = this.sphereRadius;
+
+        this.bubbles = [];
+        this.bubbleMaterials = [];
+
+        for (let i = 0; i < bubbleCount; i++) {
+            const mat = new THREE.ShaderMaterial({
+                vertexShader: bubbleVertexShader,
+                fragmentShader: bubbleFragmentShader,
+                uniforms: {
+                    time: { value: 0 },
+                    opacity: { value: 0.35 + Math.random() * 0.15 }
+                },
+                transparent: true,
+                side: THREE.DoubleSide,
+                depthWrite: false
+            });
+
+            const size = 0.3 + Math.random() * 2.2;
+            const bubble = new THREE.Mesh(bubbleGeo, mat);
+            bubble.scale.setScalar(size);
+
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.PI * 0.2 + Math.random() * Math.PI * 0.6;
+            const alt = R + 2 + Math.random() * 30;
+
+            bubble.position.set(
+                alt * Math.sin(phi) * Math.cos(theta),
+                alt * Math.cos(phi),
+                alt * Math.sin(phi) * Math.sin(theta)
+            );
+
+            bubble.userData = {
+                theta, phi, alt,
+                speed: 0.0008 + Math.random() * 0.003,
+                driftSpeed: 0.15 + Math.random() * 0.4,
+                phase: Math.random() * Math.PI * 2,
+                baseAlt: alt
+            };
+
+            this.scene.add(bubble);
+            this.bubbles.push(bubble);
+            this.bubbleMaterials.push(mat);
+        }
+    }
+
     // ===================== SET LANDMARK ACTIVE STATE =====================
     setActiveSection(sectionId) {
         for (const portal of this.portalMeshes) {
             portal._isActive = portal.sectionId === sectionId;
         }
+    }
+
+    // Get billboard world position for camera look-at blending
+    getBillboardPosition(sectionId) {
+        const portal = this.portalMeshes.find(p => p.sectionId === sectionId);
+        return portal ? portal.group.position.clone() : null;
     }
 
     // ===================== UPDATE LOOP =====================
@@ -809,6 +815,24 @@ export class World {
         // Animate landmarks — gentle rotation
         for (const lm of this.landmarkMeshes) {
             if (lm) lm.rotation.y += deltaTime * 0.3;
+        }
+
+        // Animate floating bubbles
+        if (this.bubbles) {
+            for (const bubble of this.bubbles) {
+                const ud = bubble.userData;
+                ud.theta += ud.speed * deltaTime;
+                // Gentle vertical drift
+                const driftAlt = ud.baseAlt + Math.sin(this.time * ud.driftSpeed + ud.phase) * 2;
+                bubble.position.set(
+                    driftAlt * Math.sin(ud.phi) * Math.cos(ud.theta),
+                    driftAlt * Math.cos(ud.phi),
+                    driftAlt * Math.sin(ud.phi) * Math.sin(ud.theta)
+                );
+            }
+            for (const mat of this.bubbleMaterials) {
+                mat.uniforms.time.value = this.time;
+            }
         }
 
         // Billboard flattening as camera gets close / arrives at section
