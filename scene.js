@@ -461,7 +461,8 @@ export class World {
             sectionId: section.id,
             pathT: section.pathT,
             spinning: null,
-            board
+            board,
+            baseQuaternion: group.quaternion.clone()
         };
     }
 
@@ -802,11 +803,19 @@ export class World {
                 const targetZ = portal._isActive ? 0.05 : THREE.MathUtils.lerp(0.26, 0.09, nearT);
                 const targetXY = portal._isActive ? 1.05 : THREE.MathUtils.lerp(1.0, 1.03, nearT);
 
-                if (portal._isActive) {
-                    const radialUp = portal.group.position.clone().normalize();
-                    portal.group.up.copy(radialUp);
-                    portal.group.lookAt(cameraPos);
-                }
+                // Smoothly face camera as user approaches (not only when active)
+                const faceBlend = portal._isActive ? 1 : nearT;
+                const radialUp = portal.group.position.clone().normalize();
+
+                const camFacingRef = new THREE.Object3D();
+                camFacingRef.position.copy(portal.group.position);
+                camFacingRef.up.copy(radialUp);
+                camFacingRef.lookAt(cameraPos);
+
+                const targetQuat = portal.baseQuaternion
+                    ? portal.baseQuaternion.clone().slerp(camFacingRef.quaternion, faceBlend)
+                    : camFacingRef.quaternion;
+                portal.group.quaternion.slerp(targetQuat, 0.16);
 
                 portal.group.scale.x += (targetXY - portal.group.scale.x) * 0.12;
                 portal.group.scale.y += (targetXY - portal.group.scale.y) * 0.12;
