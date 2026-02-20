@@ -489,7 +489,7 @@ function createHorizontalCard(item) {
     const dataAttr = isYT ? `data-yt-id="${id}"` : `data-id="${id}"`;
     const videoSrc = isYT
         ? `https://www.youtube.com/embed/${id}?autoplay=1&playsinline=1&rel=0`
-        : `https://drive.google.com/file/d/${id}/preview?autoplay=1`;
+        : `https://drive.google.com/file/d/${id}/preview`;
     return `
         <div class="video-card horizontal h-scroll-card" ${dataAttr} data-video-src="${videoSrc}" data-orientation="horizontal">
             <div class="thumb-wrap">
@@ -550,7 +550,7 @@ function createVideoCard(item, orientation) {
     const title = typeof item === 'string' ? '' : (item.title || '');
     const thumbUrl = `https://drive.google.com/thumbnail?id=${id}&sz=w800`;
     const fallbackUrl = `https://lh3.googleusercontent.com/d/${id}=w800`;
-    const videoSrc = `https://drive.google.com/file/d/${id}/preview?autoplay=1`;
+    const videoSrc = `https://drive.google.com/file/d/${id}/preview`;
     return `
         <div class="video-card ${orientation}" data-id="${id}" data-video-src="${videoSrc}" data-orientation="${orientation}">
             <div class="thumb-wrap">
