@@ -135,12 +135,16 @@ export class CameraController {
     update(deltaTime /*, billboardFaceInfo – unused */) {
         const R = this.sphereRadius;
 
-        // 1. Rotate globe around Y-axis toward target section
+        // 1. Rotate globe around X-axis (vertical ferris-wheel spin)
+        //    Billboards are on the Y-Z vertical ring.
+        //    worldGroup.rotation.x = -theta brings the active billboard
+        //    from (0, sin(theta)*R, cos(theta)*R) → (0, 0, R) — directly
+        //    in front of the camera on the +Z axis.
         let dTheta = this._targetTheta - this._currentTheta;
         while (dTheta >  Math.PI) dTheta -= Math.PI * 2;
         while (dTheta < -Math.PI) dTheta += Math.PI * 2;
         this._currentTheta += dTheta * (1 - Math.exp(-2.8 * deltaTime));
-        if (this.worldGroup) this.worldGroup.rotation.y = -this._currentTheta;
+        if (this.worldGroup) this.worldGroup.rotation.x = -this._currentTheta;
 
         // 2. Lock factor: 0 = rotating, 1 = billboard centered on camera
         const lockT = THREE.MathUtils.smoothstep(1 - Math.abs(dTheta) / 0.25, 0, 1);
@@ -149,10 +153,9 @@ export class CameraController {
         const targetZ = R + (lockT > 0.15 ? ACTIVE_DIST : IDLE_DIST);
         this._currentZ += (targetZ - this._currentZ) * (1 - Math.exp(-3 * deltaTime));
 
-        // 4. Camera Y slides to board-centre height when active
-        //    After globe rotation, board world centre = (0, BOARD_Y, R+2.75)
-        //    camera.y = BOARD_Y → lookAt delta-Y = 0 → zero pitch guaranteed
-        const targetY = BOARD_Y * lockT;
+        // 4. Camera Y = 0 always — board arrives at (0, 0, R+2.75) after X-rotation
+        //    lookAt(0, 0, R+2.75) has zero Y component → zero pitch guaranteed
+        const targetY = 0;
         this._currentY += (targetY - this._currentY) * (1 - Math.exp(-3 * deltaTime));
 
         // 5. Idle parallax (suppressed when billboard active)
@@ -168,11 +171,11 @@ export class CameraController {
         );
         this.camera.up.set(0, 1, 0);
 
-        // 7. LookAt — active: head-on at board face centre; idle: origin
+        // 7. LookAt — active: board face at (0, 0, R+2.75); idle: origin
         if (lockT > 0.01) {
-            this.camera.lookAt(0, BOARD_Y, R + 2.75);
+            this.camera.lookAt(0, 0, R + 2.75);
         } else {
-            this.camera.lookAt(this._px * 0.15, 0, 0);
+            this.camera.lookAt(this._px * 0.15, this._py * 0.1, 0);
         }
 
         return this.getActiveSection();

@@ -383,18 +383,19 @@ export class World {
     createLandmark(section, _side, R) {
         const group = new THREE.Group();
 
-        // Place billboard on equatorial ring at its theta angle.
-        // worldGroup.rotation.y = -theta brings this billboard to (0, 0, R+2.5)
+        // Place billboard on the VERTICAL ring (Y-Z plane) at its theta angle.
+        // worldGroup.rotation.x = -theta brings this billboard from
+        // (0, sin(theta)*(R+2.5), cos(theta)*(R+2.5))  →  (0, 0, R+2.5)
         // directly in front of the static camera on the +Z axis.
         const theta = section.theta ?? (section.pathT * Math.PI * 2);
         group.position.set(
-            Math.sin(theta) * (R + 2.5),
             0,
+            Math.sin(theta) * (R + 2.5),
             Math.cos(theta) * (R + 2.5)
         );
 
-        // Face outward from the Y-axis (local -Z toward origin → local +Z = outward).
-        // camera.up=(0,1,0) aligns with group local Y=worldY → zero roll guaranteed.
+        // Face outward from origin along +Z-ish radial direction.
+        // group.up = (0,1,0) and lookAt(0,0,0) give correct billboard orientation.
         group.up.set(0, 1, 0);
         group.lookAt(0, 0, 0);
 

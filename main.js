@@ -29,27 +29,26 @@ const SECTION_DATA = [
 const SPHERE_RADIUS = 42;
 const PATH_ALTITUDE = 9;  // Raised from 6 → camera at R+9≈51, billboard center at R+9.5≈51.5 — eye-level framing
 
-// Road path — closed equatorial ring with gentle Y sinusoidal wobble.
-// Used only for the road geometry; sections navigate by theta rotation.
-function generateEquatorialPath(numPoints) {
+// Road path — closed vertical ring (Y-Z plane) with gentle X wobble.
+// Matches the globe's X-axis rotation so the road stays on the sphere surface.
+function generateVerticalRingPath(numPoints) {
     const points = [];
-    const r = SPHERE_RADIUS + 0.4;  // road sits just above terrain
+    const r = SPHERE_RADIUS + 0.4;
     for (let i = 0; i < numPoints; i++) {
-        const t     = i / numPoints;  // 0..1, NOT including endpoint (closed loop)
+        const t     = i / numPoints;
         const theta = t * Math.PI * 2;
-        const y     = Math.sin(theta * 3) * 4;  // gentle figure-8 wobble
-        const rFlat = Math.sqrt(r * r - y * y);
+        const xWobble = Math.sin(theta * 3) * 3;
         points.push(new THREE.Vector3(
-            rFlat * Math.sin(theta),
-            y,
-            rFlat * Math.cos(theta)
+            xWobble,
+            Math.sin(theta) * r,
+            Math.cos(theta) * r
         ));
     }
     return points;
 }
 
-// Road control points — equatorial closed loop
-const PATH_POINTS = generateEquatorialPath(80);
+// Road control points — vertical closed loop
+const PATH_POINTS = generateVerticalRingPath(80);
 
 // Assign theta (Y-rotation angle) to each section so the globe spins
 // quarter-by-quarter to bring each billboard to the +Z camera axis.
@@ -147,13 +146,13 @@ class App {
         // Closed equatorial path for the road geometry
         this.cameraPath = new THREE.CatmullRomCurve3(PATH_POINTS, true, 'catmullrom', 0.5);
 
-        // Section positions: each billboard anchored on equatorial ring by theta
+        // Section positions: each billboard on the vertical Y-Z ring by theta
         const R = SPHERE_RADIUS;
         const sectionPositions = SECTION_DATA.map(s => ({
             ...s,
             pos: new THREE.Vector3(
-                Math.sin(s.theta) * R,
                 0,
+                Math.sin(s.theta) * R,
                 Math.cos(s.theta) * R
             )
         }));
