@@ -192,16 +192,24 @@ export class CameraController {
         const bob = Math.sin(this.currentT * Math.PI * 20) * 0.08;
         offsetPos.addScaledVector(radialUp, bob);
 
-        // Jib up to billboard eye-level when arriving at a section.
-        // Billboard board center (Y=7 local) sits 3.5 units radially above
-        // default path altitude, so we smoothly raise the camera to match.
-        const jibTarget = this.activeSection
-            ? (() => {
-                const d = Math.abs(this.currentT - this.activeSection.pathT);
-                return THREE.MathUtils.smoothstep(1 - d / 0.06, 0, 1) * 3.5;
-              })()
-            : 0;
-        this._jibOffset += (jibTarget - this._jibOffset) * (1 - Math.exp(-5 * deltaTime));
+        // --- Dynamic jib: raise camera so billboard is EXACTLY at eye level ---
+        // Compute how far the billboard center sits along THIS camera's radial axis.
+        // For a level (zero-pitch) gaze we need camera radial altitude == billboard
+        // radial altitude. We solve for jib each frame so it is always exact,
+        // regardless of lateral offset or sphere curvature.
+        let jibTarget = 0;
+        if (billboardTarget && this.activeSection) {
+            const d = Math.abs(this.currentT - this.activeSection.pathT);
+            const lockT = THREE.MathUtils.smoothstep(1 - d / 0.06, 0, 1);
+            if (lockT > 0.001) {
+                // Project billboard center onto camera's radial-up axis
+                const billboardRadial = billboardTarget.dot(radialUp);
+                const cameraBaseRadial = position.dot(radialUp); // ≈ |position|
+                const perfectJib = billboardRadial - cameraBaseRadial;
+                jibTarget = lockT * perfectJib;
+            }
+        }
+        this._jibOffset += (jibTarget - this._jibOffset) * (1 - Math.exp(-6 * deltaTime));
         offsetPos.addScaledVector(radialUp, this._jibOffset);
 
         // Set camera position
@@ -213,12 +221,14 @@ export class CameraController {
             .addScaledVector(right, this.currentParallaxX * 0.3)
             .addScaledVector(radialUp, this.currentParallaxY * 0.15);
 
-        // Blend look-at toward billboard when near a section
+        // Blend look-at fully toward billboard when near a section.
+        // Use blendT (not blendT*0.92) — any residual path look-ahead
+        // would tilt the gaze up/down along the spiral curve.
         if (billboardTarget && this.activeSection) {
             const dist = Math.abs(this.currentT - this.activeSection.pathT);
             const blendT = THREE.MathUtils.smoothstep(1 - dist / 0.06, 0, 1);
-            if (blendT > 0.01) {
-                lookTarget.lerp(billboardTarget, blendT * 0.92);
+            if (blendT > 0.001) {
+                lookTarget.lerp(billboardTarget, blendT);
             }
         }
 
