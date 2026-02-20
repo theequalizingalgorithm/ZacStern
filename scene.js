@@ -402,8 +402,9 @@ export class World {
         const color = new THREE.Color(section.color || 0x0099e6);
 
         // ---- FLAT SECTION-SURFACE BILLBOARD ----
-        const boardW = 16;
-        const boardH = 11;
+        // 20×14 world units — large enough for HTML panel to fill most of frame
+        const boardW = 20;
+        const boardH = 14;
 
         const boardMat = new THREE.MeshStandardMaterial({
             color: 0xf5f0e8,
@@ -414,6 +415,8 @@ export class World {
         });
         const boardGeo = new THREE.BoxGeometry(boardW, boardH, 0.5);
         const board = new THREE.Mesh(boardGeo, boardMat);
+        // Board center Y=7: bottom at Y=0, top at Y=14
+        // Camera jibs to R+9.5 when active, aligning with board center
         board.position.set(0, 7.0, 0.1);
         board.receiveShadow = true;
         board.castShadow = true;
@@ -424,38 +427,39 @@ export class World {
             roughness: 0.62,
             metalness: 0.2
         });
-        // Frame edges: board center Y=7, half-height=5.5 → top=12.5, bottom=1.5
-        const frameTop = new THREE.Mesh(new THREE.BoxGeometry(boardW + 0.5, 0.35, 0.35), frameMat);
-        frameTop.position.set(0, 12.7, 0.1);
+        // Frame edges: board center Y=7, half-height=7 → top=14, bottom=0
+        const frameTop = new THREE.Mesh(new THREE.BoxGeometry(boardW + 0.5, 0.4, 0.4), frameMat);
+        frameTop.position.set(0, 14.2, 0.1);
         group.add(frameTop);
 
-        const frameBottom = new THREE.Mesh(new THREE.BoxGeometry(boardW + 0.5, 0.35, 0.35), frameMat);
-        frameBottom.position.set(0, 1.3, 0.1);
+        const frameBottom = new THREE.Mesh(new THREE.BoxGeometry(boardW + 0.5, 0.4, 0.4), frameMat);
+        frameBottom.position.set(0, -0.2, 0.1);
         group.add(frameBottom);
 
-        const frameLeft = new THREE.Mesh(new THREE.BoxGeometry(0.35, boardH + 0.35, 0.35), frameMat);
+        const frameLeft = new THREE.Mesh(new THREE.BoxGeometry(0.4, boardH + 0.4, 0.4), frameMat);
         frameLeft.position.set(-(boardW / 2 + 0.15), 7.0, 0.1);
         group.add(frameLeft);
 
-        const frameRight = new THREE.Mesh(new THREE.BoxGeometry(0.35, boardH + 0.35, 0.35), frameMat);
+        const frameRight = new THREE.Mesh(new THREE.BoxGeometry(0.4, boardH + 0.4, 0.4), frameMat);
         frameRight.position.set(boardW / 2 + 0.15, 7.0, 0.1);
         group.add(frameRight);
 
         const accent = new THREE.Mesh(
-            new THREE.BoxGeometry(boardW - 0.5, 1.0, 0.26),
+            new THREE.BoxGeometry(boardW - 0.5, 1.1, 0.28),
             new THREE.MeshStandardMaterial({
                 color,
                 emissive: color,
-                emissiveIntensity: 0.14,
-                roughness: 0.3,
-                metalness: 0.45
+                emissiveIntensity: 0.18,
+                roughness: 0.28,
+                metalness: 0.5
             })
         );
-        accent.position.set(0, 11.8, 0.13);
+        // Accent bar just under the top frame
+        accent.position.set(0, 13.3, 0.14);
         group.add(accent);
 
-        const glow = new THREE.PointLight(color, 0.65, 24);
-        glow.position.set(0, 7.0, 3.5);
+        const glow = new THREE.PointLight(color, 0.8, 28);
+        glow.position.set(0, 7.0, 4.0);
         group.add(glow);
 
         // Support posts — legs anchoring billboard to the ground
@@ -464,14 +468,14 @@ export class World {
             roughness: 0.75,
             metalness: 0.15
         });
-        const postGeo = new THREE.CylinderGeometry(0.2, 0.26, 8, 8);
+        const postGeo = new THREE.CylinderGeometry(0.22, 0.28, 8, 8);
         const leftPost = new THREE.Mesh(postGeo, postMat);
-        leftPost.position.set(-(boardW / 2 - 0.5), -2.0, 0);
+        leftPost.position.set(-(boardW / 2 - 1.0), -2.0, 0);
         leftPost.castShadow = true;
         group.add(leftPost);
 
         const rightPost = new THREE.Mesh(postGeo, postMat);
-        rightPost.position.set(boardW / 2 - 0.5, -2.0, 0);
+        rightPost.position.set(boardW / 2 - 1.0, -2.0, 0);
         rightPost.castShadow = true;
         group.add(rightPost);
 
@@ -800,9 +804,9 @@ export class World {
         const board = portal.board;
         const group = portal.group;
 
-        // Board local dimensions: 16 wide x 11 tall, positioned at (0, 7.0, 0.35)
-        const hw = 16 / 2;  // half width
-        const hh = 11 / 2;  // half height
+        // Board local dimensions: 20 wide x 14 tall, positioned at (0, 7.0, 0.1)
+        const hw = 20 / 2;  // half width = 10
+        const hh = 14 / 2;  // half height = 7
 
         // Local-space corner positions on the FRONT face of the board
         const corners = [

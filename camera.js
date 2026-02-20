@@ -37,6 +37,11 @@ export class CameraController {
         // Velocity for inertia
         this.velocity = 0;
 
+        // Camera jib — smooth altitude boost so billboard stays at eye-level
+        // Billboard board center is ~3.5 units radially above the default path altitude.
+        // When arriving at a section the camera jibs up to meet it.
+        this._jibOffset = 0;
+
         this._initEvents();
     }
 
@@ -186,6 +191,18 @@ export class CameraController {
         // Gentle bob along radial direction
         const bob = Math.sin(this.currentT * Math.PI * 20) * 0.08;
         offsetPos.addScaledVector(radialUp, bob);
+
+        // Jib up to billboard eye-level when arriving at a section.
+        // Billboard board center (Y=7 local) sits 3.5 units radially above
+        // default path altitude, so we smoothly raise the camera to match.
+        const jibTarget = this.activeSection
+            ? (() => {
+                const d = Math.abs(this.currentT - this.activeSection.pathT);
+                return THREE.MathUtils.smoothstep(1 - d / 0.06, 0, 1) * 3.5;
+              })()
+            : 0;
+        this._jibOffset += (jibTarget - this._jibOffset) * (1 - Math.exp(-5 * deltaTime));
+        offsetPos.addScaledVector(radialUp, this._jibOffset);
 
         // Set camera position
         this.camera.position.copy(offsetPos);

@@ -594,13 +594,12 @@ class App {
         const inner = panel.querySelector('.panel-inner');
         if (!inner) return;
 
-        // Cache the CSS-class max-width on first call (before inline overrides)
-        if (!panel._designW) {
-            const raw = getComputedStyle(inner).maxWidth;
-            panel._designW = (raw && raw !== 'none') ? parseFloat(raw) : 720;
-        }
-
-        const designW = panel._designW;
+        // Deterministic design width — matches the CSS class max-widths.
+        // Using slightly smaller values (buffer for padding) avoids scroll on first frame.
+        // directing / network / clientele → 860 (CSS: 900)
+        // all others → 680 (CSS: 720 for panel-right/left, those are the majority)
+        const wideIds = ['directing', 'network', 'clientele'];
+        const designW = wideIds.includes(sectionId) ? 860 : 680;
 
         // Scale factor: shrink content to fit billboard width (cap at 1×)
         const scale = Math.min(bbW / designW, 1.0);
