@@ -164,7 +164,8 @@ class App {
             0.1,
             1500
         );
-        this.camera.position.set(0, 5, 15);
+        // Start at the viewer position on the +Z axis
+        this.camera.position.set(0, 0, SPHERE_RADIUS + 58);
     }
 
     // ---- 3D World ----
@@ -183,11 +184,29 @@ class App {
 
     // ---- Camera Controller ----
     initCamera() {
+        // New paradigm: world rotates, camera is mostly static.
+        // Pass sections and sphereRadius (no path needed).
         this.cameraController = new CameraController(
             this.camera,
-            this.cameraPath,
-            SECTION_DATA
+            SECTION_DATA,
+            SPHERE_RADIUS
         );
+
+        // Give the controller a reference to the world group it will rotate
+        this.cameraController.setWorldGroup(this.world.worldGroup);
+
+        // Register each billboard's initial world position (before any rotation)
+        // so the controller can compute the quaternion to bring it to face +Z.
+        for (const section of SECTION_DATA) {
+            const pos = this.world.getBillboardPosition(section.id);
+            if (pos) this.cameraController.registerBillboard(section.id, pos);
+        }
+
+        // Navigate immediately to the first section and snap the world there
+        // so there is no spinning animation on page load.
+        this.cameraController.goToSection(SECTION_DATA[0].id);
+        const startQ = this.cameraController._sectionQuaternions.get(SECTION_DATA[0].id);
+        if (startQ) this.world.worldGroup.quaternion.copy(startQ);
     }
 
     // ---- Section Manager ----

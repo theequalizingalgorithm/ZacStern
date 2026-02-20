@@ -71,6 +71,10 @@ export class World {
             });
         }
 
+        // worldGroup contains everything that rotates with the planet.
+        // Lighting and sky stay in scene (world-space fixed).
+        this.worldGroup = new THREE.Group();
+
         this.createLighting();
         this.createSky();
         this.createTerrain();
@@ -80,6 +84,8 @@ export class World {
         this.createAtmosphere();
         this.createDecorations();
         this.createBubbles();
+
+        this.scene.add(this.worldGroup);
     }
 
     // ===================== LIGHTING =====================
@@ -195,7 +201,7 @@ export class World {
 
         this.terrainMesh = new THREE.Mesh(geo, mat);
         this.terrainMesh.receiveShadow = true;
-        this.scene.add(this.terrainMesh);
+        this.worldGroup.add(this.terrainMesh);
     }
 
     // ===================== CLOUDS (orbiting around the globe) =====================
@@ -250,7 +256,7 @@ export class World {
             group.userData.speed = 0.003 + Math.random() * 0.005;
             group.userData.wobble = Math.random() * Math.PI * 2;
 
-            this.scene.add(group);
+            this.worldGroup.add(group);
             this.clouds.push(group);
             this.cloudMaterials.push(mat);
         }
@@ -321,7 +327,7 @@ export class World {
 
         const road = new THREE.Mesh(geo, mat);
         road.receiveShadow = true;
-        this.scene.add(road);
+        this.worldGroup.add(road);
 
         this.createRoadBorders(pathPoints);
     }
@@ -353,7 +359,7 @@ export class World {
                 stone.position.copy(surfPt).addScaledVector(right, side * roadWidth / 2 * 1.15);
                 stone.rotation.set(Math.random() * 0.5, Math.random() * Math.PI, 0);
                 stone.castShadow = true;
-                this.scene.add(stone);
+                this.worldGroup.add(stone);
             }
         }
     }
@@ -368,7 +374,7 @@ export class World {
             // Alternate landmarks left/right of the road
             const side = (idx % 2 === 0) ? 1 : -1;
             const landmark = this.createLandmark(section, side, R);
-            this.scene.add(landmark.group);
+            this.worldGroup.add(landmark.group);
             this.portalMeshes.push(landmark);
             if (landmark.spinning) this.landmarkMeshes.push(landmark.spinning);
         }
@@ -715,7 +721,7 @@ export class World {
 
             const h = this._getSurfaceDisplacement(theta, phi);
             flower.position.copy(dir.clone().multiplyScalar(R + h + 0.2));
-            this.scene.add(flower);
+            this.worldGroup.add(flower);
         }
     }
 
@@ -771,7 +777,7 @@ export class World {
                 baseAlt: alt
             };
 
-            this.scene.add(bubble);
+            this.worldGroup.add(bubble);
             this.bubbles.push(bubble);
             this.bubbleMaterials.push(mat);
         }
@@ -888,7 +894,10 @@ export class World {
         if (cameraPos) {
             for (const portal of this.portalMeshes) {
                 if (!portal?.group) continue;
-                const d = portal.group.position.distanceTo(cameraPos);
+                // portal.group is inside worldGroup — need world-space position
+                const _gwp = new THREE.Vector3();
+                portal.group.getWorldPosition(_gwp);
+                const d = _gwp.distanceTo(cameraPos);
                 const nearT = THREE.MathUtils.clamp((80 - d) / 55, 0, 1);
                 const targetZ = portal._isActive ? 0.08 : THREE.MathUtils.lerp(0.55, 0.15, nearT);
                 const targetXY = portal._isActive ? 1.08 : THREE.MathUtils.lerp(1.0, 1.04, nearT);

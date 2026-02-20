@@ -1,83 +1,116 @@
 // ============================================================
-// CAMERA.JS — Scroll-Driven Cinematic Camera Controller
-// Smooth lerp, parallax sway, section snapping
+// CAMERA.JS — Globe-Rotation Paradigm
+//
+// The WORLD rotates to bring each billboard to the camera.
+// The camera is mostly static on the +Z axis:
+//   • Dollies forward when a billboard arrives (product-shot framing)
+//   • Slides Y to match billboard centre height (guaranteed zero pitch)
+//   • camera.up = (0,1,0) always — zero roll, zero tilt, ever
+//   • Subtle idle parallax fades out completely when locked on a section
 // ============================================================
 
 import * as THREE from 'three';
 
 export class CameraController {
-    constructor(camera, path, sectionData) {
-        this.camera = camera;
-        this.path = path;             // CatmullRomCurve3
-        this.sections = sectionData;  // [{id, name, pathT}, ...]
+    constructor(camera, sections, sphereRadius) {
+        this.camera       = camera;
+        this.sections     = sections;
+        this.sphereRadius = sphereRadius;
 
-        // Current & target progress along path [0, 1]
-        this.currentT = 0;
-        this.targetT = 0;
+        // worldGroup set after World is constructed via setWorldGroup()
+        this.worldGroup = null;
 
-        // Smooth interpolation
-        this.lerpSpeed = 1.5;
+        // Per-section quaternions: rotating worldGroup by Q_i brings section i's
+        // billboard to face the camera on the +Z axis.
+        this._sectionQuaternions = new Map();
 
-        // Mouse parallax
+        // Current target world rotation
+        this._targetQuat = new THREE.Quaternion();
+
+        // Section tracking
+        this.activeSectionIndex = 0;
+        this.activeSection      = null;
+
+        // Camera dolly — distance from sphere centre along +Z
+        this._idleDist    = 58;
+        this._activeDist  = 20;
+        this._currentDist = 58;
+
+        // Camera Y — slides to billboard centre world-Y for zero-pitch lookAt
+        this._currentY = 0;
+
+        // Idle mouse parallax (fully suppressed when billboard active)
         this.mouseX = 0;
         this.mouseY = 0;
-        this.parallaxAmount = 0.8;
-        this.currentParallaxX = 0;
-        this.currentParallaxY = 0;
 
-        // Section snap
-        this.snapThreshold = 0.015;
-        this.isSnapping = false;
+        // API shims kept for main.js scroll-sync compatibility
+        this.currentT    = 0;
+        this.targetT     = 0;
+        this.isSnapping  = false;
         this.snapTimeout = null;
-
-        // Active section tracking
-        this.activeSection = null;
-        this.activeSectionIndex = 0;
-
-        // Velocity for inertia
-        this.velocity = 0;
-
-        // Camera jib — smooth altitude boost so billboard stays at eye-level
-        // Billboard board center is ~3.5 units radially above the default path altitude.
-        // When arriving at a section the camera jibs up to meet it.
-        this._jibOffset = 0;
+        this.velocity    = 0;
+        this.lerpSpeed   = 3;
 
         this._initEvents();
     }
 
     _initEvents() {
-        // Mouse parallax
         window.addEventListener('mousemove', (e) => {
-            this.mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+            this.mouseX = (e.clientX / window.innerWidth  - 0.5) * 2;
             this.mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
         });
-
-        // Touch parallax (gyroscope-like via touch position)
         window.addEventListener('touchmove', (e) => {
             if (e.touches.length === 1) {
-                this.mouseX = (e.touches[0].clientX / window.innerWidth - 0.5) * 2;
+                this.mouseX = (e.touches[0].clientX / window.innerWidth  - 0.5) * 2;
                 this.mouseY = (e.touches[0].clientY / window.innerHeight - 0.5) * 2;
             }
         }, { passive: true });
     }
 
-    // Called by main.js when scroll position updates
-    setTargetProgress(t) {
-        this.targetT = Math.max(0, Math.min(1, t));
+    // ─── SETUP ───────────────────────────────────────────────────────────────
+
+    // Called by main.js once the World (and its worldGroup) is ready.
+    setWorldGroup(worldGroup) {
+        this.worldGroup = worldGroup;
     }
 
-    // Navigate to specific section
-    goToSection(sectionId) {
-        const section = this.sections.find(s => s.id === sectionId);
-        if (section) {
-            this.targetT = section.pathT;
-            this.isSnapping = true;
-            clearTimeout(this.snapTimeout);
-            this.snapTimeout = setTimeout(() => { this.isSnapping = false; }, 1500);
+    // Register initial world-space billboard position so we can compute the
+    // quaternion that rotates worldGroup to bring it to face +Z (the camera).
+    // Must be called BEFORE any worldGroup rotation (startup, once only).
+    registerBillboard(sectionId, worldPos) {
+        const dir = worldPos.clone().normalize();
+        const q   = new THREE.Quaternion().setFromUnitVectors(dir, new THREE.Vector3(0, 0, 1));
+        this._sectionQuaternions.set(sectionId, q);
+    }
+
+    // ─── NAVIGATION ──────────────────────────────────────────────────────────
+
+    setTargetProgress(t) {
+        this.targetT = Math.max(0, Math.min(1, t));
+        let closest = this.sections[0], closestDist = Infinity;
+        for (const s of this.sections) {
+            const d = Math.abs(t - s.pathT);
+            if (d < closestDist) { closestDist = d; closest = s; }
+        }
+        if (closest.id !== this.sections[this.activeSectionIndex]?.id) {
+            this.goToSection(closest.id);
         }
     }
 
-    // Go to next/previous section
+    goToSection(sectionId) {
+        const idx = this.sections.findIndex(s => s.id === sectionId);
+        if (idx >= 0) {
+            this.activeSectionIndex = idx;
+            this.currentT = this.sections[idx].pathT;
+            this.targetT  = this.currentT;
+        }
+        const q = this._sectionQuaternions.get(sectionId);
+        if (q) this._targetQuat.copy(q);
+        this.isSnapping = true;
+        clearTimeout(this.snapTimeout);
+        this.snapTimeout = setTimeout(() => { this.isSnapping = false; }, 1500);
+    }
+
     goToNext() {
         const idx = Math.min(this.activeSectionIndex + 1, this.sections.length - 1);
         this.goToSection(this.sections[idx].id);
@@ -90,155 +123,84 @@ export class CameraController {
         return this.sections[idx];
     }
 
-    // Get current active section based on camera position
-    getActiveSection() {
-        let closest = null;
-        let closestDist = Infinity;
-        let closestIdx = 0;
-
-        for (let i = 0; i < this.sections.length; i++) {
-            const dist = Math.abs(this.currentT - this.sections[i].pathT);
-            if (dist < closestDist) {
-                closestDist = dist;
-                closest = this.sections[i];
-                closestIdx = i;
-            }
-        }
-
-        this.activeSectionIndex = closestIdx;
-
-        // Only consider "active" if close enough
-        if (closestDist < 0.06) {
-            this.activeSection = closest;
-            return closest;
-        }
-
-        this.activeSection = null;
-        return null;
-    }
-
-    // Get the direction indicator for navigation
     getNavDirection() {
-        if (this.activeSectionIndex < this.sections.length - 1) {
-            const nextSection = this.sections[this.activeSectionIndex + 1];
-            const nextPos = this.path.getPoint(nextSection.pathT);
-            const currPos = this.path.getPoint(this.currentT);
-            return {
-                next: new THREE.Vector3().subVectors(nextPos, currPos).normalize(),
-                prev: this.activeSectionIndex > 0
-                    ? new THREE.Vector3().subVectors(
-                        this.path.getPoint(this.sections[this.activeSectionIndex - 1].pathT),
-                        currPos
-                    ).normalize()
-                    : null,
-                hasNext: true,
-                hasPrev: this.activeSectionIndex > 0
-            };
-        }
         return {
-            next: null,
-            prev: this.activeSectionIndex > 0
-                ? new THREE.Vector3().subVectors(
-                    this.path.getPoint(this.sections[this.activeSectionIndex - 1].pathT),
-                    this.path.getPoint(this.currentT)
-                ).normalize()
-                : null,
-            hasNext: false,
+            next: null, prev: null,
+            hasNext: this.activeSectionIndex < this.sections.length - 1,
             hasPrev: this.activeSectionIndex > 0
         };
     }
 
-    // ===================== UPDATE (called per frame) =====================
-    update(deltaTime, billboardTarget = null) {
-        // Smooth lerp current towards target
-        const lerpFactor = 1 - Math.exp(-this.lerpSpeed * deltaTime);
-        this.currentT += (this.targetT - this.currentT) * lerpFactor;
-        this.currentT = Math.max(0, Math.min(0.999, this.currentT));
+    // ─── ACTIVE SECTION DETECTION ────────────────────────────────────────────
 
-        // Base position and tangent on path
-        const position = this.path.getPoint(this.currentT);
-        const tangent  = this.path.getTangent(this.currentT).normalize();
-
-        // Radial up (outward from sphere centre — camera's own local "up")
-        const radialUp = position.clone().normalize();
-
-        // Right vector on sphere surface
-        const right = new THREE.Vector3().crossVectors(tangent, radialUp).normalize();
-
-        // Lock factor — how close are we to the active section?
-        let lockT = 0;
-        if (billboardTarget && this.activeSection) {
-            const d = Math.abs(this.currentT - this.activeSection.pathT);
-            lockT = THREE.MathUtils.smoothstep(1 - d / 0.06, 0, 1);
+    getActiveSection() {
+        if (!this.worldGroup) return null;
+        const angle = this.worldGroup.quaternion.angleTo(this._targetQuat);
+        if (angle < 0.25) {
+            this.activeSection = this.sections[this.activeSectionIndex];
+            return this.activeSection;
         }
+        this.activeSection = null;
+        return null;
+    }
 
-        // Parallax — fully suppressed when locked (no parallax Y ever causes pitch)
-        const pLerp = 1 - Math.exp(-4 * deltaTime);
-        const effectiveParallax = this.parallaxAmount * (1 - lockT);
-        this.currentParallaxX += (this.mouseX * effectiveParallax       - this.currentParallaxX) * pLerp;
-        this.currentParallaxY += (this.mouseY * effectiveParallax * 0.5 - this.currentParallaxY) * pLerp;
+    // ─── UPDATE (called every frame) ─────────────────────────────────────────
 
-        // Start from base path position + horizontal parallax sway only
-        const offsetPos = new THREE.Vector3()
-            .copy(position)
-            .addScaledVector(right, this.currentParallaxX);
+    update(deltaTime, billboardWorldPos = null) {
+        if (!this.worldGroup) return this.getActiveSection();
 
-        // Bob — killed when locked so it doesn't jitter the panel
-        if (lockT < 0.01) {
-            const bob = Math.sin(this.currentT * Math.PI * 20) * 0.08;
-            offsetPos.addScaledVector(radialUp, bob);
-        }
+        // 1. Rotate the WORLD toward the target quaternion.
+        //    Globe spins; camera barely moves. Core paradigm shift.
+        this.worldGroup.quaternion.slerp(this._targetQuat, 1 - Math.exp(-2.8 * deltaTime));
 
-        // ── PHYSICAL HEIGHT LIFT ────────────────────────────────────────────────
-        // Move camera's WORLD Y to match the billboard's WORLD Y.
-        // That way lookAt(billboard) is perfectly horizontal — zero pitch, no tilt.
-        // All previous approaches (dot product, radial scaling) were geometrically
-        // wrong. This is the direct solution: same Y → flat forward vector.
-        if (lockT > 0.001 && billboardTarget) {
-            const yDelta = billboardTarget.y - offsetPos.y;
-            this._jibOffset += (yDelta - this._jibOffset) * (1 - Math.exp(-12 * deltaTime));
-            offsetPos.y += this._jibOffset * lockT;
+        // 2. Lock factor: 0 = world still spinning, 1 = billboard fully facing camera
+        const angle = this.worldGroup.quaternion.angleTo(this._targetQuat);
+        const lockT = THREE.MathUtils.smoothstep(1 - angle / 0.3, 0, 1);
+
+        // 3. Dolly — push camera forward as billboard arrives
+        const targetDist = (billboardWorldPos && lockT > 0.15) ? this._activeDist : this._idleDist;
+        this._currentDist += (targetDist - this._currentDist) * (1 - Math.exp(-2.5 * deltaTime));
+
+        // 4. Camera Y — physically slide to billboard centre world-Y.
+        //    camera.y == billboard.y → lookAt forward vector is purely horizontal.
+        //    Zero pitch. Guaranteed. No exceptions.
+        const targetY = (billboardWorldPos && lockT > 0.1) ? billboardWorldPos.y : 0;
+        this._currentY += (targetY - this._currentY) * (1 - Math.exp(-3 * deltaTime));
+
+        // 5. Idle parallax — zero when billboard active so nothing re-introduces tilt
+        const idleStrength = 1 - lockT;
+        const px =  this.mouseX * 2.5 * idleStrength;
+        const py = -this.mouseY * 1.5 * idleStrength;
+
+        // 6. Camera position: fixed on +Z axis (idle parallax nudges X/Y only)
+        this.camera.position.set(
+            px,
+            this._currentY + py,
+            this.sphereRadius + this._currentDist
+        );
+
+        // 7. camera.up — always world Y. Never rolls, never tilts.
+        this.camera.up.set(0, 1, 0);
+
+        // 8. LookAt
+        //    Active: billboard centre. camera.y == billboard.y → zero pitch. ✓
+        //    Idle:   globe centre (Y-offset for smooth exit feel).
+        if (billboardWorldPos && lockT > 0.01) {
+            this.camera.lookAt(billboardWorldPos);
         } else {
-            this._jibOffset *= Math.exp(-6 * deltaTime);
-        }
-
-        this.camera.position.copy(offsetPos);
-
-        // ── LOOK TARGET ─────────────────────────────────────────────────────────
-        // Travelling: look slightly ahead on the path.
-        // At billboard: look DIRECTLY at billboard center — no blending with path
-        // look-ahead (path look-ahead introduced the upward pitch).
-        if (lockT > 0.001 && billboardTarget) {
-            // Pure direct lookAt — camera is now at the same altitude as the
-            // billboard so the forward vector is perpendicular to radialUp: zero pitch.
-            this.camera.up.copy(radialUp);
-            this.camera.lookAt(billboardTarget);
-        } else {
-            const lookAheadT  = Math.min(this.currentT + 0.01, 0.999);
-            const lookAheadPt = this.path.getPoint(lookAheadT);
-            const lookTarget  = new THREE.Vector3()
-                .copy(lookAheadPt)
-                .addScaledVector(right,    this.currentParallaxX * 0.3)
-                .addScaledVector(radialUp, this.currentParallaxY * 0.15);
-            this.camera.up.copy(radialUp);
-            this.camera.lookAt(lookTarget);
+            this.camera.lookAt(0, this._currentY, 0);
         }
 
         return this.getActiveSection();
     }
 
-    // Get scroll percentage for UI
+    // ─── UTILITIES ───────────────────────────────────────────────────────────
+
     getScrollPercent() {
-        return Math.round(this.currentT * 100);
+        if (this.sections.length <= 1) return 0;
+        return Math.round(this.activeSectionIndex / (this.sections.length - 1) * 100);
     }
 
-    // Get current path T
-    getCurrentT() {
-        return this.currentT;
-    }
-
-    // Get target path T (for syncing scroll position)
-    getTargetT() {
-        return this.targetT;
-    }
+    getCurrentT() { return this.sections[this.activeSectionIndex]?.pathT ?? 0; }
+    getTargetT()  { return this.targetT; }
 }
