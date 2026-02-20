@@ -35,10 +35,10 @@ function generateSpiralPath(numPoints) {
     const r = SPHERE_RADIUS + PATH_ALTITUDE;
     for (let i = 0; i < numPoints; i++) {
         const t = i / (numPoints - 1);
-        // ~1.2 full revolutions around the globe
-        const theta = t * Math.PI * 2.4;
-        // Latitude band: 54° to 126° from north pole
-        const phi = Math.PI * 0.3 + t * Math.PI * 0.4;
+        // Compact loop around the globe
+        const theta = t * Math.PI * 1.8;
+        // Narrow latitude band to avoid stretched long-world feel
+        const phi = Math.PI * 0.38 + t * Math.PI * 0.24;
         points.push(new THREE.Vector3(
             r * Math.sin(phi) * Math.cos(theta),
             r * Math.cos(phi),

@@ -48,10 +48,18 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 /* Billboard-side positioning: panels appear on the side of their billboard */
 .section-panel.panel-right{justify-content:flex-end;padding-right:2%}
 .section-panel.panel-left{justify-content:flex-start;padding-left:2%}
-.section-panel.panel-right .panel-inner,.section-panel.panel-left .panel-inner{max-width:520px}
+.section-panel.panel-right .panel-inner,.section-panel.panel-left .panel-inner{max-width:620px}
 
-@media(max-width:768px){.section-panel{padding:48px 4% 10px}
-.section-panel.panel-right,.section-panel.panel-left{justify-content:center;padding-left:4%;padding-right:4%}
+/* Wider panels for horizontal video rows so cards are not squeezed */
+.section-panel[data-section="directing"].panel-right .panel-inner,
+.section-panel[data-section="directing"].panel-left .panel-inner,
+.section-panel[data-section="network"].panel-right .panel-inner,
+.section-panel[data-section="network"].panel-left .panel-inner,
+.section-panel[data-section="clientele"].panel-right .panel-inner,
+.section-panel[data-section="clientele"].panel-left .panel-inner{max-width:860px}
+
+@media(max-width:768px){.section-panel{padding:42px 1% 2px}
+.section-panel.panel-right,.section-panel.panel-left{justify-content:center;padding-left:1%;padding-right:1%}
 .section-panel.panel-right .panel-inner,.section-panel.panel-left .panel-inner{max-width:100%}}
 
 .section-panel.active{opacity:1;pointer-events:auto;animation:panelEnter .5s cubic-bezier(.22,1,.36,1) both}
@@ -59,7 +67,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 
 .panel-inner{background:var(--panel-glass);backdrop-filter:blur(var(--panel-blur)) saturate(1.6);-webkit-backdrop-filter:blur(var(--panel-blur)) saturate(1.6);border-radius:20px;border:1.5px solid var(--bubble-border);box-shadow:0 8px 40px rgba(0,120,200,.15),inset 0 1px 3px rgba(255,255,255,.5),0 0 0 1px rgba(120,200,255,.15);max-width:1200px;width:100%;max-height:calc(100vh - 100px);padding:2rem 2.5rem;position:relative;pointer-events:auto}
 
-.panel-scrollable{overflow-y:auto;overflow-x:hidden;-ms-overflow-style:none;scrollbar-width:thin;scrollbar-color:rgba(0,153,230,.3) transparent}
+.panel-scrollable{overflow-y:auto;overflow-x:visible;-ms-overflow-style:none;scrollbar-width:thin;scrollbar-color:rgba(0,153,230,.3) transparent}
 .panel-scrollable::-webkit-scrollbar{width:6px}
 .panel-scrollable::-webkit-scrollbar-track{background:transparent}
 .panel-scrollable::-webkit-scrollbar-thumb{background:rgba(0,153,230,.3);border-radius:3px}
@@ -156,8 +164,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 /* ===== FEATURED SECTIONS (Horizontal Scroll) ===== */
 .featured-section{padding:1rem 0;max-width:1400px;margin:0 auto}
 
-.scroll-row-wrap{position:relative;padding:0 2.5rem}
-.scroll-row{display:flex;gap:1.2rem;overflow-x:auto;scroll-behavior:smooth;padding:1rem 0 1.5rem;-ms-overflow-style:none;scrollbar-width:none;touch-action:pan-x;cursor:grab}
+.scroll-row-wrap{position:relative;padding:0 2rem}
+.scroll-row{display:flex;gap:1.5rem;overflow-x:auto;scroll-behavior:smooth;padding:1rem 0 1.5rem;-ms-overflow-style:none;scrollbar-width:none;touch-action:pan-x;cursor:grab}
 .scroll-row.dragging{cursor:grabbing;scroll-behavior:auto;user-select:none}
 
 /* Content Samples: 2-up large 16:9 cards */
@@ -350,17 +358,17 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .contact-container{grid-template-columns:1fr}
 .projects-grid{grid-template-columns:1fr}
 .social-grid{grid-template-columns:1fr}
-.modal-content{width:min(96vw,900px);max-height:88vh}
+.modal-content{width:min(98vw,900px);max-height:90vh}
 .modal-content.modal-vertical{width:min(86vw,440px)}
 .hero-buttons{flex-direction:column}
 .btn{width:100%;text-align:center}
 .resume-timeline{padding-left:1.5rem}
-.scroll-row-wrap{padding:0 2rem}
+.scroll-row-wrap{padding:0 .25rem}
 .scroll-progress{top:50%;right:10px;left:auto;bottom:auto;transform:translateY(-50%)}
 #dodecaCanvas{width:48px;height:48px}
 .scroll-progress-label{font-size:.6rem}
 .nav-next{width:38px;height:38px;--arrow-size:24px;--arrow-depth:7px}
-.panel-inner{padding:1rem .6rem;max-height:calc(100vh - 56px)}
+.panel-inner{padding:.4rem .2rem;max-height:calc(100vh - 44px)}
 }
 @media(max-width:480px){
 .nav-menu{gap:.4rem;padding:.8rem}
@@ -385,5 +393,5 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 #dodecaCanvas{width:40px;height:40px}
 .scroll-progress-label{font-size:.5rem}
 .nav-next{width:34px;height:34px;--arrow-size:20px;--arrow-depth:6px}
-.panel-inner{padding:.6rem .4rem;max-height:calc(100vh - 48px)}
+.panel-inner{padding:.28rem .12rem;max-height:calc(100vh - 40px)}
 }
