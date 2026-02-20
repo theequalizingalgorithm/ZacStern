@@ -595,10 +595,11 @@ class App {
 
         // Build clip-path polygon from the 4 projected corners relative to panel origin.
         // pts order: [topLeft, topRight, bottomLeft, bottomRight]
-        const cpTLx = (pts[0].x - bbL).toFixed(1), cpTLy = (pts[0].y - bbT).toFixed(1);
-        const cpTRx = (pts[1].x - bbL).toFixed(1), cpTRy = (pts[1].y - bbT).toFixed(1);
-        const cpBRx = (pts[3].x - bbL).toFixed(1), cpBRy = (pts[3].y - bbT).toFixed(1);
-        const cpBLx = (pts[2].x - bbL).toFixed(1), cpBLy = (pts[2].y - bbT).toFixed(1);
+        // Round to integers — sub-pixel jitter every frame causes visible shaking.
+        const cpTLx = Math.round(pts[0].x - bbL), cpTLy = Math.round(pts[0].y - bbT);
+        const cpTRx = Math.round(pts[1].x - bbL), cpTRy = Math.round(pts[1].y - bbT);
+        const cpBRx = Math.round(pts[3].x - bbL), cpBRy = Math.round(pts[3].y - bbT);
+        const cpBLx = Math.round(pts[2].x - bbL), cpBLy = Math.round(pts[2].y - bbT);
         const clipPath = `polygon(${cpTLx}px ${cpTLy}px, ${cpTRx}px ${cpTRy}px, ${cpBRx}px ${cpBRy}px, ${cpBLx}px ${cpBLy}px)`;
 
         // Panel = clipping viewport locked to billboard rect.

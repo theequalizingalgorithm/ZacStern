@@ -153,101 +153,85 @@ export class CameraController {
         // Smooth lerp current towards target
         const lerpFactor = 1 - Math.exp(-this.lerpSpeed * deltaTime);
         this.currentT += (this.targetT - this.currentT) * lerpFactor;
-
-        // Clamp
         this.currentT = Math.max(0, Math.min(0.999, this.currentT));
 
-        // Get position and tangent on path
+        // Base position and tangent on path
         const position = this.path.getPoint(this.currentT);
-        const tangent = this.path.getTangent(this.currentT).normalize();
+        const tangent  = this.path.getTangent(this.currentT).normalize();
 
-        // Look-ahead point (slightly forward on path)
-        const lookAheadT = Math.min(this.currentT + 0.01, 0.999);
-        const lookAt = this.path.getPoint(lookAheadT);
-
-        // Smooth parallax — reduce when locked at a section
-        const pLerp = 1 - Math.exp(-4 * deltaTime);
-        let effectiveParallax = this.parallaxAmount;
-        if (this.activeSection) {
-            const dist = Math.abs(this.currentT - this.activeSection.pathT);
-            const lockT = THREE.MathUtils.smoothstep(1 - dist / 0.06, 0, 1);
-            effectiveParallax *= (1 - lockT * 0.85); // reduce parallax by 85% when locked
-        }
-        this.currentParallaxX += (this.mouseX * effectiveParallax - this.currentParallaxX) * pLerp;
-        this.currentParallaxY += (this.mouseY * effectiveParallax * 0.5 - this.currentParallaxY) * pLerp;
-
-        // Radial up vector (away from sphere center) — works correctly on a globe
+        // Radial up (outward from sphere centre — camera's own local "up")
         const radialUp = position.clone().normalize();
 
-        // Right vector: perpendicular to tangent on the sphere surface
+        // Right vector on sphere surface
         const right = new THREE.Vector3().crossVectors(tangent, radialUp).normalize();
 
-        // Apply parallax offset along sphere-surface-local axes
-        const offsetPos = new THREE.Vector3()
-            .copy(position)
-            .addScaledVector(right, this.currentParallaxX)
-            .addScaledVector(radialUp, this.currentParallaxY * 0.3);
-
-        // Gentle bob along radial direction
-        const bob = Math.sin(this.currentT * Math.PI * 20) * 0.08;
-        offsetPos.addScaledVector(radialUp, bob);
-
-        // --- Dynamic jib: raise camera so billboard is EXACTLY at eye level ---
-        // Compute how far the billboard center sits along THIS camera's radial axis.
-        // For a level (zero-pitch) gaze we need camera radial altitude == billboard
-        // radial altitude. We solve for jib each frame so it is always exact,
-        // regardless of lateral offset or sphere curvature.
-        let jibTarget = 0;
+        // Lock factor — how close are we to the active section?
+        let lockT = 0;
         if (billboardTarget && this.activeSection) {
             const d = Math.abs(this.currentT - this.activeSection.pathT);
-            const lockT = THREE.MathUtils.smoothstep(1 - d / 0.06, 0, 1);
-            if (lockT > 0.001) {
-                // Project billboard center onto camera's radial-up axis
-                const billboardRadial = billboardTarget.dot(radialUp);
-                const cameraBaseRadial = position.dot(radialUp); // ≈ |position|
-                const perfectJib = billboardRadial - cameraBaseRadial;
-                jibTarget = lockT * perfectJib;
-            }
+            lockT = THREE.MathUtils.smoothstep(1 - d / 0.06, 0, 1);
         }
-        this._jibOffset += (jibTarget - this._jibOffset) * (1 - Math.exp(-6 * deltaTime));
-        offsetPos.addScaledVector(radialUp, this._jibOffset);
 
-        // Set camera position
+        // Parallax — fully suppressed when locked (no parallax Y ever causes pitch)
+        const pLerp = 1 - Math.exp(-4 * deltaTime);
+        const effectiveParallax = this.parallaxAmount * (1 - lockT);
+        this.currentParallaxX += (this.mouseX * effectiveParallax       - this.currentParallaxX) * pLerp;
+        this.currentParallaxY += (this.mouseY * effectiveParallax * 0.5 - this.currentParallaxY) * pLerp;
+
+        // Start from base path position + horizontal parallax sway only
+        const offsetPos = new THREE.Vector3()
+            .copy(position)
+            .addScaledVector(right, this.currentParallaxX);
+
+        // Bob — killed when locked so it doesn't jitter the panel
+        if (lockT < 0.01) {
+            const bob = Math.sin(this.currentT * Math.PI * 20) * 0.08;
+            offsetPos.addScaledVector(radialUp, bob);
+        }
+
+        // ── PHYSICAL HEIGHT LIFT ────────────────────────────────────────────────
+        // The user wants the camera physically raised to the SAME altitude as the
+        // billboard (not a rotation/tilt). We do this by lerping the camera's
+        // radial distance toward billboardTarget.length().
+        //
+        // billboardTarget.length()  = actual radial distance of billboard from centre
+        // offsetPos.length()        = camera's current radial distance
+        // Scaling offsetPos along its own outward direction changes ONLY altitude,
+        // producing a pure Y-axis translation — exactly what was asked for.
+        if (lockT > 0.001 && billboardTarget) {
+            const targetAltitude  = billboardTarget.length();   // billboard radial distance
+            const currentAltitude = offsetPos.length();         // camera radial distance
+            // Lerp altitude quickly so camera snaps level before looking at board
+            this._jibOffset += ((targetAltitude - currentAltitude) - this._jibOffset)
+                              * (1 - Math.exp(-12 * deltaTime));
+            // Apply scale along outward direction — pure translation, no rotation
+            const correctedAltitude = currentAltitude + this._jibOffset * lockT;
+            offsetPos.normalize().multiplyScalar(correctedAltitude);
+        } else {
+            this._jibOffset *= Math.exp(-6 * deltaTime); // decay when not at section
+        }
+
         this.camera.position.copy(offsetPos);
 
-        // LookAt with parallax influence
-        const lookTarget = new THREE.Vector3()
-            .copy(lookAt)
-            .addScaledVector(right, this.currentParallaxX * 0.3)
-            .addScaledVector(radialUp, this.currentParallaxY * 0.15);
-
-        // Blend look-at fully toward billboard when near a section.
-        // Use blendT (not blendT*0.92) — any residual path look-ahead
-        // would tilt the gaze up/down along the spiral curve.
-        if (billboardTarget && this.activeSection) {
-            const dist = Math.abs(this.currentT - this.activeSection.pathT);
-            const blendT = THREE.MathUtils.smoothstep(1 - dist / 0.06, 0, 1);
-            if (blendT > 0.001) {
-                lookTarget.lerp(billboardTarget, blendT);
-            }
+        // ── LOOK TARGET ─────────────────────────────────────────────────────────
+        // Travelling: look slightly ahead on the path.
+        // At billboard: look DIRECTLY at billboard center — no blending with path
+        // look-ahead (path look-ahead introduced the upward pitch).
+        if (lockT > 0.001 && billboardTarget) {
+            // Pure direct lookAt — camera is now at the same altitude as the
+            // billboard so the forward vector is perpendicular to radialUp: zero pitch.
+            this.camera.up.copy(radialUp);
+            this.camera.lookAt(billboardTarget);
+        } else {
+            const lookAheadT  = Math.min(this.currentT + 0.01, 0.999);
+            const lookAheadPt = this.path.getPoint(lookAheadT);
+            const lookTarget  = new THREE.Vector3()
+                .copy(lookAheadPt)
+                .addScaledVector(right,    this.currentParallaxX * 0.3)
+                .addScaledVector(radialUp, this.currentParallaxY * 0.15);
+            this.camera.up.copy(radialUp);
+            this.camera.lookAt(lookTarget);
         }
-
-        // Camera up: normally the camera's own radialUp.
-        // BUT the billboard is ~6 world units off to the side, so its local vertical
-        // (offsetDir = billboardTarget.normalize()) is rotated ~7° from radialUp.
-        // That 7° mismatch shows up as a ROLL tilt on all billboard text/headers.
-        // Fix: blend camera.up toward the billboard's own vertical when locked.
-        let cameraUp = radialUp.clone();
-        if (billboardTarget && this.activeSection) {
-            const dist = Math.abs(this.currentT - this.activeSection.pathT);
-            const blendT = THREE.MathUtils.smoothstep(1 - dist / 0.06, 0, 1);
-            if (blendT > 0.001) {
-                const billboardUp = billboardTarget.clone().normalize();
-                cameraUp.lerp(billboardUp, blendT).normalize();
-            }
-        }
-        this.camera.up.copy(cameraUp);
-        this.camera.lookAt(lookTarget);
 
         return this.getActiveSection();
     }
