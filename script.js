@@ -523,19 +523,7 @@ function fetchSocialThumbnails() {
             }
         } catch(e) { /* keep placeholder */ }
     });
-    // Instagram oEmbed – try public endpoint, graceful fallback
-    document.querySelectorAll('.featured-card[data-instagram-url]').forEach(async card => {
-        try {
-            const url = card.dataset.instagramUrl;
-            const resp = await fetch(`https://api.instagram.com/oembed?url=${encodeURIComponent(url)}`);
-            if (!resp.ok) return;
-            const data = await resp.json();
-            if (data.thumbnail_url) {
-                const ph = card.querySelector('.thumb-placeholder');
-                if (ph) ph.outerHTML = `<img src="${data.thumbnail_url}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover">`;
-            }
-        } catch(e) { /* keep placeholder */ }
-    });
+    // Instagram oEmbed is blocked by CORS from static sites – skip fetch, keep icon placeholders
 }
 
 /* ===== 4. UGC VIDEOS (Vertical) ===== */
