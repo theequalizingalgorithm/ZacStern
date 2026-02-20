@@ -46,17 +46,14 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .section-panel{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s cubic-bezier(.22,1,.36,1);padding:60px 20px 20px}
 
 /* Billboard-side positioning: panels appear on the side of their billboard */
-.section-panel.panel-right{justify-content:flex-end;padding-right:2%}
-.section-panel.panel-left{justify-content:flex-start;padding-left:2%}
-.section-panel.panel-right .panel-inner,.section-panel.panel-left .panel-inner{max-width:640px}
+.section-panel.panel-right{justify-content:center;padding-right:5%}
+.section-panel.panel-left{justify-content:center;padding-left:5%}
+.section-panel.panel-right .panel-inner,.section-panel.panel-left .panel-inner{max-width:720px}
 
 /* Wider panels for horizontal video rows so cards are not squeezed */
-.section-panel[data-section="directing"].panel-right .panel-inner,
-.section-panel[data-section="directing"].panel-left .panel-inner,
-.section-panel[data-section="network"].panel-right .panel-inner,
-.section-panel[data-section="network"].panel-left .panel-inner,
-.section-panel[data-section="clientele"].panel-right .panel-inner,
-.section-panel[data-section="clientele"].panel-left .panel-inner{max-width:860px}
+.section-panel[data-section="directing"] .panel-inner,
+.section-panel[data-section="network"] .panel-inner,
+.section-panel[data-section="clientele"] .panel-inner{max-width:900px}
 
 @media(max-width:768px){.section-panel{padding:44px 2px 2px}
 .section-panel.panel-right,.section-panel.panel-left{justify-content:center;padding-left:2px;padding-right:2px}
@@ -65,9 +62,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .section-panel.active{opacity:1;pointer-events:auto;animation:panelEnter .5s cubic-bezier(.22,1,.36,1) both}
 .section-panel.exiting{opacity:0;pointer-events:none;animation:panelExit .4s cubic-bezier(.22,1,.36,1) both}
 
-.panel-inner{background:var(--panel-glass);backdrop-filter:none;-webkit-backdrop-filter:none;border-radius:14px;border:2px solid rgba(139,115,85,.65);box-shadow:0 8px 28px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.35);max-width:1200px;width:100%;max-height:calc(100vh - 100px);padding:1.2rem 1.4rem;position:relative;pointer-events:auto}
+.panel-inner{background:rgb(250,244,232);backdrop-filter:none;-webkit-backdrop-filter:none;border-radius:10px;border:3px solid #8b7355;box-shadow:0 10px 40px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.35),0 0 0 1px rgba(139,115,85,.4);max-width:1200px;width:100%;max-height:calc(100vh - 100px);padding:1.2rem 1.4rem;position:relative;pointer-events:auto}
 
-.panel-scrollable{overflow-y:auto;overflow-x:visible;-ms-overflow-style:none;scrollbar-width:thin;scrollbar-color:rgba(0,153,230,.3) transparent}
+.panel-scrollable{overflow-y:auto;overflow-x:hidden;-ms-overflow-style:none;scrollbar-width:thin;scrollbar-color:rgba(0,153,230,.3) transparent}
 .panel-scrollable::-webkit-scrollbar{width:6px}
 .panel-scrollable::-webkit-scrollbar-track{background:transparent}
 .panel-scrollable::-webkit-scrollbar-thumb{background:rgba(0,153,230,.3);border-radius:3px}
@@ -165,7 +162,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 /* ===== FEATURED SECTIONS (Horizontal Scroll) ===== */
 .featured-section{padding:1rem 0;max-width:1400px;margin:0 auto}
 
-.scroll-row-wrap{position:relative;padding:0 1.4rem}
+.scroll-row-wrap{position:relative;padding:0 30px}
 .scroll-row{display:flex;gap:1rem;overflow-x:auto;scroll-behavior:smooth;padding:.6rem 0 1rem;-ms-overflow-style:none;scrollbar-width:none;touch-action:pan-x;cursor:grab;pointer-events:auto;overscroll-behavior-x:contain}
 .scroll-row.dragging{cursor:grabbing;scroll-behavior:auto;user-select:none}
 
@@ -179,10 +176,10 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 #networkRow .featured-card .thumb-wrap{aspect-ratio:16/9}
 #clienteleRow .featured-card .thumb-wrap{aspect-ratio:9/16}
 .scroll-row::-webkit-scrollbar{display:none}
-.scroll-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--bubble-border);background:rgba(255,255,255,.6);backdrop-filter:blur(8px);color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease;font-size:1rem;box-shadow:var(--bubble-glow);pointer-events:auto}
+.scroll-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:20;width:44px;height:44px;border-radius:50%;border:2px solid var(--accent);background:rgba(255,255,255,.85);color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease;font-size:1.1rem;box-shadow:0 2px 10px rgba(0,0,0,.15);pointer-events:auto}
 .scroll-btn:hover{background:linear-gradient(135deg,#0088cc,#00b4d8);color:#fff;border-color:transparent;box-shadow:0 6px 20px rgba(0,153,230,.4)}
-.scroll-left{left:0}
-.scroll-right{right:0}
+.scroll-left{left:0px}
+.scroll-right{right:0px}
 
 /* Featured video card — 9:16 thumbnail in scroll row */
 .featured-card{min-width:200px;max-width:200px;border-radius:14px;overflow:hidden;transition:all .4s cubic-bezier(.22,1,.36,1);background:var(--glass);backdrop-filter:blur(12px);text-decoration:none;color:inherit;display:block;flex-shrink:0;cursor:pointer}

@@ -345,8 +345,6 @@ function initScrollButtons() {
         // Drag-to-scroll (pointer) with click-safe threshold
         let isDragging = false, startX = 0, scrollLeft = 0;
         let dragActivated = false;
-        let suppressClick = false;
-        let suppressTimer = null;
         row.addEventListener('pointerdown', (e) => {
             if (e.button !== 0) return;
             if (e.target.closest('.scroll-btn')) return;
@@ -356,13 +354,8 @@ function initScrollButtons() {
             startX = e.pageX;
             scrollLeft = row.scrollLeft;
         });
-        row.addEventListener('pointerleave', () => { isDragging = false; row.classList.remove('dragging'); });
+        row.addEventListener('pointerleave', () => { isDragging = false; dragActivated = false; row.classList.remove('dragging'); });
         row.addEventListener('pointerup', () => {
-            if (dragActivated) {
-                suppressClick = true;
-                if (suppressTimer) clearTimeout(suppressTimer);
-                suppressTimer = setTimeout(() => { suppressClick = false; }, 300);
-            }
             isDragging = false;
             dragActivated = false;
             row.classList.remove('dragging');
@@ -377,18 +370,6 @@ function initScrollButtons() {
             const walk = dx * 1.5;
             row.scrollLeft = scrollLeft - walk;
         });
-
-        // If a drag happened, suppress the trailing click so modal doesn't open accidentally
-        row.addEventListener('click', (e) => {
-            if (!suppressClick) return;
-            e.preventDefault();
-            e.stopPropagation();
-            suppressClick = false;
-            if (suppressTimer) {
-                clearTimeout(suppressTimer);
-                suppressTimer = null;
-            }
-        }, true);
 
         // Avoid native image/link dragging interfering with row dragging
         row.querySelectorAll('img').forEach(img => {
@@ -691,24 +672,49 @@ function initModal() {
         document.body.style.overflow = 'hidden';
     }
 
-    document.addEventListener('click', e => {
-        const card = e.target.closest('[data-video-src]');
-        if (!card) return;
-
-        const src = card.dataset.videoSrc;
-        if (!src) return;
-
-        const orient = card.dataset.orientation === 'vertical' ? 'vertical' : 'horizontal';
-        e.preventDefault();
-        e.stopPropagation();
-        openModal(src, orient);
-    });
-
     function closeModal() {
         modal.style.display = 'none';
         iframe.src = '';
         document.body.style.overflow = '';
     }
+
+    // Bind click directly to every card with data-video-src
+    function bindCardClicks() {
+        document.querySelectorAll('[data-video-src]').forEach(card => {
+            if (card._modalBound) return;
+            card._modalBound = true;
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', (e) => {
+                // If the card's parent scroll-row is in drag mode, skip
+                const row = card.closest('.scroll-row');
+                if (row && row.classList.contains('dragging')) return;
+
+                const src = card.dataset.videoSrc;
+                if (!src) return;
+                const orient = card.dataset.orientation === 'vertical' ? 'vertical' : 'horizontal';
+                e.preventDefault();
+                e.stopPropagation();
+                openModal(src, orient);
+            });
+        });
+    }
+
+    // Bind immediately and also after a short delay (for async renders)
+    bindCardClicks();
+    setTimeout(bindCardClicks, 500);
+    setTimeout(bindCardClicks, 2000);
+
+    // Also keep document-level delegation as fallback
+    document.addEventListener('click', e => {
+        const card = e.target.closest('[data-video-src]');
+        if (!card || card._modalBound) return;
+        const src = card.dataset.videoSrc;
+        if (!src) return;
+        const orient = card.dataset.orientation === 'vertical' ? 'vertical' : 'horizontal';
+        e.preventDefault();
+        e.stopPropagation();
+        openModal(src, orient);
+    });
 
     closeBtn.addEventListener('click', closeModal);
     modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
