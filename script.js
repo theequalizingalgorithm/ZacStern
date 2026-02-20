@@ -660,38 +660,66 @@ function initModal() {
     const closeBtn = document.getElementById('modalClose');
     if (!modal || !iframe) return;
 
+    function openModal(src, orientation = 'horizontal') {
+        iframe.src = src;
+        modalContent.className = 'modal-content ' + (orientation === 'vertical' ? 'modal-vertical' : 'modal-horizontal');
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function openFromCard(card) {
+        if (!card) return false;
+
+        const ytId = card.dataset.ytId;
+        if (ytId) {
+            openModal(`https://www.youtube.com/embed/${ytId}?autoplay=1&playsinline=1&rel=0`, 'horizontal');
+            return true;
+        }
+
+        const fileId = card.dataset.id;
+        if (fileId) {
+            const orient = card.dataset.orientation === 'vertical' ? 'vertical' : 'horizontal';
+            openModal(`https://drive.google.com/file/d/${fileId}/preview?autoplay=1`, orient);
+            return true;
+        }
+
+        return false;
+    }
+
+    function bindVideoModalTargets() {
+        document.querySelectorAll('.video-card, .featured-card[data-yt-id]').forEach(card => {
+            if (card.dataset.modalBound === '1') return;
+            card.dataset.modalBound = '1';
+            card.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openFromCard(card);
+            });
+        });
+    }
+
+    bindVideoModalTargets();
+
+    // Re-bind if cards are re-rendered
+    const observer = new MutationObserver(() => bindVideoModalTargets());
+    observer.observe(document.body, { childList: true, subtree: true });
+
     document.addEventListener('click', e => {
         // YouTube featured cards — open in modal
         const featuredCard = e.target.closest('.featured-card[data-yt-id]');
         if (featuredCard) {
             e.preventDefault();
             e.stopPropagation();
-            const ytId = featuredCard.dataset.ytId;
-            iframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&playsinline=1&rel=0`;
-            modalContent.className = 'modal-content modal-horizontal';
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
+            openFromCard(featuredCard);
             return;
         }
 
         // Drive video cards — open in modal (support both Drive and YouTube)
         const card = e.target.closest('.video-card');
         if (!card) return;
-        const ytIdFromCard = card.dataset.ytId;
-        if (ytIdFromCard) {
-            iframe.src = `https://www.youtube.com/embed/${ytIdFromCard}?autoplay=1&playsinline=1&rel=0`;
-            modalContent.className = 'modal-content modal-horizontal';
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-            return;
-        }
-        const fileId = card.dataset.id;
-        const orient = card.dataset.orientation;
-        if (!fileId) return;
-        iframe.src = `https://drive.google.com/file/d/${fileId}/preview?autoplay=1`;
-        modalContent.className = 'modal-content ' + (orient === 'horizontal' ? 'modal-horizontal' : 'modal-vertical');
-        modal.style.display = 'block';
-        document.body.style.overflow = 'hidden';
+        e.preventDefault();
+        e.stopPropagation();
+        openFromCard(card);
     });
 
     function closeModal() {
