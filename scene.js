@@ -380,23 +380,27 @@ export class World {
         }
     }
 
-    createLandmark(section, _side, R) {
+    createLandmark(section, side, R) {
         const group = new THREE.Group();
 
-        // Place billboard on the VERTICAL ring (Y-Z plane) at its theta angle.
-        // worldGroup.rotation.x = -theta brings this billboard from
-        // (0, sin(theta)*(R+2.5), cos(theta)*(R+2.5))  →  (0, 0, R+2.5)
-        // directly in front of the static camera on the +Z axis.
-        const theta = section.theta ?? (section.pathT * Math.PI * 2);
+        // Billboard sits on the vertical Y-Z ring, offset left/right of road.
+        // Rotation +theta around X brings this billboard to world
+        //   (side * OFFSET, 0, R+DIST) — beside the road, directly facing camera.
+        const theta   = section.theta ?? (section.pathT * Math.PI * 2);
+        const OFFSET  = 14;   // lateral distance from road centre-line
+        const DIST    = 2.5;  // how far above sphere surface
+        const xOff    = side * OFFSET;
         group.position.set(
-            0,
-            Math.sin(theta) * (R + 2.5),
-            Math.cos(theta) * (R + 2.5)
+            xOff,
+            Math.sin(theta) * (R + DIST),
+            Math.cos(theta) * (R + DIST)
         );
 
-        // Face outward from origin along +Z-ish radial direction.
-        // group.up = (0,1,0) and lookAt(0,0,0) give correct billboard orientation.
-        group.up.set(0, 1, 0);
+        // Orientation so the board appears upright when facing the camera:
+        //   up    = tangent along vertical ring at this theta = (0, cos θ, −sin θ)
+        //           → after worldGroup.rotation.x = +θ this becomes world (0,1,0)
+        //   lookAt origin → local +Z points radially outward
+        group.up.set(0, Math.cos(theta), -Math.sin(theta));
         group.lookAt(0, 0, 0);
 
         const color = new THREE.Color(section.color || 0x0099e6);
@@ -462,24 +466,21 @@ export class World {
         glow.position.set(0, 7.0, 4.0);
         group.add(glow);
 
-        // Support posts — legs anchoring billboard to the ground
+        // Single centre post — one leg planted in the ground below the board.
         const postMat = new THREE.MeshStandardMaterial({
             color: 0x6b5b45,
             roughness: 0.75,
             metalness: 0.15
         });
-        const postGeo = new THREE.CylinderGeometry(0.22, 0.28, 8, 8);
-        const leftPost = new THREE.Mesh(postGeo, postMat);
-        leftPost.position.set(-(boardW / 2 - 1.0), -2.0, 0);
-        leftPost.castShadow = true;
-        group.add(leftPost);
+        // Post reaches from below board-bottom (Y=0) down to sphere surface.
+        // Height 10 covers typical gap; sphere surface is ~DIST units below.
+        const postGeo = new THREE.CylinderGeometry(0.32, 0.42, 10, 10);
+        const post = new THREE.Mesh(postGeo, postMat);
+        post.position.set(0, -5, 0);  // centre of post at Y=-5 (bottom of board is Y=0)
+        post.castShadow = true;
+        group.add(post);
 
-        const rightPost = new THREE.Mesh(postGeo, postMat);
-        rightPost.position.set(boardW / 2 - 1.0, -2.0, 0);
-        rightPost.castShadow = true;
-        group.add(rightPost);
-
-        // Default with visible depth; flattens further when camera approaches
+        // Default scale (Z slightly compressed for depth perception at idle)
         group.scale.set(1, 1, 0.55);
 
         return {

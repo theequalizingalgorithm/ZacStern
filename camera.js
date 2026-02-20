@@ -132,19 +132,17 @@ export class CameraController {
 
     // ── UPDATE ───────────────────────────────────────────────────────────────
 
-    update(deltaTime /*, billboardFaceInfo – unused */) {
+    update(deltaTime, billboardFaceInfo = null) {
         const R = this.sphereRadius;
 
         // 1. Rotate globe around X-axis (vertical ferris-wheel spin)
-        //    Billboards are on the Y-Z vertical ring.
-        //    worldGroup.rotation.x = -theta brings the active billboard
-        //    from (0, sin(theta)*R, cos(theta)*R) → (0, 0, R) — directly
-        //    in front of the camera on the +Z axis.
+        //    Billboard at local (xOff, sin(θ)*R, cos(θ)*R).
+        //    Rotation +θ around X brings it to world (xOff, 0, R) — in front of camera.
         let dTheta = this._targetTheta - this._currentTheta;
         while (dTheta >  Math.PI) dTheta -= Math.PI * 2;
         while (dTheta < -Math.PI) dTheta += Math.PI * 2;
         this._currentTheta += dTheta * (1 - Math.exp(-2.8 * deltaTime));
-        if (this.worldGroup) this.worldGroup.rotation.x = -this._currentTheta;
+        if (this.worldGroup) this.worldGroup.rotation.x = this._currentTheta;
 
         // 2. Lock factor: 0 = rotating, 1 = billboard centered on camera
         const lockT = THREE.MathUtils.smoothstep(1 - Math.abs(dTheta) / 0.25, 0, 1);
@@ -171,8 +169,10 @@ export class CameraController {
         );
         this.camera.up.set(0, 1, 0);
 
-        // 7. LookAt — active: board face at (0, 0, R+2.75); idle: origin
-        if (lockT > 0.01) {
+        // 7. LookAt — active: real billboard face centre; idle: origin
+        if (lockT > 0.01 && billboardFaceInfo) {
+            this.camera.lookAt(billboardFaceInfo.center);
+        } else if (lockT > 0.01) {
             this.camera.lookAt(0, 0, R + 2.75);
         } else {
             this.camera.lookAt(this._px * 0.15, this._py * 0.1, 0);
