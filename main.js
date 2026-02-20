@@ -533,6 +533,9 @@ class App {
     }
 
     // ---- Position HTML panel to match billboard screen projection ----
+    // Uses CSS transform: scale() so content renders at its natural design
+    // width (720–1200 px) then shrinks uniformly to fit the billboard rect.
+    // Scrolling inside panel-scrollable still works at the virtual size.
     _positionPanelOnBillboard(sectionId) {
         const panel = document.querySelector(`.section-panel[data-section="${sectionId}"]`);
         if (!panel) return;
@@ -553,19 +556,16 @@ class App {
             };
         };
 
-        const sTL = project(corners.topLeft);
-        const sTR = project(corners.topRight);
-        const sBL = project(corners.bottomLeft);
-        const sBR = project(corners.bottomRight);
+        const pts = [corners.topLeft, corners.topRight, corners.bottomLeft, corners.bottomRight].map(project);
 
-        // Billboard behind camera or off-screen — don't reposition
-        if (sTL.z > 1 || sTR.z > 1 || sBL.z > 1 || sBR.z > 1) return;
+        // Billboard behind camera — don't reposition
+        if (pts.some(p => p.z > 1)) return;
 
         // Compute screen-space bounding rect of the projected quad
-        let left   = Math.min(sTL.x, sTR.x, sBL.x, sBR.x);
-        let right  = Math.max(sTL.x, sTR.x, sBL.x, sBR.x);
-        let top    = Math.min(sTL.y, sTR.y, sBL.y, sBR.y);
-        let bottom = Math.max(sTL.y, sTR.y, sBL.y, sBR.y);
+        let left   = Math.min(...pts.map(p => p.x));
+        let right  = Math.max(...pts.map(p => p.x));
+        let top    = Math.min(...pts.map(p => p.y));
+        let bottom = Math.max(...pts.map(p => p.y));
 
         // Clamp to viewport with margin for navbar
         const navH = 50;
@@ -578,65 +578,79 @@ class App {
         const rectH = bottom - top;
 
         // Only apply billboard positioning when billboard is large enough on screen
-        // (camera is close enough). Below this threshold, use default centered layout.
-        const minSize = 80; // px
+        const minSize = 80;
         if (rectW < minSize || rectH < minSize) {
             panel.style.cssText = '';
             return;
         }
 
-        // Add padding inside the billboard frame (inset from edges)
-        const padX = rectW * 0.04;
-        const padY = rectH * 0.04;
+        // Small inset from billboard frame edges
+        const pad = Math.min(rectW, rectH) * 0.03;
+        const bbL = left + pad;
+        const bbT = top + pad;
+        const bbW = rectW - pad * 2;
+        const bbH = rectH - pad * 2;
 
-        const innerLeft = left + padX;
-        const innerTop  = top + padY;
-        const innerW    = rectW - padX * 2;
-        const innerH    = rectH - padY * 2;
+        const inner = panel.querySelector('.panel-inner');
+        if (!inner) return;
 
-        // Apply positioning — override the default flex-center layout
+        // Cache the CSS-class max-width on first call (before inline overrides)
+        if (!panel._designW) {
+            const raw = getComputedStyle(inner).maxWidth;
+            panel._designW = (raw && raw !== 'none') ? parseFloat(raw) : 720;
+        }
+
+        const designW = panel._designW;
+
+        // Scale factor: shrink content to fit billboard width (cap at 1×)
+        const scale = Math.min(bbW / designW, 1.0);
+
+        // Virtual height: how tall the inner must be (in design px) so that
+        // when scaled it exactly fills the billboard height
+        const virtualH = bbH / Math.max(scale, 0.05);
+
+        // Horizontal offset to center content when scale is capped at 1
+        const xOff = (bbW - designW * scale) / 2;
+
+        // Panel = clipping viewport positioned at the billboard rect
         panel.style.cssText = `
-            position: fixed;
-            left: ${innerLeft}px;
-            top: ${innerTop}px;
-            width: ${innerW}px;
-            height: ${innerH}px;
-            display: flex;
-            align-items: stretch;
-            justify-content: stretch;
-            padding: 0;
-            z-index: 15;
-            opacity: 1;
-            visibility: visible;
+            position: fixed; inset: auto;
+            left: ${bbL}px; top: ${bbT}px;
+            width: ${bbW}px; height: ${bbH}px;
+            overflow: hidden; padding: 0;
+            z-index: 15; opacity: 1; visibility: visible;
             pointer-events: auto;
         `;
 
-        // Also constrain the panel-inner to fill the billboard rect
-        const inner = panel.querySelector('.panel-inner');
-        if (inner) {
-            inner.style.maxWidth = '100%';
-            inner.style.maxHeight = '100%';
-            inner.style.width = '100%';
-            inner.style.height = '100%';
-            inner.style.borderRadius = '2px';
-            inner.style.overflow = 'hidden';
+        // Inner renders at design width, then CSS-transform scales to fit
+        inner.style.width       = designW + 'px';
+        inner.style.height      = virtualH + 'px';
+        inner.style.maxWidth    = 'none';
+        inner.style.maxHeight   = 'none';
+        inner.style.transform   = `translate(${xOff}px, 0) scale(${scale})`;
+        inner.style.transformOrigin = 'top left';
+        inner.style.borderRadius = '4px';
+        inner.style.boxSizing   = 'border-box';
+        inner.style.overflow    = 'hidden';   // panel-scrollable handles scroll
+
+        // Ensure scrollable area fills remaining flex space & scrolls
+        const scrollable = panel.querySelector('.panel-scrollable');
+        if (scrollable) {
+            scrollable.style.overflowY = 'auto';
+            scrollable.style.flex      = '1';
+            scrollable.style.minHeight = '0';
         }
     }
 
-    // Reset panel positioning when leaving a section (called by section manager)
+    // Reset panel positioning when leaving a section
     _resetPanelPosition(sectionId) {
         const panel = document.querySelector(`.section-panel[data-section="${sectionId}"]`);
         if (!panel) return;
         panel.style.cssText = '';
         const inner = panel.querySelector('.panel-inner');
-        if (inner) {
-            inner.style.maxWidth = '';
-            inner.style.maxHeight = '';
-            inner.style.width = '';
-            inner.style.height = '';
-            inner.style.borderRadius = '';
-            inner.style.overflow = '';
-        }
+        if (inner) inner.style.cssText = '';
+        const scrollable = panel.querySelector('.panel-scrollable');
+        if (scrollable) scrollable.style.cssText = '';
     }
 
     // ---- Loading Screen ----
