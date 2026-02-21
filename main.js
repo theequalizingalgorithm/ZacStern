@@ -609,10 +609,10 @@ class App {
     }
 
     // ---- Position HTML panel to match billboard screen projection ----
-    // ---- Position HTML panel to match billboard screen projection ----
-    // Fluid fill: panel becomes the billboard rect clipping viewport.
-    // .billboard-active on panel-inner triggers compact CSS without transform tricks.
-    // No transform:scale so layout === visual bounds → no invisible pointer-event tiles.
+    // Projects 3D billboard corners to 2D screen coords, then positions the
+    // HTML panel as a clipped viewport exactly over the billboard face.
+    // With boardW=34, boardH=22, ACTIVE_DIST=22 the projected rect fills
+    // ~85% of the viewport — content is fully readable at normal font sizes.
     _positionPanelOnBillboard(sectionId) {
         const panel = document.querySelector(`.section-panel[data-section="${sectionId}"]`);
         if (!panel) return;
@@ -653,25 +653,24 @@ class App {
         const rectW = right - left;
         const rectH = bottom - top;
 
-        // Billboard too small on screen — use default centred layout
-        if (rectW < 80 || rectH < 80) {
+        // Billboard too small on screen — fall back to default centred layout
+        if (rectW < 120 || rectH < 120) {
             panel.style.cssText = '';
             const pi = panel.querySelector('.panel-inner');
             if (pi) { pi.style.cssText = ''; pi.classList.remove('billboard-active'); }
             return;
         }
 
-        // Panel fills the full bounding rect (no percentage inset).
+        // Panel fills the full bounding rect.
         // clip-path traces the actual projected quad so content appears
-        // physically mounted/flush on the billboard face.
+        // physically mounted on the billboard face.
         const bbL = left;
         const bbT = top;
         const bbW = rectW;
         const bbH = rectH;
 
-        // Build clip-path polygon from the 4 projected corners relative to panel origin.
-        // pts order: [topLeft, topRight, bottomLeft, bottomRight]
-        // Round to integers — sub-pixel jitter every frame causes visible shaking.
+        // Build clip-path polygon from projected corners relative to panel origin.
+        // Round to integers to prevent sub-pixel jitter each frame.
         const cpTLx = Math.round(pts[0].x - bbL), cpTLy = Math.round(pts[0].y - bbT);
         const cpTRx = Math.round(pts[1].x - bbL), cpTRy = Math.round(pts[1].y - bbT);
         const cpBRx = Math.round(pts[3].x - bbL), cpBRy = Math.round(pts[3].y - bbT);
@@ -679,7 +678,7 @@ class App {
         const clipPath = `polygon(${cpTLx}px ${cpTLy}px, ${cpTRx}px ${cpTRy}px, ${cpBRx}px ${cpBRy}px, ${cpBLx}px ${cpBLy}px)`;
 
         // Panel = clipping viewport locked to billboard rect.
-        // z-index 998: above canvas(0), below scroll-progress(999) and navbar(1000).
+        // z-index 998: above canvas, below scroll-progress & navbar.
         panel.style.cssText = `
             position: fixed; inset: auto;
             left: ${bbL}px; top: ${bbT}px;
@@ -694,8 +693,9 @@ class App {
         const inner = panel.querySelector('.panel-inner');
         if (!inner) return;
 
-        // Fluid fill — inner matches panel exactly.
-        // .billboard-active in CSS handles compact padding/font sizes.
+        // Billboard-active class triggers proper 3D-panel styling in CSS.
+        // Since the projected billboard is large (~85% viewport), content
+        // stays at readable font sizes — no compact cramming needed.
         inner.classList.add('billboard-active');
         inner.style.width      = '100%';
         inner.style.height     = '100%';

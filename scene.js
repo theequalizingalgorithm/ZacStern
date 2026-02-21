@@ -384,11 +384,11 @@ export class World {
     createLandmark(section, side, R) {
         const group = new THREE.Group();
 
-        // Place on the vertical Y-Z ring, offset left/right of road centre.
+        // Place on the vertical Y-Z ring, minimal lateral offset.
         // worldGroup.rotation.x = +theta brings this to (xOff, 0, R+DIST)
         // directly facing the camera.
         const theta  = section.theta ?? (section.pathT * Math.PI * 2);
-        const OFFSET = 12;  // lateral offset from road
+        const OFFSET = 2;   // minimal lateral offset — billboard nearly centered
         const DIST   = 6;   // radial float height above sphere surface
         group.position.set(
             side * OFFSET,
@@ -406,10 +406,10 @@ export class World {
         const color = new THREE.Color(section.color || 0x0099e6);
 
         // ── GLASS PANEL (board) ──────────────────────────────────────────────
-        // boardW=20, boardH=14, board at (0,7,0.1) — dimensions MUST stay the
-        // same; getBillboardCorners() reads them for HTML panel projection.
-        const boardW = 20;
-        const boardH = 14;
+        // boardW=34, boardH=22 — large enough to fill ~85% of viewport when
+        // camera is docked at ACTIVE_DIST=22. getBillboardCorners() reads these.
+        const boardW = 34;
+        const boardH = 22;
 
         const boardMat = new THREE.MeshPhysicalMaterial({
             color: 0xd8f0ff,
@@ -417,7 +417,7 @@ export class World {
             emissiveIntensity: 0.06,
             roughness: 0.04,
             metalness: 0.0,
-            transmission: 0.55,   // frosted glass transmission
+            transmission: 0.55,
             thickness: 0.2,
             ior: 1.4,
             transparent: true,
@@ -427,7 +427,7 @@ export class World {
         });
         const boardGeo = new THREE.BoxGeometry(boardW, boardH, 0.18);
         const board = new THREE.Mesh(boardGeo, boardMat);
-        board.position.set(0, 7.0, 0.1);
+        board.position.set(0, boardH / 2, 0.1);
         group.add(board);
 
         // ── GLOWING EDGE FRAME ───────────────────────────────────────────────
@@ -440,14 +440,14 @@ export class World {
             transparent: true,
             opacity: 0.9
         });
-        const edgeT = 0.22;   // edge bar thickness
-        const edgeD = 0.28;   // edge bar depth
-        // top / bottom / left / right bars
+        const edgeT = 0.25;
+        const edgeD = 0.3;
+        const boardCY = boardH / 2;
         [
-            { s: [boardW + edgeT, edgeT, edgeD], p: [0, 14.0 + edgeT * 0.5, 0.14] },
-            { s: [boardW + edgeT, edgeT, edgeD], p: [0, 0    - edgeT * 0.5, 0.14] },
-            { s: [edgeT, boardH,              edgeD], p: [-(boardW / 2 + edgeT * 0.5), 7.0, 0.14] },
-            { s: [edgeT, boardH,              edgeD], p: [ (boardW / 2 + edgeT * 0.5), 7.0, 0.14] }
+            { s: [boardW + edgeT, edgeT, edgeD], p: [0, boardH + edgeT * 0.5, 0.14] },
+            { s: [boardW + edgeT, edgeT, edgeD], p: [0, 0 - edgeT * 0.5, 0.14] },
+            { s: [edgeT, boardH, edgeD], p: [-(boardW / 2 + edgeT * 0.5), boardCY, 0.14] },
+            { s: [edgeT, boardH, edgeD], p: [ (boardW / 2 + edgeT * 0.5), boardCY, 0.14] }
         ].forEach(({ s, p }) => {
             const bar = new THREE.Mesh(new THREE.BoxGeometry(...s), edgeMat);
             bar.position.set(...p);
@@ -462,13 +462,13 @@ export class World {
             roughness: 0.0,
             metalness: 1.0
         });
-        const cornerSize = 0.55;
+        const cornerSize = 0.6;
         [[-1, 1], [1, 1], [-1, -1], [1, -1]].forEach(([sx, sy]) => {
             const c = new THREE.Mesh(
                 new THREE.BoxGeometry(cornerSize, cornerSize, 0.4),
                 cornerMat
             );
-            c.position.set(sx * (boardW / 2 + 0.1), sy > 0 ? 14.0 : 0.0, 0.2);
+            c.position.set(sx * (boardW / 2 + 0.1), sy > 0 ? boardH : 0.0, 0.2);
             group.add(c);
         });
 
@@ -482,12 +482,12 @@ export class World {
             depthWrite: false
         });
         const strip = new THREE.Mesh(new THREE.BoxGeometry(boardW - 0.6, 0.9, 0.05), stripMat);
-        strip.position.set(0, 13.4, 0.22);
+        strip.position.set(0, boardH - 0.6, 0.22);
         group.add(strip);
 
         // ── GLOW LIGHT ───────────────────────────────────────────────────────
         const glow = new THREE.PointLight(color, 1.2, 32);
-        glow.position.set(0, 7.0, 5.0);
+        glow.position.set(0, boardCY, 5.0);
         group.add(glow);
 
         return {
@@ -838,9 +838,9 @@ export class World {
         const board = portal.board;
         const group = portal.group;
 
-        // Board local dimensions: 20 wide x 14 tall, positioned at (0, 7.0, 0.1)
-        const hw = 20 / 2;  // half width = 10
-        const hh = 14 / 2;  // half height = 7
+        // Board local dimensions: 34 wide x 22 tall, positioned at (0, 11, 0.1)
+        const hw = 34 / 2;  // half width = 17
+        const hh = 22 / 2;  // half height = 11
 
         // Local-space corner positions on the FRONT face of the board
         const corners = [

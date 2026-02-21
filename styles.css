@@ -67,20 +67,20 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .panel-inner{background:rgba(250,244,232,0.88);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:6px;border:4px solid #8b7355;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 0 0 1px rgba(139,115,85,.4);max-width:1200px;width:100%;max-height:calc(100vh - 100px);padding:1.2rem 1.4rem;position:relative;pointer-events:auto;display:flex;flex-direction:column}
 
 /* ===== BILLBOARD COMPACT MODE =====
-   Applied via JS when panel is mounted onto the 3D billboard face.
-   Tighter padding + smaller type so content fills the billboard rect cleanly.
-   All interactive children (scroll-btn, video-card, etc.) keep pointer-events:auto. */
-.panel-inner.billboard-active{padding:.3rem .5rem;border-width:2px;border-radius:0;background:rgba(250,244,232,.95);font-size:.7rem}
-.panel-inner.billboard-active .section-header{margin-bottom:.35rem;padding-top:.05rem}
-.panel-inner.billboard-active .section-header h2{font-size:1rem;margin-bottom:.1rem}
-.panel-inner.billboard-active .section-subtitle{font-size:.68rem;letter-spacing:.4px}
-.panel-inner.billboard-active .retainer-list{font-size:.62rem;margin-top:.05rem}
-.panel-inner.billboard-active .scroll-row-wrap{gap:3px;padding:0 1px}
-.panel-inner.billboard-active .featured-card{min-width:120px;max-width:120px}
-.panel-inner.billboard-active .hero-title{font-size:clamp(.9rem,1.6vw,1.2rem)}
-.panel-inner.billboard-active .hero-subtitle{font-size:.62rem}
-.panel-inner.billboard-active .hero-inner{gap:.8rem}
-.panel-inner.billboard-active .hero-avatar{width:100px}
+   Applied via JS when panel is projected onto the 3D billboard face.
+   Billboard fills ~85% of viewport at ACTIVE_DIST=22 — content uses
+   normal readable sizes. Padding is tightened slightly to maximise space. */
+.panel-inner.billboard-active{padding:.8rem 1.2rem;border-width:2px;border-radius:0;background:rgba(250,244,232,.95);font-size:clamp(0.85rem,1.1vw,1rem)}
+.panel-inner.billboard-active .section-header{margin-bottom:.5rem;padding-top:.2rem}
+.panel-inner.billboard-active .section-header h2{font-size:clamp(1.3rem,2.2vw,1.8rem);margin-bottom:.2rem}
+.panel-inner.billboard-active .section-subtitle{font-size:clamp(.78rem,1.1vw,.95rem);letter-spacing:.5px}
+.panel-inner.billboard-active .retainer-list{font-size:clamp(.75rem,1vw,.9rem);margin-top:.1rem}
+.panel-inner.billboard-active .scroll-row-wrap{gap:8px;padding:0 4px}
+.panel-inner.billboard-active .featured-card{min-width:180px;max-width:240px}
+.panel-inner.billboard-active .hero-title{font-size:clamp(1.2rem,2.4vw,2rem)}
+.panel-inner.billboard-active .hero-subtitle{font-size:clamp(.78rem,1.1vw,.95rem)}
+.panel-inner.billboard-active .hero-inner{gap:1.2rem}
+.panel-inner.billboard-active .hero-avatar{width:140px}
 
 .panel-scrollable{overflow-y:auto;overflow-x:clip;-ms-overflow-style:none;scrollbar-width:thin;scrollbar-color:rgba(0,153,230,.3) transparent;flex:1;min-height:0}
 .panel-scrollable::-webkit-scrollbar{width:6px}

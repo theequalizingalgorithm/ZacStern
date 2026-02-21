@@ -11,9 +11,9 @@
 
 import * as THREE from 'three';
 
-const IDLE_DIST   = 62;   // camera z offset from sphere centre when browsing
-const ACTIVE_DIST = 36;   // camera z offset when docked at billboard (further = smaller billboard on screen)
-const BOARD_Y     = 7;    // board centre local-Y inside billboard group
+const IDLE_DIST   = 55;   // camera z offset from sphere centre when browsing
+const ACTIVE_DIST = 22;   // camera z offset when docked — billboard fills ~85% of viewport
+const BOARD_Y     = 11;   // board centre local-Y inside billboard group (boardH/2)
 
 export class CameraController {
     constructor(camera, worldGroup, sections, sphereRadius) {
@@ -151,10 +151,15 @@ export class CameraController {
         const targetZ = R + (lockT > 0.15 ? ACTIVE_DIST : IDLE_DIST);
         this._currentZ += (targetZ - this._currentZ) * (1 - Math.exp(-3 * deltaTime));
 
-        // 4. Camera Y = 0 always — board arrives at (0, 0, R+2.75) after X-rotation
-        //    lookAt(0, 0, R+2.75) has zero Y component → zero pitch guaranteed
+        // 4. Camera Y = 0 always — board arrives at Y=0 after X-rotation
         const targetY = 0;
         this._currentY += (targetY - this._currentY) * (1 - Math.exp(-3 * deltaTime));
+
+        // 4b. Camera X slides toward billboard X when docked
+        //     Billboard lateral offset is small (±2), so camera slides a bit to center it
+        const activeData = this.sections[this.activeSectionIndex];
+        const billboardX = activeData ? (this.activeSectionIndex % 2 === 0 ? 2 : -2) : 0;
+        const targetX = lockT * billboardX * 0.5;  // slide 50% toward billboard X
 
         // 5. Idle parallax (suppressed when billboard active)
         const idleAmt = 1 - lockT;
@@ -163,7 +168,7 @@ export class CameraController {
 
         // 6. Set camera position
         this.camera.position.set(
-            this._px * idleAmt,
+            targetX + this._px * idleAmt,
             this._currentY + this._py * idleAmt,
             this._currentZ
         );
