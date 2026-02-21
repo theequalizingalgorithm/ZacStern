@@ -53,7 +53,7 @@ export class CameraController {
         // Start at hero (theta=0)
         this.goToSection(sections[0].id);
         this._currentTheta = this._targetTheta;
-        if (this.worldGroup) this.worldGroup.rotation.y = 0;
+        if (this.worldGroup) this.worldGroup.rotation.x = 0;
     }
 
     _initEvents() {

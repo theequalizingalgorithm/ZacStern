@@ -93,6 +93,9 @@ class App {
     }
 
     init() {
+        // Hide loading screen immediately — don't wait for 3D to finish
+        this.hideLoadingScreen();
+
         // If low performance or flat mode, use simplified experience
         if (this.isFlat || this.performanceTier === 'low') {
             this.initFlatMode();
@@ -112,11 +115,8 @@ class App {
             this.animate();
         } catch (err) {
             console.error('3D init failed:', err);
-            // Fall back to flat mode so loading screen always clears
             this.initFlatMode();
-            return;
         }
-        this.hideLoadingScreen();
     }
 
     // ---- Three.js Renderer ----
