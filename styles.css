@@ -349,15 +349,31 @@ body.section-active .scroll-progress{opacity:0;pointer-events:none}
 .flat-mode #uiOverlay{display:block;position:relative;pointer-events:auto}
 .flat-mode .section-panel{position:relative;opacity:1;visibility:visible;pointer-events:auto;padding:0;animation:none;z-index:auto;display:flex;justify-content:center}
 .flat-mode .section-panel.flat-visible{display:flex;flex-direction:column;align-items:center;padding:1.5rem clamp(1rem,4vw,3rem)}
-.flat-mode .panel-inner{max-height:none;border-radius:16px;border:1.5px solid var(--bubble-border);box-shadow:0 4px 24px rgba(0,120,200,.08),inset 0 1px 3px rgba(255,255,255,.5);background:rgba(255,255,255,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:2rem 2.5rem;margin:0 auto;overflow:visible;width:100%;max-width:960px}
+.flat-mode .panel-inner{max-height:none;border-radius:16px;border:1.5px solid var(--bubble-border);box-shadow:0 4px 24px rgba(0,120,200,.08),inset 0 1px 3px rgba(255,255,255,.5);background:rgba(255,255,255,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:2rem 1.5rem;margin:0 auto;overflow:hidden;width:100%;max-width:960px}
 .flat-mode .section-panel[data-section="hero"] .panel-inner{background:linear-gradient(180deg,rgba(126,200,227,.5) 0%,rgba(255,255,255,.45) 100%);max-width:1000px}
 .flat-mode .section-panel[data-section="directing"] .panel-inner,
 .flat-mode .section-panel[data-section="network"] .panel-inner,
 .flat-mode .section-panel[data-section="clientele"] .panel-inner{max-width:1100px}
-.flat-mode .directing-section,.flat-mode .featured-section,.flat-mode .ugc-section,.flat-mode .projects-section,.flat-mode .social-section,.flat-mode .resume-section,.flat-mode .contact-section{padding:1.5rem 1rem}
+.flat-mode .directing-section,.flat-mode .featured-section,.flat-mode .ugc-section,.flat-mode .projects-section,.flat-mode .social-section,.flat-mode .resume-section,.flat-mode .contact-section{padding:1.5rem 0;max-width:100%;overflow:hidden;width:100%}
 .flat-mode .hero{margin-top:48px;min-height:clamp(280px,40vh,55vh)}
 .flat-mode .navbar{background:rgba(255,255,255,.55)}
 .flat-mode .section-header h2{font-size:clamp(1.4rem,2.5vw,1.85rem)}
+
+/* Flat mode: cards and rows fit within panel bounds */
+.flat-mode .scroll-row-wrap{width:100%;max-width:100%;overflow:hidden;padding:0}
+.flat-mode .scroll-row{padding:0.4rem 0;gap:.6rem}
+.flat-mode .featured-card{min-width:140px;max-width:140px}
+.flat-mode #horizontalGrid .video-card.h-scroll-card,.flat-mode #horizontalGrid .featured-card{min-width:calc(33.33% - .6rem);max-width:calc(33.33% - .6rem)}
+.flat-mode #networkRow .featured-card{min-width:calc(33.33% - .5rem);max-width:calc(33.33% - .5rem)}
+.flat-mode #clienteleRow .featured-card{min-width:120px;max-width:120px}
+.flat-mode .scroll-btn{width:32px;height:32px;font-size:.8rem;flex-shrink:0}
+.flat-mode .projects-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.2rem}
+.flat-mode .social-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.2rem}
+.flat-mode .contact-container{grid-template-columns:1fr;gap:1.5rem}
+.flat-mode .resume-section{max-width:100%!important}
+.flat-mode .resume-timeline{padding-left:1.5rem}
+.flat-mode .ugc-row{grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.8rem;width:100%}
+.flat-mode .panel-inner .panel-scrollable{overflow:visible;max-height:none}
 
 /* Dodecahedron: sidebar position in flat mode */
 .flat-mode .scroll-progress{position:fixed;top:50%;right:20px;left:auto;bottom:auto;transform:translateY(-50%);z-index:999;flex-direction:column;align-items:center;gap:8px;display:flex;opacity:1}
@@ -407,6 +423,10 @@ body:not(.flat-mode) .panel-inner{padding:.25rem .2rem;max-height:calc(100vh - 4
 .flat-mode .panel-inner{padding:1.2rem 1rem!important;border-radius:12px}
 .flat-mode .scroll-progress{right:8px}
 .flat-mode #dodecaCanvas{width:40px;height:40px}
+.flat-mode .featured-card{min-width:120px;max-width:120px}
+.flat-mode #horizontalGrid .video-card.h-scroll-card,.flat-mode #horizontalGrid .featured-card{min-width:calc(45% - .5rem);max-width:calc(45% - .5rem)}
+.flat-mode #networkRow .featured-card{min-width:calc(45% - .5rem);max-width:calc(45% - .5rem)}
+.flat-mode #clienteleRow .featured-card{min-width:100px;max-width:100px}
 }
 @media(max-width:480px){
 .nav-menu{gap:.4rem;padding:.8rem}
@@ -436,4 +456,8 @@ body:not(.flat-mode) .panel-inner{padding:.15rem .1rem;max-height:calc(100vh - 4
 .flat-mode .panel-inner{padding:1rem .8rem!important;border-radius:10px}
 .flat-mode .scroll-progress{right:6px}
 .flat-mode #dodecaCanvas{width:36px;height:36px}
+.flat-mode .featured-card{min-width:100px;max-width:100px}
+.flat-mode #horizontalGrid .video-card.h-scroll-card,.flat-mode #horizontalGrid .featured-card{min-width:calc(80% - .5rem);max-width:calc(80% - .5rem)}
+.flat-mode #networkRow .featured-card{min-width:calc(80% - .5rem);max-width:calc(80% - .5rem)}
+.flat-mode #clienteleRow .featured-card{min-width:80px;max-width:80px}
 }

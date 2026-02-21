@@ -498,7 +498,9 @@ export class World {
             board,
             baseQuaternion: group.quaternion.clone()
         };
-    }(sectionId, color) {
+    }
+
+    createSectionIcon(sectionId, color) {
         const mat = new THREE.MeshPhysicalMaterial({
             color: color,
             roughness: 0.12,
