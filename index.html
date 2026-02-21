@@ -5,26 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zac Stern - Creative Producer & Director</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
-    <link rel="stylesheet" href="styles.css?v=59">
+    <link rel="stylesheet" href="styles.css?v=60">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Three.js Import Map -->
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-        }
-    }
-    </script>
 </head>
-<body>
-
-    <!-- ===================== THREE.JS CANVAS ===================== -->
-    <canvas id="worldCanvas"></canvas>
-
-    <!-- ===================== SCROLL SPACER ===================== -->
-    <div id="scrollSpacer"></div>
+<body class="flat-mode">
 
     <!-- ===================== LOADING SCREEN ===================== -->
     <div id="loadingScreen">
@@ -51,9 +35,6 @@
                     <li><a href="#contact" class="nav-link">Contact</a></li>
                 </ul>
                 <div class="nav-right">
-                    <button id="flatModeToggle" class="flat-toggle" title="Toggle flat scroll mode">
-                        <i class="fas fa-layer-group"></i>
-                    </button>
                     <div class="hamburger">
                         <span></span>
                         <span></span>
@@ -205,16 +186,10 @@
             </div>
         </div>
 
-        <!-- ===================== 3D SCROLL PROGRESS + NAV ARROWS ===================== -->
+        <!-- ===================== DODECAHEDRON SCROLL INDICATOR ===================== -->
         <div class="scroll-progress" id="scrollProgress">
-            <button class="nav-arrow nav-prev" id="navPrev" aria-label="Previous section" title="Previous section">
-                <i class="fas fa-chevron-up"></i>
-            </button>
             <canvas id="dodecaCanvas" width="128" height="128"></canvas>
             <div class="scroll-progress-label" id="progressLabel">0%</div>
-            <button class="nav-arrow nav-next" id="navNext" aria-label="Next section" title="Next section">
-                <i class="fas fa-chevron-down"></i>
-            </button>
             <div class="section-name-label" id="sectionLabel"></div>
         </div>
 
@@ -246,26 +221,7 @@
     </footer>
 
     <!-- ===================== SCRIPTS ===================== -->
-    <!-- Existing content rendering (config.json → DOM) -->
-    <script src="script.js?v=59"></script>
-
-    <!-- 3D Immersive World (ES Module) -->
-    <script type="module" src="main.js?v=59"></script>
-
-    <!-- Failsafe: if the module never loads/runs (CDN fail, import error, etc.)
-         force the loading screen away after 6 seconds so the page is usable. -->
-    <script>
-        setTimeout(function() {
-            var ls = document.getElementById('loadingScreen');
-            if (ls && ls.style.display !== 'none' && ls.style.opacity !== '0') {
-                ls.style.opacity = '0';
-                setTimeout(function() { ls.style.display = 'none'; }, 700);
-                document.body.classList.add('flat-mode');
-                document.querySelectorAll('.section-panel').forEach(function(p) {
-                    p.classList.add('flat-visible');
-                });
-            }
-        }, 6000);
-    </script>
+    <script src="script.js?v=60"></script>
+    <script src="main.js?v=60"></script>
 </body>
 </html>
