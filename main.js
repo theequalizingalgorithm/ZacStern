@@ -99,17 +99,24 @@ class App {
             return;
         }
 
-        this.initThreeJS();
-        this.initWorld();
-        this.initCamera();
-        this.initSections();
-        this.initPostProcessing();
-        this.initScrollHandler();
-        this.initNavigation();
-        this.initResizeHandler();
-        this.initAccessibilityToggle();
+        try {
+            this.initThreeJS();
+            this.initWorld();
+            this.initCamera();
+            this.initSections();
+            this.initPostProcessing();
+            this.initScrollHandler();
+            this.initNavigation();
+            this.initResizeHandler();
+            this.initAccessibilityToggle();
+            this.animate();
+        } catch (err) {
+            console.error('3D init failed:', err);
+            // Fall back to flat mode so loading screen always clears
+            this.initFlatMode();
+            return;
+        }
         this.hideLoadingScreen();
-        this.animate();
     }
 
     // ---- Three.js Renderer ----
