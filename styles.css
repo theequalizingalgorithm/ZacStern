@@ -148,8 +148,9 @@ body.section-active .scroll-progress{opacity:0;pointer-events:none}
 .hamburger span{width:25px;height:3px;background:var(--accent);margin:4px 0;transition:.3s;border-radius:2px}
 
 /* Flat Mode Toggle Button */
-.flat-toggle{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--bubble-border);background:rgba(255,255,255,.4);backdrop-filter:blur(6px);color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.75rem;transition:all .3s ease}
-.flat-toggle:hover{background:var(--accent);color:#fff;border-color:transparent}
+.flat-toggle{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--bubble-border);background:rgba(255,255,255,.5);backdrop-filter:blur(6px);color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.8rem;transition:all .3s ease;box-shadow:var(--bubble-glow)}
+.flat-toggle:hover{background:linear-gradient(135deg,#0088cc,#00b4d8);color:#fff;border-color:transparent;box-shadow:0 4px 15px rgba(0,153,230,.4);transform:scale(1.1)}
+.flat-toggle:active{transform:scale(.95)}
 
 /* ===== HERO ===== */
 .hero{min-height:auto;display:flex;align-items:center;justify-content:center;padding:1rem 1rem;position:relative;overflow:hidden}
@@ -346,18 +347,30 @@ body.section-active .scroll-progress{opacity:0;pointer-events:none}
 .flat-mode #worldCanvas{display:none!important}
 .flat-mode #scrollSpacer{display:none!important}
 .flat-mode #uiOverlay{display:block;position:relative;pointer-events:auto}
-.flat-mode .section-panel{position:relative;opacity:1;visibility:visible;pointer-events:auto;padding:0;animation:none;z-index:auto}
-.flat-mode .section-panel.flat-visible{display:flex;flex-direction:column;align-items:center;padding:0 1.5rem}
-.flat-mode .panel-inner{max-height:none;border-radius:0;border:none;box-shadow:none;background:transparent;backdrop-filter:none;padding:2.5rem 2rem;margin:0 auto;overflow:visible}
-.flat-mode .section-panel[data-section="hero"] .panel-inner{background:linear-gradient(180deg,rgba(126,200,227,.4) 0%,rgba(168,216,234,.2) 100%)}
-.flat-mode .directing-section,.flat-mode .featured-section,.flat-mode .ugc-section,.flat-mode .projects-section,.flat-mode .social-section,.flat-mode .resume-section,.flat-mode .contact-section{padding:2.5rem 2rem}
+.flat-mode .section-panel{position:relative;opacity:1;visibility:visible;pointer-events:auto;padding:0;animation:none;z-index:auto;display:flex;justify-content:center}
+.flat-mode .section-panel.flat-visible{display:flex;flex-direction:column;align-items:center;padding:1.5rem clamp(1rem,4vw,3rem)}
+.flat-mode .panel-inner{max-height:none;border-radius:16px;border:1.5px solid var(--bubble-border);box-shadow:0 4px 24px rgba(0,120,200,.08),inset 0 1px 3px rgba(255,255,255,.5);background:rgba(255,255,255,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:2rem 2.5rem;margin:0 auto;overflow:visible;width:100%;max-width:960px}
+.flat-mode .section-panel[data-section="hero"] .panel-inner{background:linear-gradient(180deg,rgba(126,200,227,.5) 0%,rgba(255,255,255,.45) 100%);max-width:1000px}
+.flat-mode .section-panel[data-section="directing"] .panel-inner,
+.flat-mode .section-panel[data-section="network"] .panel-inner,
+.flat-mode .section-panel[data-section="clientele"] .panel-inner{max-width:1100px}
+.flat-mode .directing-section,.flat-mode .featured-section,.flat-mode .ugc-section,.flat-mode .projects-section,.flat-mode .social-section,.flat-mode .resume-section,.flat-mode .contact-section{padding:1.5rem 1rem}
 .flat-mode .hero{margin-top:48px;min-height:clamp(280px,40vh,55vh)}
 .flat-mode .navbar{background:rgba(255,255,255,.55)}
-.flat-mode .scroll-progress{top:58px;transform:none}
-.flat-mode .nav-arrow{display:none}
-.flat-mode .section-name-label{display:none}
-.flat-mode .panel-inner{padding:2rem 1.5rem!important;overflow:visible!important}
-.flat-mode .section-header h2{font-size:1.6rem}
+.flat-mode .section-header h2{font-size:clamp(1.4rem,2.5vw,1.85rem)}
+
+/* Dodecahedron: sidebar position in flat mode */
+.flat-mode .scroll-progress{position:fixed;top:50%;right:20px;left:auto;bottom:auto;transform:translateY(-50%);z-index:999;flex-direction:column;align-items:center;gap:8px;display:flex;opacity:1}
+body.section-active.flat-mode .scroll-progress{opacity:1;pointer-events:auto}
+body.flat-mode .nav-arrow.nav-prev{display:flex!important;width:34px;height:34px;font-size:.8rem}
+body.flat-mode .nav-arrow.nav-prev i{display:block!important}
+body.flat-mode .nav-next{display:flex!important;pointer-events:auto!important;width:34px;height:34px;order:2;margin:0;border-radius:50%;border:1.5px solid var(--bubble-border);background:rgba(255,255,255,.5);backdrop-filter:blur(8px);color:var(--accent);cursor:pointer;align-items:center;justify-content:center;box-shadow:var(--bubble-glow);--arrow-size:0;--arrow-depth:0}
+body.flat-mode .nav-next::before,body.flat-mode .nav-next::after{display:none!important}
+body.flat-mode .nav-next i{display:block!important;font-size:.8rem}
+body.flat-mode .nav-next:hover{background:linear-gradient(135deg,#0088cc,#00b4d8);color:#fff;transform:scale(1.1)}
+.flat-mode .section-name-label{display:block;opacity:1;max-width:none;font-size:.55rem;letter-spacing:1px}
+.flat-mode #dodecaCanvas{width:52px;height:52px}
+.flat-mode .scroll-progress-label{font-size:.65rem}
 
 /* ===== RESPONSIVE ===== */
 @media(max-width:768px){
@@ -390,7 +403,10 @@ body.section-active .scroll-progress{opacity:0;pointer-events:none}
 #dodecaCanvas{width:48px;height:48px}
 .scroll-progress-label{font-size:.6rem}
 .nav-next,.nav-prev{width:38px;height:38px;--arrow-size:24px;--arrow-depth:7px}
-.panel-inner{padding:.25rem .2rem;max-height:calc(100vh - 46px)}
+body:not(.flat-mode) .panel-inner{padding:.25rem .2rem;max-height:calc(100vh - 46px)}
+.flat-mode .panel-inner{padding:1.2rem 1rem!important;border-radius:12px}
+.flat-mode .scroll-progress{right:8px}
+.flat-mode #dodecaCanvas{width:40px;height:40px}
 }
 @media(max-width:480px){
 .nav-menu{gap:.4rem;padding:.8rem}
@@ -416,5 +432,8 @@ body.section-active .scroll-progress{opacity:0;pointer-events:none}
 #dodecaCanvas{width:40px;height:40px}
 .scroll-progress-label{font-size:.5rem}
 .nav-next,.nav-prev{width:34px;height:34px;--arrow-size:20px;--arrow-depth:6px}
-.panel-inner{padding:.15rem .1rem;max-height:calc(100vh - 46px)}
+body:not(.flat-mode) .panel-inner{padding:.15rem .1rem;max-height:calc(100vh - 46px)}
+.flat-mode .panel-inner{padding:1rem .8rem!important;border-radius:10px}
+.flat-mode .scroll-progress{right:6px}
+.flat-mode #dodecaCanvas{width:36px;height:36px}
 }

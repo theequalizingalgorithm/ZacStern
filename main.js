@@ -65,12 +65,15 @@ function detectPerformanceTier() {
     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
     const renderer = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : '';
 
-    // Check for mobile / low-end indicators
-    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-    const isLowGPU = /SwiftShader|Mesa|Intel HD|Intel\(R\) HD/i.test(renderer);
-    const smallScreen = window.innerWidth < 768;
+    // Only truly incapable hardware gets 'low' (flat mode)
+    const isSwiftShader = /SwiftShader/i.test(renderer);
+    if (isSwiftShader) return 'low';
 
-    if (isMobile || isLowGPU || smallScreen) return 'low';
+    // Mobile phones get medium (still try 3D with reduced quality)
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    if (isMobile) return 'medium';
+
+    // Intel integrated = medium, dedicated GPU = high
     if (/Intel/i.test(renderer)) return 'medium';
     return 'high';
 }
@@ -96,7 +99,8 @@ class App {
         // Hide loading screen immediately — don't wait for 3D to finish
         this.hideLoadingScreen();
 
-        // If low performance or flat mode, use simplified experience
+        // If user explicitly chose flat mode, use simplified experience
+        // Performance tier 'low' only triggers on truly incapable hardware (SwiftShader)
         if (this.isFlat || this.performanceTier === 'low') {
             this.initFlatMode();
             return;
@@ -483,16 +487,26 @@ class App {
         });
     }
 
-    // ---- Accessibility Toggle ----
+    // ---- Mode Toggle (Immersive 3D ↔ Flat Scroll) ----
     initAccessibilityToggle() {
         const btn = document.getElementById('flatModeToggle');
-        if (btn) {
-            btn.addEventListener('click', () => {
-                this.isFlat = !this.isFlat;
-                localStorage.setItem('flatScrollMode', this.isFlat.toString());
-                window.location.reload();
-            });
+        if (!btn) return;
+
+        // Update icon to reflect current mode
+        const icon = btn.querySelector('i');
+        if (this.isFlat || document.body.classList.contains('flat-mode')) {
+            if (icon) { icon.className = 'fas fa-cube'; }
+            btn.title = 'Switch to Immersive 3D';
+        } else {
+            if (icon) { icon.className = 'fas fa-layer-group'; }
+            btn.title = 'Switch to Flat Scroll';
         }
+
+        btn.addEventListener('click', () => {
+            this.isFlat = !this.isFlat;
+            localStorage.setItem('flatScrollMode', this.isFlat.toString());
+            window.location.reload();
+        });
     }
 
     // ---- Flat Mode (Mobile / Accessibility Fallback) ----
@@ -512,11 +526,86 @@ class App {
             panel.classList.add('flat-visible');
         });
 
+        // Wire up nav arrows for flat-mode section jumping
+        this._initFlatNavigation();
+
         // Hide loading screen
         this.hideLoadingScreen();
 
-        // Init accessibility toggle
+        // Init mode toggle
         this.initAccessibilityToggle();
+    }
+
+    // ---- Flat mode: nav arrows scroll to prev/next section ----
+    _initFlatNavigation() {
+        const sectionIds = SECTION_DATA.map(s => s.id);
+        let currentIdx = 0;
+
+        const updateLabel = () => {
+            const label = document.getElementById('sectionLabel');
+            if (label) {
+                label.textContent = SECTION_DATA[currentIdx].name;
+                label.style.opacity = '1';
+            }
+        };
+
+        // Determine current section from scroll position
+        const detectCurrentSection = () => {
+            const panels = sectionIds.map(id =>
+                document.querySelector(`.section-panel[data-section="${id}"]`)
+            ).filter(Boolean);
+            const viewMid = window.scrollY + window.innerHeight * 0.4;
+            for (let i = panels.length - 1; i >= 0; i--) {
+                if (panels[i].offsetTop <= viewMid) { currentIdx = i; break; }
+            }
+            updateLabel();
+        };
+
+        window.addEventListener('scroll', detectCurrentSection, { passive: true });
+        detectCurrentSection();
+
+        // Nav arrows (prev/next)
+        const prevBtn = document.getElementById('navPrev');
+        const nextBtn = document.getElementById('navNext');
+
+        if (prevBtn) {
+            prevBtn.style.pointerEvents = 'auto';
+            prevBtn.addEventListener('click', () => {
+                if (currentIdx > 0) {
+                    currentIdx--;
+                    const panel = document.querySelector(`.section-panel[data-section="${sectionIds[currentIdx]}"]`);
+                    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    updateLabel();
+                }
+            });
+        }
+        if (nextBtn) {
+            nextBtn.style.pointerEvents = 'auto';
+            nextBtn.addEventListener('click', () => {
+                if (currentIdx < sectionIds.length - 1) {
+                    currentIdx++;
+                    const panel = document.querySelector(`.section-panel[data-section="${sectionIds[currentIdx]}"]`);
+                    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    updateLabel();
+                }
+            });
+        }
+
+        // Also wire up internal links
+        document.querySelectorAll('.nav-link, .btn[href^="#"], .footer-links a[href^="#"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const id = link.getAttribute('href')?.replace('#', '');
+                const idx = sectionIds.indexOf(id);
+                if (idx >= 0) {
+                    currentIdx = idx;
+                    const panel = document.querySelector(`.section-panel[data-section="${id}"]`);
+                    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    document.querySelector('.nav-menu')?.classList.remove('active');
+                    updateLabel();
+                }
+            });
+        });
     }
 
     // ---- Position HTML panel to match billboard screen projection ----
