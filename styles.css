@@ -82,7 +82,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#000;col
 .panel-inner.billboard-active .hero-inner{gap:.8rem}
 .panel-inner.billboard-active .hero-avatar{width:100px}
 
-.panel-scrollable{overflow-y:auto;overflow-x:hidden;-ms-overflow-style:none;scrollbar-width:thin;scrollbar-color:rgba(0,153,230,.3) transparent;flex:1;min-height:0}
+.panel-scrollable{overflow-y:auto;overflow-x:clip;-ms-overflow-style:none;scrollbar-width:thin;scrollbar-color:rgba(0,153,230,.3) transparent;flex:1;min-height:0}
 .panel-scrollable::-webkit-scrollbar{width:6px}
 .panel-scrollable::-webkit-scrollbar-track{background:transparent}
 .panel-scrollable::-webkit-scrollbar-thumb{background:rgba(0,153,230,.3);border-radius:3px}
@@ -172,7 +172,7 @@ body.section-active .scroll-progress{opacity:0;pointer-events:none}
 
 /* ===== SECTIONS (inside panels) ===== */
 .section-header{text-align:center;margin-bottom:1.5rem;padding-top:.5rem}
-.section-header h2{font-family:'Aerobics Regular','Segoe UI',sans-serif;font-size:1.85rem;font-weight:900;margin-bottom:.5rem;letter-spacing:0;line-height:1.5;background:linear-gradient(135deg,#005fa3 0%,#00b4d8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;padding:.2em .3em;overflow:visible}
+.section-header h2{font-family:'Aerobics Regular','Segoe UI',sans-serif;font-size:1.85rem;font-weight:900;margin-bottom:.5rem;letter-spacing:0;line-height:1.7;background:linear-gradient(135deg,#005fa3 0%,#00b4d8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;padding:.3em .4em;overflow:visible;display:block}
 .section-subtitle{font-size:1rem;color:#5a7d9a;letter-spacing:1px}
 .retainer-list{font-size:.8rem;color:#6a8eaa;letter-spacing:.5px;margin-top:.5rem;line-height:1.6;font-weight:400}
 
@@ -347,8 +347,8 @@ body.section-active .scroll-progress{opacity:0;pointer-events:none}
 .flat-mode #scrollSpacer{display:none!important}
 .flat-mode #uiOverlay{display:block;position:relative;pointer-events:auto}
 .flat-mode .section-panel{position:relative;opacity:1;visibility:visible;pointer-events:auto;padding:0;animation:none;z-index:auto}
-.flat-mode .section-panel.flat-visible{display:block}
-.flat-mode .panel-inner{max-height:none;border-radius:0;border:none;box-shadow:none;background:transparent;backdrop-filter:none;padding:2.5rem 2rem}
+.flat-mode .section-panel.flat-visible{display:flex;flex-direction:column;align-items:center;padding:0 1.5rem}
+.flat-mode .panel-inner{max-height:none;border-radius:0;border:none;box-shadow:none;background:transparent;backdrop-filter:none;padding:2.5rem 2rem;margin:0 auto;overflow:visible}
 .flat-mode .section-panel[data-section="hero"] .panel-inner{background:linear-gradient(180deg,rgba(126,200,227,.4) 0%,rgba(168,216,234,.2) 100%)}
 .flat-mode .directing-section,.flat-mode .featured-section,.flat-mode .ugc-section,.flat-mode .projects-section,.flat-mode .social-section,.flat-mode .resume-section,.flat-mode .contact-section{padding:2.5rem 2rem}
 .flat-mode .hero{margin-top:48px;min-height:clamp(280px,40vh,55vh)}
@@ -356,6 +356,8 @@ body.section-active .scroll-progress{opacity:0;pointer-events:none}
 .flat-mode .scroll-progress{top:58px;transform:none}
 .flat-mode .nav-arrow{display:none}
 .flat-mode .section-name-label{display:none}
+.flat-mode .panel-inner{padding:2rem 1.5rem!important;overflow:visible!important}
+.flat-mode .section-header h2{font-size:1.6rem}
 
 /* ===== RESPONSIVE ===== */
 @media(max-width:768px){
