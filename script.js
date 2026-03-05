@@ -107,12 +107,12 @@ function initScrollProgress() {
         [4,10, 5,13,12],     [5,10,11, 6,19],    [6,11, 7,15,14]
     ];
 
-    // Face colors: red, blue, green, yellow, pink — cycling
+    // Face colors: Y2K Futurism — neon cyan, magenta, purple, electric blue, hot pink
     const faceColors = [
-        [229,57,53],  [30,136,229], [67,160,71],
-        [253,216,53], [233,30,99],  [229,57,53],
-        [30,136,229], [67,160,71],  [253,216,53],
-        [233,30,99],  [229,57,53],  [30,136,229]
+        [0,229,255],   [181,55,242],  [255,0,110],
+        [0,180,216],   [138,43,226],  [0,229,255],
+        [255,0,110],   [181,55,242],  [0,180,216],
+        [138,43,226],  [0,229,255],   [255,0,110]
     ];
 
     // Rotation matrices
@@ -205,7 +205,7 @@ function initScrollProgress() {
             const b2 = Math.round(col[2] * brightness);
             ctx.fillStyle = `rgba(${r},${g},${b2},0.82)`;
             ctx.fill();
-            ctx.strokeStyle = `rgba(255,255,255,0.35)`;
+            ctx.strokeStyle = `rgba(0,229,255,0.35)`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
         }
