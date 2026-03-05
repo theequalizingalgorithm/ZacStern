@@ -562,19 +562,60 @@ function createVideoCard(item, orientation) {
         </div>`;
 }
 
+function normalizeUGCItems(items) {
+    return items
+        .map((rawItem, index) => {
+            if (typeof rawItem === 'string') {
+                const id = rawItem.trim();
+                if (!id) return null;
+                return {
+                    id,
+                    title: `UGC Project ${index + 1}`,
+                    order: index,
+                    originalIndex: index
+                };
+            }
+
+            if (!rawItem || typeof rawItem !== 'object') return null;
+
+            const id = String(rawItem.id || rawItem.fileId || '').trim();
+            if (!id) return null;
+
+            const fallbackTitle = `UGC Project ${index + 1}`;
+            const title = String(rawItem.title || rawItem.name || '').trim() || fallbackTitle;
+            const parsedOrder = Number(rawItem.order);
+            const order = Number.isFinite(parsedOrder) ? parsedOrder : index;
+
+            return {
+                ...rawItem,
+                id,
+                title,
+                order,
+                originalIndex: index
+            };
+        })
+        .filter(Boolean)
+        .sort((a, b) => {
+            if (a.order !== b.order) return a.order - b.order;
+            return a.originalIndex - b.originalIndex;
+        });
+}
+
 function renderUGC(config) {
     const vGrid = document.getElementById('verticalGrid');
     if (!vGrid || !config.videos?.ugc?.vertical) return;
-    const titled = config.videos.ugc.vertical.filter(item => {
-        if (typeof item === 'string') return false;
-        return item.title && item.title.trim().length > 0;
-    });
+    const items = normalizeUGCItems(config.videos.ugc.vertical);
+
+    if (!items.length) {
+        vGrid.innerHTML = '<p class="ugc-empty">UGC content is being updated. Please check back shortly.</p>';
+        return;
+    }
 
     // Group cards into rows of 6 that animate together
     const batchSize = 6;
     let html = '';
-    for (let i = 0; i < titled.length; i += batchSize) {
-        const rowCards = titled.slice(i, i + batchSize);
+    for (let i = 0; i < items.length; i += batchSize) {
+        const rowCards = items.slice(i, i + batchSize);
         html += '<div class="ugc-row">';
         html += rowCards.map(item => createVideoCard(item, 'vertical')).join('');
         html += '</div>';
