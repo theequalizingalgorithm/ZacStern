@@ -439,11 +439,11 @@ body{
 .thumb-placeholder span{font-size:.72rem;color:rgba(180,195,218,.5);font-weight:600;text-align:center;padding:0 .5rem;max-width:90%}
 
 /* ===== UGC SECTION ===== */
-.ugc-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.8rem;width:100%;align-items:start}
+.ugc-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.8rem;width:100%;align-items:start;justify-items:center}
 
 /* ===== VIDEO GRIDS ===== */
 .video-grid{display:grid;gap:1.2rem}
-.vertical-grid{display:flex;flex-direction:column;gap:1.2rem;align-items:stretch;min-height:200px;width:100%;overflow:visible}
+.vertical-grid{display:flex;flex-direction:column;gap:1.2rem;align-items:center;min-height:200px;width:100%;overflow:visible}
 
 .ugc-empty{
   padding:1rem;
