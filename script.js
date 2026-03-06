@@ -107,12 +107,12 @@ function initScrollProgress() {
         [4,10, 5,13,12],     [5,10,11, 6,19],    [6,11, 7,15,14]
     ];
 
-    // Face colors: Y2K × Frutiger Aero — Xbox green, aqua, leaf green, teal
+    // Face colors: Y2K green accent + Frutiger sky blue + chrome silver
     const faceColors = [
-        [104,188,54],  [0,188,212],   [139,195,74],
-        [0,150,136],   [76,175,80],   [104,188,54],
-        [139,195,74],  [0,188,212],   [0,150,136],
-        [76,175,80],   [104,188,54],  [139,195,74]
+        [66,165,245],  [104,188,54],  [130,200,255],
+        [80,160,230],  [104,188,54],  [66,165,245],
+        [180,195,218], [104,188,54],  [66,165,245],
+        [100,180,255], [66,165,245],  [130,200,255]
     ];
 
     // Rotation matrices
@@ -205,7 +205,7 @@ function initScrollProgress() {
             const b2 = Math.round(col[2] * brightness);
             ctx.fillStyle = `rgba(${r},${g},${b2},0.82)`;
             ctx.fill();
-            ctx.strokeStyle = `rgba(104,188,54,0.35)`;
+            ctx.strokeStyle = `rgba(66,165,245,0.3)`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
         }
