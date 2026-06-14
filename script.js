@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderContact(config);
             initModal();
             initHamburger();
+            initMinimizeRestore();
             initScrollButtons();
             // Only init scroll animations in flat mode (3D mode handles visibility)
             if (document.body.classList.contains('flat-mode')) {
@@ -760,4 +761,141 @@ function initHamburger() {
     navMenu.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', () => navMenu.classList.remove('active'));
     });
+}
+
+function initMinimizeRestore() {
+    const menuButton = document.querySelector('.minimized-menu-btn');
+    const menuList = document.querySelector('.minimized-menu-list');
+    const menuCount = document.querySelector('.minimized-count');
+    if (!menuButton || !menuList || !menuCount) return;
+
+    const minimized = new Set();
+
+    const getSectionTitle = (panel) => {
+        return panel.dataset.section || panel.querySelector('.panel-inner-header-title')?.textContent?.trim() || 'Section';
+    };
+
+    const renderMenu = () => {
+        menuCount.textContent = minimized.size;
+        if (minimized.size === 0) {
+            menuList.innerHTML = '<div class="minimized-empty">No minimized sections</div>';
+            menuList.hidden = true;
+            menuButton.setAttribute('aria-expanded', 'false');
+            return;
+        }
+
+        const items = Array.from(minimized).map(section => {
+            const panel = document.querySelector(`.section-panel[data-section="${section}"]`);
+            const title = panel ? getSectionTitle(panel) : section;
+            return `<button type="button" data-section="${section}">${title}</button>`;
+        });
+        menuList.innerHTML = items.join('');
+        menuList.querySelectorAll('button[data-section]').forEach(button => {
+            button.addEventListener('click', () => {
+                const section = button.dataset.section;
+                const panel = document.querySelector(`.section-panel[data-section="${section}"]`);
+                if (panel) restorePanel(panel);
+                menuList.hidden = true;
+                menuButton.setAttribute('aria-expanded', 'false');
+            });
+        });
+    };
+
+    const closeMenu = () => {
+        menuList.hidden = true;
+        menuButton.setAttribute('aria-expanded', 'false');
+    };
+
+    const animatePanel = (panel, keyframes, options, finalState) => {
+        const animation = panel.animate(keyframes, options);
+        animation.onfinish = () => {
+            Object.keys(finalState).forEach(prop => {
+                panel.style[prop] = finalState[prop];
+            });
+        };
+    };
+
+    const minimizePanel = (panel) => {
+        if (!panel || panel.classList.contains('minimized')) return;
+        const panelRect = panel.getBoundingClientRect();
+        const menuRect = menuButton.getBoundingClientRect();
+        const dx = menuRect.left + menuRect.width / 2 - (panelRect.left + panelRect.width / 2);
+        const dy = menuRect.top + menuRect.height / 2 - (panelRect.top + panelRect.height / 2);
+
+        const animation = panel.animate([
+            { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+            { transform: `translate(${dx}px, ${dy}px) scale(0.22)`, opacity: 0 }
+        ], {
+            duration: 320,
+            easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)'
+        });
+
+        animation.onfinish = () => {
+            panel.classList.add('minimized');
+            panel.style.transform = '';
+            panel.style.opacity = '';
+            minimized.add(panel.dataset.section || '');
+            renderMenu();
+        };
+    };
+
+    const restorePanel = (panel) => {
+        if (!panel || !panel.classList.contains('minimized')) return;
+        panel.classList.remove('minimized');
+        panel.style.opacity = '0';
+        panel.style.transform = 'scale(0.22)';
+        panel.style.transition = 'transform .32s ease, opacity .32s ease';
+        requestAnimationFrame(() => {
+            panel.style.opacity = '1';
+            panel.style.transform = 'scale(1)';
+        });
+        panel.addEventListener('transitionend', function onEnd(event) {
+            if (event.propertyName !== 'transform') return;
+            panel.style.transition = '';
+            panel.style.transform = '';
+            panel.removeEventListener('transitionend', onEnd);
+        });
+        minimized.delete(panel.dataset.section || '');
+        renderMenu();
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    menuButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (menuList.hidden) {
+            if (minimized.size === 0) return;
+            menuList.hidden = false;
+            menuButton.setAttribute('aria-expanded', 'true');
+        } else {
+            closeMenu();
+        }
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!menuButton.contains(event.target) && !menuList.contains(event.target)) {
+            closeMenu();
+        }
+    });
+
+    document.querySelectorAll('.section-panel .window-btn[title="Minimize"]').forEach(button => {
+        button.addEventListener('click', () => {
+            const panel = button.closest('.section-panel');
+            if (!panel) return;
+            minimizePanel(panel);
+        });
+    });
+
+    // restore when clicking section links in the main nav if target is minimized
+    document.querySelectorAll('.nav-link[href^="#"]').forEach(link => {
+        link.addEventListener('click', (event) => {
+            const targetId = link.getAttribute('href')?.replace('#', '');
+            const panel = document.querySelector(`.section-panel[data-section="${targetId}"]`);
+            if (panel && panel.classList.contains('minimized')) {
+                event.preventDefault();
+                restorePanel(panel);
+            }
+        });
+    });
+
+    renderMenu();
 }
